@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import * as apm from 'elastic-apm-node';
 import { ConfigService } from './modules/config/config.service';
 
@@ -27,6 +28,7 @@ import { GlobalExceptionFilter } from './common/filters/global-exception.filter'
 import { WINSTON_LOGGER } from './modules/logger/logger.module';
 import { Logger } from 'winston';
 import { Constants } from './constants';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -39,6 +41,16 @@ async function bootstrap() {
   await waitNetworkAccess(config, logger);
 
   logger.info(`[PowerMonitor app] => it is starting`);
+
+  // Swagger setup
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('PowerMonitor API')
+    .setDescription('API documentation for PowerMonitor')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  SwaggerModule.setup('swagger', app, document);
 
   app.useLogger({
     log: (msg) => logger.info(msg),
