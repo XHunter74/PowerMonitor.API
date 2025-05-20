@@ -1,4 +1,5 @@
 import { Controller, Get, UseGuards, Post, Body, Put, Param, Delete, HttpCode, Inject } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
 import { Logger } from 'winston';
 import { EnergyMeteringService } from './energy-metering.service';
 import { AuthGuard } from '@nestjs/passport';
@@ -8,6 +9,7 @@ import { PowerAcc } from '../../entities/power-acc.entity';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 
+@ApiTags('Power Consumption')
 @Controller('api/power-consumption')
 export class PowerConsumptionController {
 
@@ -16,8 +18,14 @@ export class PowerConsumptionController {
         private readonly energyMeteringService: EnergyMeteringService,
     ) { }
 
+    /**
+     * Returns all energy metering data. Admin only.
+     * @returns Array of meter data DTOs
+     */
     @Get('energy-data')
     @UseGuards(AuthGuard('jwt'), RolesGuard(['admin']))
+    @ApiOperation({ summary: 'Get all energy metering data (admin only).' })
+    @ApiResponse({ status: 200, description: 'Array of meter data DTOs returned.' })
     async getEnergyMeteringData(): Promise<MeterDataDto[]> {
         this.logger.info(`[${PowerConsumptionController.name}].${this.getEnergyMeteringData.name} => Start`);
         const data = await this.energyMeteringService.getPowerMeterData();
@@ -25,8 +33,16 @@ export class PowerConsumptionController {
         return data;
     }
 
+    /**
+     * Adds a new factual energy data record. Admin only.
+     * @param factualData Factual data DTO
+     * @returns The created PowerAcc entity
+     */
     @Post('energy-data')
     @UseGuards(AuthGuard('jwt'), RolesGuard(['admin']))
+    @ApiOperation({ summary: 'Add a new factual energy data record (admin only).' })
+    @ApiBody({ type: FactualDataDto })
+    @ApiResponse({ status: 201, description: 'Factual data record created.' })
     async addNewFactualData(@Body() factualData: FactualDataDto): Promise<PowerAcc> {
         this.logger.info(`[${PowerConsumptionController.name}].${this.addNewFactualData.name} => Start`);
         this.logger.info(`[${PowerConsumptionController.name}].${this.addNewFactualData.name} => ` +
@@ -36,8 +52,18 @@ export class PowerConsumptionController {
         return newData;
     }
 
+    /**
+     * Edits an existing factual energy data record. Admin only.
+     * @param factualData Updated factual data DTO
+     * @param recordId ID of the record to edit
+     * @returns The updated factual data DTO
+     */
     @Put('energy-data/:recordId')
     @UseGuards(AuthGuard('jwt'), RolesGuard(['admin']))
+    @ApiOperation({ summary: 'Edit an existing factual energy data record (admin only).' })
+    @ApiBody({ type: FactualDataDto })
+    @ApiParam({ name: 'recordId', type: Number })
+    @ApiResponse({ status: 200, description: 'Factual data record updated.' })
     async editFactualData(@Body() factualData: FactualDataDto, @Param('recordId') recordId: number): Promise<FactualDataDto> {
         this.logger.info(`[${PowerConsumptionController.name}].${this.editFactualData.name} => Start`);
         this.logger.info(`[${PowerConsumptionController.name}].${this.editFactualData.name} => ` +
@@ -48,9 +74,17 @@ export class PowerConsumptionController {
         return newData;
     }
 
+    /**
+     * Deletes a factual energy data record by ID. Admin only.
+     * @param recordId ID of the record to delete
+     * @returns Confirmation message
+     */
     @Delete('energy-data/:recordId')
     @HttpCode(204)
     @UseGuards(AuthGuard('jwt'), RolesGuard(['admin']))
+    @ApiOperation({ summary: 'Delete a factual energy data record by ID (admin only).' })
+    @ApiParam({ name: 'recordId', type: Number })
+    @ApiResponse({ status: 204, description: 'Factual data record deleted.' })
     async deleteFactualData(@Param('recordId') recordId: number) {
         this.logger.info(`[${PowerConsumptionController.name}].${this.deleteFactualData.name} => Start`);
         this.logger.info(`[${PowerConsumptionController.name}].${this.deleteFactualData.name} => ` +

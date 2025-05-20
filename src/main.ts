@@ -48,6 +48,10 @@ async function bootstrap() {
     .setDescription('API documentation for PowerMonitor')
     .setVersion('1.0')
     .addBearerAuth()
+    .addTag('Auth', 'Authentication endpoints for user login, password management, and user creation.')
+    .addTag('Power Data', 'Endpoints for retrieving and analyzing power and voltage data.')
+    .addTag('Power Consumption', 'Endpoints for managing and retrieving power consumption and metering data.')
+    .addTag('Services', 'Service endpoints for system info, calibration, and health checks.')
     .build();
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('swagger', app, document);
