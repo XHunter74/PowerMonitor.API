@@ -1,0 +1,1 @@
+npm run typeorm:cli -- migration:create -n UserFullName

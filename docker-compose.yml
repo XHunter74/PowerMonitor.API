@@ -1,0 +1,14 @@
+services:
+  powermonitor-api:
+    image: powermonitor-api
+    ports:
+      - "8888:3800"
+    environment:
+      NODE_ENV: development
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./logs-docker:/usr/src/app/logs
+
+  
