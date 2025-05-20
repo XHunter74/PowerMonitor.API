@@ -1,5 +1,5 @@
 import * as apm from 'elastic-apm-node';
-import { ConfigService } from './services/config.service';
+import { ConfigService } from './modules/config/config.service';
 
 const config = new ConfigService();
 
@@ -20,11 +20,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import * as ping from 'ping';
-import { SocketIoAdapter } from './adapters/socket.adapter';
+import { SocketIoAdapter } from './modules/socket/socket.adapter';
 import { env } from 'process';
 import { delay } from './utils';
-import { GlobalExceptionFilter } from './filters/global-exception.filter';
-import { WINSTON_LOGGER } from './modules/logger.module';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { WINSTON_LOGGER } from './modules/logger/logger.module';
 import { Logger } from 'winston';
 import { Constants } from './constants';
 
