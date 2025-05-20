@@ -51,8 +51,8 @@ export class CollectDataService {
 
   async start() {
     await this.serialPortService.initSerial(
-      this.config.SerialPortName,
-      this.config.SerialPortSpeed,
+      this.config.serialPortName,
+      this.config.serialPortSpeed,
       async (data: string) => this.serialReceiveData(data),
     );
   }
@@ -87,7 +87,7 @@ export class CollectDataService {
       switch (data.type) {
         case 'data':
           await this.processSensorData(
-            new SensorsData(data.voltage, data.current, data.power, this.config.PowerCoefficient),
+            new SensorsData(data.voltage, data.current, data.power, this.config.powerCoefficient),
           );
           break;
         case 'coefficients':
@@ -124,9 +124,9 @@ export class CollectDataService {
     coefficients.currentCalibration = current;
     coefficients.powerFactorCalibration = powerFactor;
     const newCoefficients = new BoardCoefficientsModel();
-    newCoefficients.voltageCalibration = this.config.VoltageCalibration;
-    newCoefficients.currentCalibration = this.config.CurrentCalibration;
-    newCoefficients.powerFactorCalibration = this.config.PowerFactorCalibration;
+    newCoefficients.voltageCalibration = this.config.voltageCalibration;
+    newCoefficients.currentCalibration = this.config.currentCalibration;
+    newCoefficients.powerFactorCalibration = this.config.powerFactorCalibration;
     if (newCoefficients.voltageCalibration === coefficients.voltageCalibration &&
       newCoefficients.currentCalibration === coefficients.currentCalibration &&
       newCoefficients.powerFactorCalibration === coefficients.powerFactorCalibration) {
@@ -157,7 +157,7 @@ export class CollectDataService {
       this.serialDataIsAvailable = false;
       this.logger.error(`[${CollectDataService.name}].${this.checkSerialAvailability.name} => ` +
         'Serial Data is not available');
-      if (!this.config.IsDevEnvironment) {
+      if (!this.config.isDevEnvironment) {
         await this.telegramService.sendTelegramMessage('PowerMonitor Serial Data Is Not Available');
       }
     }
@@ -167,7 +167,7 @@ export class CollectDataService {
     const amperage = randomInt(0, 100) / 10;
     const voltage = randomInt(2000, 2500) / 10;
     const power = amperage * voltage;
-    const data = new SensorsData(voltage, amperage, power, this.config.PowerCoefficient);
+    const data = new SensorsData(voltage, amperage, power, this.config.powerCoefficient);
     return data;
   }
 }

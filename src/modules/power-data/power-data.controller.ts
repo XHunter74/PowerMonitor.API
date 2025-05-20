@@ -8,7 +8,6 @@ import { daysInMonth } from '../../date-functions';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Constants } from '../../constants';
 
-// tslint:disable: no-string-literal
 @ApiTags('Power Data')
 @Controller('api/power')
 export class PowerDataController {

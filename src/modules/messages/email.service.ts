@@ -13,7 +13,7 @@ export class EmailService {
 
     async sendErrorEmailMessage() {
         this.logger.info(`[${EmailService.name}].${this.sendErrorEmailMessage.name} => Start`);
-        this.config.ToEmails.forEach(async (email) => {
+        this.config.toEmails.forEach(async (email) => {
             await this.sendEmail(email, 'PowerMonitor Serial Data Is Not Available', 'PowerMonitor Serial Data Is Not Available');
         });
         this.logger.info(`[${EmailService.name}].${this.sendErrorEmailMessage.name} => Finish`);
@@ -23,16 +23,16 @@ export class EmailService {
         this.logger.info(`[${EmailService.name}].${this.sendEmail.name} => Start`);
         const nodemailer = require('nodemailer');
         const smtpTransport = nodemailer.createTransport({
-            host: this.config.SmtpHost,
-            port: this.config.SmtpPort,
+            host: this.config.smtpHost,
+            port: this.config.smtpPort,
             secure: true,
             auth: {
-                user: this.config.SmtpUser,
-                pass: this.config.SmtpPassword,
+                user: this.config.smtpUser,
+                pass: this.config.smtpPassword,
             },
         });
         const mailOptions = {
-            from: this.config.FromEmail,
+            from: this.config.fromEmail,
             to: toEmail,
             subject,
             generateTextFromHTML: true,

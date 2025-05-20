@@ -1,21 +1,18 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PowerDataStatsModel } from '../../common/models/power-data-stats.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VoltageAmperageData } from '../../entities/voltage-amperage-data.entity';
-import { Repository, EntityManager } from 'typeorm';
+import { Repository } from 'typeorm';
 import { PowerData } from '../../entities/power-data.entity';
 import { PowerAvailability } from '../../entities/power-availability.entity';
 import { Constants } from '../../constants';
 import { VoltageData } from '../../entities/voltage-data.entity';
-import { WINSTON_LOGGER } from '../logger/logger.module';
-import { Logger } from 'winston';
 import { LogMethod } from '../../common/decorators/log-method.decorator';
 
 @Injectable()
 export class PowerDataService {
 
     constructor(
-        @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         @InjectRepository(VoltageAmperageData)
         private readonly voltageAmperageRepository: Repository<VoltageAmperageData>,
         @InjectRepository(VoltageData)
@@ -24,7 +21,6 @@ export class PowerDataService {
         private readonly powerDataRepository: Repository<PowerData>,
         @InjectRepository(PowerAvailability)
         private readonly powerAvailabilityRepository: Repository<PowerAvailability>,
-        private readonly entityManager: EntityManager,
     ) { }
 
     @LogMethod()

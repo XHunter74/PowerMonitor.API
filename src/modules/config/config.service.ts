@@ -22,116 +22,115 @@ export class ConfigService {
         return this.envConfig[key];
     }
 
-    get ServicePort(): number {
+    get servicePort(): number {
         return Number(this.envConfig.SERVICE_PORT);
     }
 
-    get DatabaseType(): any {
+    get databaseType(): any {
         return this.envConfig.DATABASE_TYPE;
     }
 
-    get DatabaseHost(): string {
+    get databaseHost(): string {
         return this.envConfig.DATABASE_HOST;
     }
 
-    get DatabasePort(): number {
+    get databasePort(): number {
         return Number(this.envConfig.DATABASE_PORT);
     }
 
-    get DatabaseUser(): string {
+    get databaseUser(): string {
         return this.envConfig.DATABASE_USER;
     }
 
-    get DatabaseName(): string {
+    get databaseName(): string {
         return this.envConfig.DATABASE_NAME;
     }
 
-    get DatabaseUserPassword(): string {
+    get databaseUserPassword(): string {
         return this.envConfig.DATABASE_USER_PASSWORD;
     }
 
-    get LogLevel(): string {
+    get logLevel(): string {
         return this.envConfig.LOG_LEVEL;
     }
 
-    get ServiceName(): string {
+    get serviceName(): string {
         return this.envConfig.SERVICE_NAME;
     }
 
-    get LogFilePath(): string {
+    get logFilePath(): string {
         return this.envConfig.LOG_FILE_PATH;
     }
 
-    get ElasticUrl(): string {
+    get elasticUrl(): string {
         return this.envConfig.ELASTIC_URL;
     }
 
-    get ElasticUsername(): string {
+    get elasticUsername(): string {
         return this.envConfig.ELASTIC_USERNAME;
     }
 
-    get ElasticPassword(): string {
+    get elasticPassword(): string {
         return this.envConfig.ELASTIC_PASSWORD;
     }
 
-    get ElasticApmUrl(): string {
+    get elasticApmUrl(): string {
         return this.envConfig.ELASTIC_APM_URL;
     }
 
-
-    get ElasticApmApiKey(): string {
+    get elasticApmApiKey(): string {
         return this.envConfig.ELASTIC_APM_API_KEY;
     }
 
-    get MaxFiles(): string {
+    get maxFiles(): string {
         return `${Number(this.envConfig.MAX_FILES)}d`;
     }
 
-    get TokenSecretKey(): string {
+    get tokenSecretKey(): string {
         return this.envConfig.TOKEN_SECRET_KEY;
     }
 
-    get TokenLifeTime(): number {
+    get tokenLifeTime(): number {
         return Number(this.envConfig.TOKEN_LIFETIME);
     }
 
-    get RefreshTokenLifeTime(): number {
+    get refreshTokenLifeTime(): number {
         return Number(this.envConfig.REFRESH_TOKEN_LIFETIME);
     }
 
-    get SerialPortName(): string {
+    get serialPortName(): string {
         return this.envConfig.SERIAL_PORT_NAME;
     }
 
-    get SerialPortSpeed(): number {
+    get serialPortSpeed(): number {
         return Number(this.envConfig.SERIAL_PORT_SPEED);
     }
 
-    get PowerCoefficient(): number {
+    get powerCoefficient(): number {
         return Number(this.envConfig.POWER_COEFFICIENT);
     }
 
-    get SmtpHost(): string {
+    get smtpHost(): string {
         return this.envConfig.SMTP_HOST;
     }
 
-    get SmtpPort(): number {
+    get smtpPort(): number {
         return Number(this.envConfig.SMTP_PORT);
     }
 
-    get SmtpUser(): string {
+    get smtpUser(): string {
         return this.envConfig.SMTP_USER;
     }
 
-    get SmtpPassword(): string {
+    get smtpPassword(): string {
         return this.envConfig.SMTP_PASSWORD;
     }
 
-    get FromEmail(): string {
+    get fromEmail(): string {
         return this.envConfig.FROM_EMAIL;
     }
 
-    get ToEmails(): string[] {
+    get toEmails(): string[] {
         const emailsStr = this.envConfig.TO_EMAILS;
         const emails = emailsStr.split(',')
             .map(e => e.trim())
@@ -139,15 +138,15 @@ export class ConfigService {
         return emails;
     }
 
-    get HealthServiceEndpoint(): string {
+    get healthServiceEndpoint(): string {
         return this.envConfig.HEALTH_SERVICE_ENDPOINT;
     }
 
-    get HealthServiceApiKey(): string {
+    get healthServiceApiKey(): string {
         return this.envConfig.HEALTH_SERVICE_API_KEY;
     }
 
-    get IsDevEnvironment(): boolean {
+    get isDevEnvironment(): boolean {
         const value = this.envConfig.IS_DEV_ENVIRONMENT;
         if (!value) {
             return false;
@@ -156,43 +155,43 @@ export class ConfigService {
         return result;
     }
 
-    get MqttServer(): string {
+    get mqttServer(): string {
         return this.envConfig.MQTT_SERVER;
     }
 
-    get MqttPort(): number {
+    get mqttPort(): number {
         return Number(this.envConfig.MQTT_PORT);
     }
 
-    get MqttUser(): string {
+    get mqttUser(): string {
         return this.envConfig.MQTT_USER;
     }
 
-    get MqttPassword(): string {
+    get mqttPassword(): string {
         return this.envConfig.MQTT_PASSWORD;
     }
 
-    get MqttClient(): string {
+    get mqttClient(): string {
         return this.envConfig.MQTT_CLIENT;
     }
 
-    get VoltageCalibration(): number {
+    get voltageCalibration(): number {
         return Number(this.envConfig.VOLTAGE_CALIBRATION);
     }
 
-    get CurrentCalibration(): number {
+    get currentCalibration(): number {
         return Number(this.envConfig.CURRENT_CALIBRATION);
     }
 
-    get PowerFactorCalibration(): number {
+    get powerFactorCalibration(): number {
         return Number(this.envConfig.POWER_FACTOR_CALIBRATION);
     }
 
-    get CheckHostIp(): string {
+    get checkHostIp(): string {
         return this.envConfig.CHECK_HOST_IP;
     }
 
-    get AllowOrigins(): string[] {
+    get allowOrigins(): string[] {
         const originsStr = this.envConfig.ALLOW_ORIGINS;
         const origins = originsStr.split(',')
             .map(e => e.trim())
@@ -200,11 +199,11 @@ export class ConfigService {
         return origins;
     }
 
-    get TelegramToken(): string {
+    get telegramToken(): string {
         return this.envConfig.TELEGRAM_TOKEN;
     }
 
-    get TelegramChatId(): number {
+    get telegramChatId(): number {
         return Number(this.envConfig.TELEGRAM_CHAT_ID);
     }
 }

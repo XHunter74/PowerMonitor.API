@@ -4,15 +4,15 @@ import { ConfigService } from './modules/config/config.service';
 
 const config = new ConfigService();
 
-if (config.ElasticApmUrl && config.ElasticApmApiKey) {
+if (config.elasticApmUrl && config.elasticApmApiKey) {
   apm.start({
     serviceName: 'power-monitor-api',
-    serverUrl: config.ElasticApmUrl,
-    apiKey: config.ElasticApmApiKey,
+    serverUrl: config.elasticApmUrl,
+    apiKey: config.elasticApmApiKey,
     environment: process.env.NODE_ENV || 'development',
     captureBody: 'all',
     active: true,
-    logLevel: config.LogLevel as apm.LogLevel || 'info',
+    logLevel: config.logLevel as apm.LogLevel || 'info',
     centralConfig: false
   });
 }
@@ -36,7 +36,7 @@ async function bootstrap() {
   const config = app.get(ConfigService);
 
   logger.info(`[Startup].${bootstrap.name} => NODE_ENV='${env.NODE_ENV}'`);
-  logger.info(`[Startup].${bootstrap.name} => Check availability of host '${config.CheckHostIp}'`);
+  logger.info(`[Startup].${bootstrap.name} => Check availability of host '${config.checkHostIp}'`);
 
   await waitNetworkAccess(config, logger);
 
@@ -64,12 +64,12 @@ async function bootstrap() {
     verbose: (msg) => logger.verbose ? logger.verbose(msg) : logger.info(msg),
   });
   app.enableShutdownHooks();
-  app.enableCors({ credentials: true, origin: config.AllowOrigins });
+  app.enableCors({ credentials: true, origin: config.allowOrigins });
   app.useGlobalPipes(new ValidationPipe());
   app.useWebSocketAdapter(new SocketIoAdapter(app, config));
   app.useGlobalFilters(new GlobalExceptionFilter(logger));
 
-  await app.listen(config.ServicePort, () => {
+  await app.listen(config.servicePort, () => {
     process.send = process.send || function () { return true };
     process.send('ready');
     logger.info(`[Startup].${bootstrap.name} => Application started successfully`);
@@ -88,12 +88,12 @@ async function waitNetworkAccess(config: ConfigService, logger: Logger) {
   let pingResult: any;
 
   do {
-    pingResult = await ping.promise.probe(config.CheckHostIp);
+    pingResult = await ping.promise.probe(config.checkHostIp);
     if (!pingResult.alive) {
-      logger.error(`[Startup].${bootstrap.name} => Host '${config.CheckHostIp}' is not available`);
+      logger.error(`[Startup].${bootstrap.name} => Host '${config.checkHostIp}' is not available`);
       await delay(Constants.PingDelay);
     } else {
-      logger.info(`[Startup].${bootstrap.name} => Host '${config.CheckHostIp}' is available`);
+      logger.info(`[Startup].${bootstrap.name} => Host '${config.checkHostIp}' is available`);
     }
   } while (!pingResult.alive);
 

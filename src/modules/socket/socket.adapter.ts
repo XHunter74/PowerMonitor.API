@@ -5,15 +5,14 @@ import { ConfigService } from '../config/config.service';
 
 export class SocketIoAdapter extends IoAdapter {
     constructor(
-        private app: INestApplicationContext,
+        app: INestApplicationContext,
         private config: ConfigService,
     ) {
         super(app);
     }
 
     createIOServer(port: number, options?: ServerOptions) {
-        // port = this.config.ServicePort;
-        options.cors = { credentials: true, origin: this.config.AllowOrigins };
+        options.cors = { credentials: true, origin: this.config.allowOrigins };
         options.allowEIO3 = true;
         const server = super.createIOServer(port, options);
         return server;

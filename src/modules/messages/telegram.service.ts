@@ -13,13 +13,13 @@ export class TelegramService {
         @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         private readonly config: ConfigService,
     ) {
-        this.telegramBot = new TelegramBot(config.TelegramToken, { polling: false });
+        this.telegramBot = new TelegramBot(config.telegramToken, { polling: false });
     }
 
     public async sendTelegramMessage(message: string) {
         this.logger.info(`[${TelegramService.name}].${this.sendTelegramMessage.name} => Start`);
         try {
-            const result = await this.telegramBot.sendMessage(this.config.TelegramChatId, message);
+            const result = await this.telegramBot.sendMessage(this.config.telegramChatId, message);
             this.logger.info(`[${TelegramService.name}].${this.sendTelegramMessage.name} => ` +
                 `Message '${result.message_id}' was sending successfully `);
         } catch (error) {

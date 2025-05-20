@@ -40,7 +40,7 @@ export class AuthService {
     @LogMethod()
     async loginByRefreshToken(refreshToken: string): Promise<TokenDto> {
         const tokenInDb = await this.tokensRepository.findOne({ relations: ['user'], where: { token: refreshToken } });
-        if (!tokenInDb || moment(tokenInDb.created).add(this.config.RefreshTokenLifeTime, 's') < moment()) {
+        if (!tokenInDb || moment(tokenInDb.created).add(this.config.refreshTokenLifeTime, 's') < moment()) {
             throw new HttpException('Token is expired or does not exist', HttpStatus.UNAUTHORIZED);
         }
         await this.tokensRepository.remove(tokenInDb);
@@ -52,7 +52,7 @@ export class AuthService {
         const token = new TokenDto();
         token.token = this.jwtService.sign(jwtPayload);
         token.refreshToken = await this.createRefreshToken(username);
-        token.expiresIn = this.config.TokenLifeTime;
+        token.expiresIn = this.config.tokenLifeTime;
         return token;
     }
 

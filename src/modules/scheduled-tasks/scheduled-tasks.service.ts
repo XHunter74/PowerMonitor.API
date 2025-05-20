@@ -33,7 +33,7 @@ export class ScheduledTasksService implements OnApplicationShutdown {
     @Timeout(1000)
     async runOnStart() {
         this.logger.info(`[${ScheduledTasksService.name}].${this.runOnStart.name} => Start`);
-        if (!this.config.IsDevEnvironment) {
+        if (!this.config.isDevEnvironment) {
             await this.powerAvailabilityService.processApplicationStart();
         }
         await this.collectDataService.start();
@@ -97,7 +97,7 @@ export class ScheduledTasksService implements OnApplicationShutdown {
     private async deleteOutdatedTokens() {
         this.logger.info(`[${ScheduledTasksService.name}].${this.deleteOutdatedTokens.name} => Start`);
 
-        const intervalInSeconds = this.config.RefreshTokenLifeTime;
+        const intervalInSeconds = this.config.refreshTokenLifeTime;
         const expirationDate = moment().subtract(intervalInSeconds, 'seconds').toDate();
 
         const tokensForDelete = await this.tokensRepository.createQueryBuilder('token')

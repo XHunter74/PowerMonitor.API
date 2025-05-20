@@ -13,12 +13,12 @@ export class MqttConnectionService {
     config: ConfigService
   ) {
     const options: IClientOptions = {
-      host: config.MqttServer,
-      port: config.MqttPort,
+      host: config.mqttServer,
+      port: config.mqttPort,
       protocol: 'mqtt',
-      username: config.MqttUser,
-      password: config.MqttPassword,
-      clientId: config.MqttClient,
+      username: config.mqttUser,
+      password: config.mqttPassword,
+      clientId: config.mqttClient,
     };
 
     this.client = connect(options);

@@ -38,7 +38,7 @@ export class MqttClientService {
     }
 
     public async publishPowerData() {
-        if (!this.config.IsDevEnvironment && this.mqttConnectionService.isConnected()) {
+        if (!this.config.isDevEnvironment && this.mqttConnectionService.isConnected()) {
             const options = { retain: true, qos: 1 };
             const data = await this.getMqttData();
             this.mqttConnectionService.publish('tele/tasmota/STATE', JSON.stringify(data), options);
@@ -46,7 +46,7 @@ export class MqttClientService {
     }
 
     public async publishCurrentAndVoltageData(sensorsData: SensorsData) {
-        if (!this.config.IsDevEnvironment && this.mqttConnectionService.isConnected()) {
+        if (!this.config.isDevEnvironment && this.mqttConnectionService.isConnected()) {
             const options = { retain: true, qos: 1 };
             const data = {
                 Current: Math.round(sensorsData.amperage * 10) / 10,

@@ -53,28 +53,6 @@ export class PowerConsumptionController {
     }
 
     /**
-     * Edits an existing factual energy data record. Admin only.
-     * @param factualData Updated factual data DTO
-     * @param recordId ID of the record to edit
-     * @returns The updated factual data DTO
-     */
-    @Put('energy-data/:recordId')
-    @UseGuards(AuthGuard('jwt'), RolesGuard(['admin']))
-    @ApiOperation({ summary: 'Edit an existing factual energy data record (admin only).' })
-    @ApiBody({ type: FactualDataDto })
-    @ApiParam({ name: 'recordId', type: Number })
-    @ApiResponse({ status: 200, description: 'Factual data record updated.' })
-    async editFactualData(@Body() factualData: FactualDataDto, @Param('recordId') recordId: number): Promise<FactualDataDto> {
-        this.logger.info(`[${PowerConsumptionController.name}].${this.editFactualData.name} => Start`);
-        this.logger.info(`[${PowerConsumptionController.name}].${this.editFactualData.name} => ` +
-            `Record Id: '${recordId}', Factual Data = '${JSON.stringify(factualData)}'`);
-        recordId = Number(recordId);
-        const newData = await this.energyMeteringService.editFactualData(recordId, factualData);
-        this.logger.info(`[${PowerConsumptionController.name}].${this.editFactualData.name} => Finish`);
-        return newData;
-    }
-
-    /**
      * Deletes a factual energy data record by ID. Admin only.
      * @param recordId ID of the record to delete
      * @returns Confirmation message

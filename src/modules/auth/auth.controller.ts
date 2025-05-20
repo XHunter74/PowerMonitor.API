@@ -53,7 +53,6 @@ export class AuthController {
     @ApiQuery({ name: 'password', type: String })
     @ApiResponse({ status: 200, description: 'Password changed successfully.' })
     async changePassword(@Req() request: Request, @Query('password') password: string) {
-        // tslint:disable-next-line: no-string-literal
         const user = request['user'] as UserEntity;
         this.logger.info(`[${AuthController.name}].${this.changePassword.name} => Start`);
         this.logger.debug(`[${AuthController.name}].${this.changePassword.name} => User = '${JSON.stringify(user)}'`);

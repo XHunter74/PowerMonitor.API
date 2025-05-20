@@ -1,17 +1,14 @@
-import { Injectable, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { MeterDataDto } from '../../common/models/meter-data.dto';
 import { FactualDataDto } from '../../common/models/factual-data.dto';
 import { PowerAcc } from '../../entities/power-acc.entity';
 import { ConfigService } from '../config/config.service';
-import { WINSTON_LOGGER } from '../logger/logger.module';
-import { Logger } from 'winston';
 
 @Injectable()
 export class EnergyMeteringService {
     constructor(
-        @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         private readonly config: ConfigService,
         @InjectRepository(PowerAcc)
         private readonly powerAccRepository: Repository<PowerAcc>,
@@ -65,7 +62,7 @@ export class EnergyMeteringService {
         let newData = new PowerAcc();
         newData.created = new Date();
         newData.startValue = factualData.value;
-        newData.coefficient = this.config.PowerCoefficient;
+        newData.coefficient = this.config.powerCoefficient;
         newData = await this.powerAccRepository.save(newData);
         return newData;
     }
@@ -78,17 +75,13 @@ export class EnergyMeteringService {
         if (lastRecord == null) {
             return;
         }
-        if (lastRecord.coefficient !== this.config.PowerCoefficient) {
+        if (lastRecord.coefficient !== this.config.powerCoefficient) {
             let newData = new PowerAcc();
             newData.created = new Date();
             newData.startValue = Math.round((lastRecord.startValue + lastRecord.powerAcc / 1000) * 10) / 10;
-            newData.coefficient = this.config.PowerCoefficient;
+            newData.coefficient = this.config.powerCoefficient;
             newData = await this.powerAccRepository.save(newData);
         }
-    }
-
-    async editFactualData(recordId: number, factualData: FactualDataDto): Promise<FactualDataDto> {
-        return null;
     }
 
     async deleteFactualData(recordId: number) {

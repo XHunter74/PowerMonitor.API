@@ -14,21 +14,21 @@ export const WINSTON_LOGGER = 'WINSTON_LOGGER';
       provide: WINSTON_LOGGER,
       useFactory: (config: ConfigService) => {
         let esTransport: ElasticsearchTransport | null = null;
-        if (config.ElasticUrl) {
+        if (config.elasticUrl) {
           esTransport = new ElasticsearchTransport({
-            level: config.LogLevel || 'info',
+            level: config.logLevel || 'info',
             index: 'power-monitor-logs',
             indexPrefix: 'power-monitor-logs',
             indexSuffixPattern: 'YYYY-MM-DD',
             ensureIndexTemplate: false,
             flushInterval: 1000,
             clientOpts: {
-              node: config.ElasticUrl,
+              node: config.elasticUrl,
               maxRetries: 5,
               requestTimeout: 10000,
               auth: {
-                username: config.ElasticUsername,
-                password: config.ElasticPassword,
+                username: config.elasticUsername,
+                password: config.elasticPassword,
               }
             },
             transformer: (logData) => ({
@@ -61,14 +61,14 @@ export const WINSTON_LOGGER = 'WINSTON_LOGGER';
                 return `${timestamp} [${level}]: ${message} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
               })
             ),
-            level: config.LogLevel || 'info',
+            level: config.logLevel || 'info',
           }),
           new winston.transports.DailyRotateFile({
-            filename: `${config.LogFilePath}/${config.ServiceName}-%DATE%.log`,
+            filename: `${config.logFilePath}/${config.serviceName}-%DATE%.log`,
             datePattern: 'YYYY-MM-DD',
             zippedArchive: true,
-            maxFiles: config.MaxFiles || '7d',
-            level: config.LogLevel || 'info',
+            maxFiles: config.maxFiles || '7d',
+            level: config.logLevel || 'info',
             format: winston.format.combine(
               winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
               winston.format.printf(({ timestamp, level, message, ...meta }) => {
@@ -78,12 +78,12 @@ export const WINSTON_LOGGER = 'WINSTON_LOGGER';
           }),
         ];
 
-        if (config.ElasticUrl) {
+        if (config.elasticUrl) {
           transports.push(esTransport);
         }
 
         return winston.createLogger({
-          level: config.LogLevel || 'info',
+          level: config.logLevel || 'info',
           transports,
           handleExceptions: true,
         });

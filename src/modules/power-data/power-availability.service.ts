@@ -26,7 +26,6 @@ export class PowerAvailabilityService {
                 .createQueryBuilder('pa')
                 .select('MAX(pa.id)', 'max')
                 .getRawOne();
-            // tslint:disable-next-line: no-string-literal
             powerAvailability = await this.powerAvailabilityRepository.findOne({ where: { id: maxId['max'] } });
         } else {
             this.logger.error(`[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Server stopped unexpectedly.`);
@@ -45,7 +44,6 @@ export class PowerAvailabilityService {
             .createQueryBuilder('pa')
             .select('MAX(pa.id)', 'max')
             .getRawOne();
-        // tslint:disable-next-line: no-string-literal
         let powerAvailability = await this.powerAvailabilityRepository.findOne({ where: { id: maxId.max } });
         if (!powerAvailability) {
             powerAvailability = new PowerAvailability();
