@@ -1,0 +1,57 @@
+module.exports = {
+  root: true,
+  parser: '@typescript-eslint/parser',
+  parserOptions: {
+    project: ['./tsconfig.json'],
+    sourceType: 'module',
+    ecmaVersion: 2020,
+  },
+  plugins: [
+    '@typescript-eslint',
+    'prettier',
+    'import',
+  ],
+  extends: [
+    'plugin:@typescript-eslint/recommended',
+    'plugin:@typescript-eslint/recommended-requiring-type-checking',
+    'plugin:import/recommended',
+    'plugin:import/typescript',
+    'plugin:prettier/recommended',
+    'plugin:node/recommended',
+  ],
+  env: {
+    node: true,
+    es2020: true,
+  },
+  rules: {
+    'prettier/prettier': 'error',
+    '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+    '@typescript-eslint/explicit-function-return-type': 'off',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/no-inferrable-types': 'off',
+    '@typescript-eslint/ban-types': 'off',
+    'import/order': [
+      'error',
+      {
+        'groups': ['builtin', 'external', 'internal', 'parent', 'sibling', 'index'],
+        'newlines-between': 'always',
+      },
+    ],
+    'node/no-unsupported-features/es-syntax': 'off',
+    'node/no-missing-import': 'off',
+    'node/no-unpublished-import': 'off',
+    'node/no-extraneous-import': 'off',
+    'node/no-missing-require': 'off',
+    'node/no-unpublished-require': 'off',
+    'node/no-extraneous-require': 'off',
+    'node/no-unsupported-features/node-builtins': 'off',
+  },
+  ignorePatterns: [
+    'dist/',
+    'node_modules/',
+    '*.js',
+    '*.json',
+    '*.d.ts',
+    'tests/',
+  ],
+};

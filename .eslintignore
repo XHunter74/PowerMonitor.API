@@ -1,0 +1,6 @@
+# ESLint and Prettier
+node_modules/
+dist/
+coverage/
+*.js
+*.d.ts
