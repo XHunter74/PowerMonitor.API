@@ -6,7 +6,7 @@ import { Injectable } from '@nestjs/common';
 import { CoefficientsModel } from '../../common/models/coefficients.model';
 import { environment } from '../../environments';
 import * as si from 'systeminformation';
-import uptime from 'os-uptime';
+import * as uptime from 'os-uptime';
 
 @Injectable()
 export class ServicesService {
