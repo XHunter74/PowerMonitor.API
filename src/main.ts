@@ -49,7 +49,13 @@ async function bootstrap() {
     });
     app.enableShutdownHooks();
     app.enableCors({ credentials: true, origin: config.allowOrigins });
-    app.useGlobalPipes(new ValidationPipe());
+    app.useGlobalPipes(
+        new ValidationPipe({
+            whitelist: true,
+            transform: true,
+            forbidNonWhitelisted: true,
+        }),
+    );
     app.useWebSocketAdapter(new SocketIoAdapter(app, config));
     app.useGlobalFilters(new GlobalExceptionFilter(logger));
 

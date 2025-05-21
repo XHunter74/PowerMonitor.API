@@ -1,12 +1,4 @@
-import {
-    Controller,
-    Get,
-    Query,
-    HttpException,
-    HttpStatus,
-    UseGuards,
-    Inject,
-} from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Inject } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
@@ -15,6 +7,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { daysInMonth } from '../../common/date-functions';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Constants } from '../../constants';
+import { StartFinishDatesDto } from '../../common/models/start-finish-dates.dto';
+import { MonthYearDto } from '../../common/models/month-year.dto';
+import { YearDto } from '../../common/models/year.dto';
+import { MonthDayOfWeekDto } from '../../common/models/month-dayofweek.dto';
 
 @ApiTags('Power Data')
 @Controller('api/power')
@@ -35,22 +31,19 @@ export class PowerDataController {
     @ApiQuery({ name: 'startDate', type: String })
     @ApiQuery({ name: 'finishDate', type: String })
     @ApiResponse({ status: 200, description: 'Voltage and amperage data returned.' })
-    async getVoltageAmperage(
-        @Query('startDate') startDateParam: string,
-        @Query('finishDate') finishDateParam: string,
-    ) {
+    async getVoltageAmperage(@Query() model: StartFinishDatesDto) {
         this.logger.info(`[${PowerDataController.name}].${this.getVoltageAmperage.name} => Start`);
         this.logger.debug(
             `[${PowerDataController.name}].${this.getVoltageAmperage.name} => ` +
-                `Start Date: '${startDateParam}', Finis Date: '${finishDateParam}'`,
+                `Start Date: '${model.startDate}', Finis Date: '${model.finishDate}'`,
         );
         let data = [];
-        if (startDateParam && finishDateParam) {
-            const startDate = new Date(startDateParam);
-            const finishDate = new Date(finishDateParam);
 
-            data = await this.powerDataService.getVoltageAmperage(startDate, finishDate);
-        }
+        const startDate = new Date(model.startDate);
+        const finishDate = new Date(model.finishDate);
+
+        data = await this.powerDataService.getVoltageAmperage(startDate, finishDate);
+
         this.logger.info(`[${PowerDataController.name}].${this.getVoltageAmperage.name} => Finish`);
         return data;
     }
@@ -66,23 +59,19 @@ export class PowerDataController {
     @ApiQuery({ name: 'startDate', type: String })
     @ApiQuery({ name: 'finishDate', type: String })
     @ApiResponse({ status: 200, description: 'Voltage data returned.' })
-    async getVoltageData(
-        @Query('startDate') startDateParam: string,
-        @Query('finishDate') finishDateParam: string,
-    ) {
+    async getVoltageData(@Query() model: StartFinishDatesDto) {
         this.logger.info(`[${PowerDataController.name}].${this.getVoltageData.name} => Start`);
         this.logger.debug(
             `[${PowerDataController.name}].${this.getVoltageData.name} => ` +
-                `Start Date: '${startDateParam}', Finis Date: '${finishDateParam}'`,
+                `Start Date: '${model.startDate}', Finis Date: '${model.finishDate}'`,
         );
         let data = [];
-        if (startDateParam && finishDateParam) {
-            const startDate = new Date(startDateParam);
-            const finishDate = new Date(finishDateParam);
-            finishDate.setTime(finishDate.getTime() + 24 * 60 * 60 * 1000 - 1);
+        const startDate = new Date(model.startDate);
+        const finishDate = new Date(model.finishDate);
+        finishDate.setTime(finishDate.getTime() + 24 * 60 * 60 * 1000 - 1);
 
-            data = await this.powerDataService.getVoltageData(startDate, finishDate);
-        }
+        data = await this.powerDataService.getVoltageData(startDate, finishDate);
+
         this.logger.info(`[${PowerDataController.name}].${this.getVoltageData.name} => Finish`);
         return data;
     }
@@ -93,26 +82,21 @@ export class PowerDataController {
      * @param finishDateParam Finish date (ISO string)
      */
     @Get('power-data-hourly')
-    @UseGuards(AuthGuard('jwt'))
+    // @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Get power data aggregated by hour for a date range.' })
     @ApiQuery({ name: 'startDate', type: String })
     @ApiQuery({ name: 'finishDate', type: String })
     @ApiResponse({ status: 200, description: 'Hourly power data returned.' })
-    async getPowerDataHourly(
-        @Query('startDate') startDateParam: string,
-        @Query('finishDate') finishDateParam: string,
-    ) {
+    async getPowerDataHourly(@Query() model: StartFinishDatesDto) {
         this.logger.info(`[${PowerDataController.name}].${this.getPowerDataHourly.name} => Start`);
         this.logger.debug(
             `[${PowerDataController.name}].${this.getPowerDataHourly.name} => ` +
-                `Start Date: '${startDateParam}', Finis Date: '${finishDateParam}'`,
+                `Start Date: '${model.startDate}', Finis Date: '${model.finishDate}'`,
         );
         let data = [];
-        if (startDateParam && finishDateParam) {
-            const startDate = new Date(startDateParam);
-            const finishDate = new Date(finishDateParam);
-            data = await this.powerDataService.getPowerDataHourly(startDate, finishDate);
-        }
+        const startDate = new Date(model.startDate);
+        const finishDate = new Date(model.finishDate);
+        data = await this.powerDataService.getPowerDataHourly(startDate, finishDate);
         this.logger.info(`[${PowerDataController.name}].${this.getPowerDataHourly.name} => Finish`);
         return data;
     }
@@ -128,36 +112,16 @@ export class PowerDataController {
     @ApiQuery({ name: 'month', type: Number, required: false })
     @ApiQuery({ name: 'day-of-week', type: Number, required: false })
     @ApiResponse({ status: 200, description: 'Power data statistics returned.' })
-    async getPowerDataStats(
-        @Query('month') month: number,
-        @Query('day-of-week') dayOfWeek: number,
-    ) {
+    async getPowerDataStats(@Query() model: MonthDayOfWeekDto) {
         this.logger.info(`[${PowerDataController.name}].${this.getPowerDataStats.name} => Start`);
-        if (month) {
-            month = Number(month);
-        }
-        if (dayOfWeek) {
-            dayOfWeek = Number(dayOfWeek);
-        }
-        if (!month && !dayOfWeek) {
-            const currentDate = new Date();
-            month = currentDate.getMonth() + 1;
-            dayOfWeek = currentDate.getDay();
-            if (dayOfWeek === 0) {
-                dayOfWeek = 7;
-            }
-        }
+
         this.logger.debug(
             `[${PowerDataController.name}].${this.getPowerDataStats.name} => ` +
-                `Month: '${month}', Day Of Week: '${dayOfWeek}'`,
+                `Month: '${model.month}', Day Of Week: '${model.dayOfWeek}'`,
         );
-        if (!(month >= 1 && month <= 12 && dayOfWeek >= 1 && dayOfWeek <= 7)) {
-            throw new HttpException('Incorrect request parameters', HttpStatus.BAD_REQUEST);
-        }
-        let data = [];
-        if (month && dayOfWeek) {
-            data = await this.powerDataService.getPowerDataStats(month, dayOfWeek);
-        }
+
+        const data = await this.powerDataService.getPowerDataStats(model.month, model.dayOfWeek);
+
         this.logger.info(`[${PowerDataController.name}].${this.getPowerDataStats.name} => Finish`);
         return data;
     }
@@ -173,21 +137,18 @@ export class PowerDataController {
     @ApiQuery({ name: 'startDate', type: String })
     @ApiQuery({ name: 'finishDate', type: String })
     @ApiResponse({ status: 200, description: 'Daily power data returned.' })
-    async getPowerDataDaily(
-        @Query('startDate') startDateParam: string,
-        @Query('finishDate') finishDateParam: string,
-    ) {
+    async getPowerDataDaily(@Query() model: StartFinishDatesDto) {
         this.logger.info(`[${PowerDataController.name}].${this.getPowerDataDaily.name} => Start`);
         this.logger.debug(
             `[${PowerDataController.name}].${this.getPowerDataDaily.name} => ` +
-                `Start Date: '${startDateParam}', Finish Date: '${finishDateParam}'`,
+                `Start Date: '${model.startDate}', Finish Date: '${model.finishDate}'`,
         );
         let data = [];
-        if (startDateParam && finishDateParam) {
-            const startDate = new Date(startDateParam);
-            const finishDate = new Date(finishDateParam);
-            data = await this.powerDataService.getPowerDataDaily(startDate, finishDate);
-        }
+
+        const startDate = new Date(model.startDate);
+        const finishDate = new Date(model.finishDate);
+        data = await this.powerDataService.getPowerDataDaily(startDate, finishDate);
+
         this.logger.info(`[${PowerDataController.name}].${this.getPowerDataDaily.name} => Finish`);
         return data;
     }
@@ -203,22 +164,19 @@ export class PowerDataController {
     @ApiQuery({ name: 'startDate', type: String })
     @ApiQuery({ name: 'finishDate', type: String })
     @ApiResponse({ status: 200, description: 'Monthly power data returned.' })
-    async getPowerDataMonthly(
-        @Query('startDate') startDateParam: string,
-        @Query('finishDate') finishDateParam: string,
-    ) {
+    async getPowerDataMonthly(@Query() model: StartFinishDatesDto) {
         this.logger.info(`[${PowerDataController.name}].${this.getPowerDataMonthly.name} => Start`);
         this.logger.debug(
             `[${PowerDataController.name}].${this.getPowerDataMonthly.name} => ` +
-                `Start Date: '${startDateParam}', Finish Date: '${finishDateParam}'`,
+                `Start Date: '${model.startDate}', Finish Date: '${model.finishDate}'`,
         );
         let data = [];
-        if (startDateParam && finishDateParam) {
-            const startDate = new Date(startDateParam);
-            const finishDate = new Date(finishDateParam);
 
-            data = await this.powerDataService.getPowerDataMonthly(startDate, finishDate);
-        }
+        const startDate = new Date(model.startDate);
+        const finishDate = new Date(model.finishDate);
+
+        data = await this.powerDataService.getPowerDataMonthly(startDate, finishDate);
+
         this.logger.info(
             `[${PowerDataController.name}].${this.getPowerDataMonthly.name} => Finish`,
         );
@@ -250,28 +208,25 @@ export class PowerDataController {
     @ApiQuery({ name: 'startDate', type: String })
     @ApiQuery({ name: 'finishDate', type: String })
     @ApiResponse({ status: 200, description: 'Power availability data returned.' })
-    async getPowerAvailabilityData(
-        @Query('startDate') startDateParam: string,
-        @Query('finishDate') finishDateParam: string,
-    ) {
+    async getPowerAvailabilityData(@Query() model: StartFinishDatesDto) {
         this.logger.info(
             `[${PowerDataController.name}].${this.getPowerAvailabilityData.name} => Start`,
         );
         this.logger.debug(
             `[${PowerDataController.name}].${this.getPowerAvailabilityData.name} => ` +
-                `Start Date: '${startDateParam}', Finish Date: '${finishDateParam}'`,
+                `Start Date: '${model.startDate}', Finish Date: '${model.finishDate}'`,
         );
         let data = [];
-        if (startDateParam && finishDateParam) {
-            let startDate = new Date(startDateParam);
-            const userTimezoneOffset = startDate.getTimezoneOffset() * 60000;
-            let finishDate = new Date(finishDateParam);
-            finishDate.setTime(finishDate.getTime() + 24 * 60 * 60 * 1000 - 1);
-            startDate = new Date(startDate.getTime() + userTimezoneOffset);
-            finishDate = new Date(finishDate.getTime() + userTimezoneOffset);
 
-            data = await this.powerDataService.getPowerAvailabilityData(startDate, finishDate);
-        }
+        let startDate = new Date(model.startDate);
+        const userTimezoneOffset = startDate.getTimezoneOffset() * 60000;
+        let finishDate = new Date(model.finishDate);
+        finishDate.setTime(finishDate.getTime() + 24 * 60 * 60 * 1000 - 1);
+        startDate = new Date(startDate.getTime() + userTimezoneOffset);
+        finishDate = new Date(finishDate.getTime() + userTimezoneOffset);
+
+        data = await this.powerDataService.getPowerAvailabilityData(startDate, finishDate);
+
         this.logger.info(
             `[${PowerDataController.name}].${this.getPowerAvailabilityData.name} => Finish`,
         );
@@ -291,32 +246,29 @@ export class PowerDataController {
     @ApiQuery({ name: 'year', type: Number })
     @ApiQuery({ name: 'month', type: Number })
     @ApiResponse({ status: 200, description: 'Daily power availability data returned.' })
-    async getPowerAvailabilityDailyData(
-        @Query('year') yearParam: number,
-        @Query('month') monthParam: number,
-    ) {
+    async getPowerAvailabilityDailyData(@Query() model: MonthYearDto) {
         this.logger.info(
             `[${PowerDataController.name}].${this.getPowerAvailabilityDailyData.name} => Start`,
         );
         this.logger.debug(
             `[${PowerDataController.name}].${this.getPowerAvailabilityDailyData.name} => ` +
-                `Year: '${yearParam}, Month: '${monthParam}'`,
+                `Year: '${model.year}, Month: '${model.month}'`,
         );
         let data = [];
-        if (yearParam) {
-            let startDate = new Date(yearParam, monthParam - 1, 1);
-            const userTimezoneOffset = startDate.getTimezoneOffset() * 60000;
-            let finishDate = new Date(
-                yearParam,
-                monthParam - 1,
-                daysInMonth(yearParam, monthParam),
-            );
-            finishDate.setTime(finishDate.getTime() + 24 * 60 * 60 * 1000 - 1);
-            startDate = new Date(startDate.getTime() + userTimezoneOffset);
-            finishDate = new Date(finishDate.getTime() + userTimezoneOffset);
 
-            data = await this.powerDataService.getPowerAvailabilityDailyData(startDate, finishDate);
-        }
+        let startDate = new Date(model.year, model.month - 1, 1);
+        const userTimezoneOffset = startDate.getTimezoneOffset() * 60000;
+        let finishDate = new Date(
+            model.year,
+            model.month - 1,
+            daysInMonth(model.year, model.month),
+        );
+        finishDate.setTime(finishDate.getTime() + 24 * 60 * 60 * 1000 - 1);
+        startDate = new Date(startDate.getTime() + userTimezoneOffset);
+        finishDate = new Date(finishDate.getTime() + userTimezoneOffset);
+
+        data = await this.powerDataService.getPowerAvailabilityDailyData(startDate, finishDate);
+
         this.logger.info(
             `[${PowerDataController.name}].${this.getPowerAvailabilityDailyData.name} => Finish`,
         );
@@ -332,28 +284,25 @@ export class PowerDataController {
     @ApiOperation({ summary: 'Get monthly power availability data for a year (admin only).' })
     @ApiQuery({ name: 'year', type: Number })
     @ApiResponse({ status: 200, description: 'Monthly power availability data returned.' })
-    async getPowerAvailabilityMonthlyData(@Query('year') yearParam: number) {
+    async getPowerAvailabilityMonthlyData(@Query() model: YearDto) {
         this.logger.info(
             `[${PowerDataController.name}].${this.getPowerAvailabilityMonthlyData.name} => Start`,
         );
         this.logger.debug(
             `[${PowerDataController.name}].${this.getPowerAvailabilityMonthlyData.name} => ` +
-                `Year: '${yearParam}'`,
+                `Year: '${model.year}'`,
         );
         let data = [];
-        if (yearParam) {
-            let startDate = new Date(yearParam, 0, 1);
-            const userTimezoneOffset = startDate.getTimezoneOffset() * 60000;
-            let finishDate = new Date(yearParam, 11, 31);
-            finishDate.setTime(finishDate.getTime() + 24 * 60 * 60 * 1000 - 1);
-            startDate = new Date(startDate.getTime() + userTimezoneOffset);
-            finishDate = new Date(finishDate.getTime() + userTimezoneOffset);
 
-            data = await this.powerDataService.getPowerAvailabilityMonthlyData(
-                startDate,
-                finishDate,
-            );
-        }
+        let startDate = new Date(model.year, 0, 1);
+        const userTimezoneOffset = startDate.getTimezoneOffset() * 60000;
+        let finishDate = new Date(model.year, 11, 31);
+        finishDate.setTime(finishDate.getTime() + 24 * 60 * 60 * 1000 - 1);
+        startDate = new Date(startDate.getTime() + userTimezoneOffset);
+        finishDate = new Date(finishDate.getTime() + userTimezoneOffset);
+
+        data = await this.powerDataService.getPowerAvailabilityMonthlyData(startDate, finishDate);
+
         this.logger.info(
             `[${PowerDataController.name}].${this.getPowerAvailabilityMonthlyData.name} => Finish`,
         );
