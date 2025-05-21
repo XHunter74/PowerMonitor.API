@@ -82,7 +82,7 @@ export class PowerDataController {
      * @param finishDateParam Finish date (ISO string)
      */
     @Get('power-data-hourly')
-    // @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Get power data aggregated by hour for a date range.' })
     @ApiQuery({ name: 'startDate', type: String })
     @ApiQuery({ name: 'finishDate', type: String })
