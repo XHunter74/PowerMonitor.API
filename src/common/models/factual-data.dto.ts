@@ -1,4 +1,4 @@
-import { IsDate, IsDecimal, IsNotEmpty, Min } from 'class-validator';
+import { IsDate, IsNotEmpty, Min, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
@@ -29,7 +29,7 @@ export class FactualDataDto {
 
     @ApiProperty({ example: 123.45, description: 'Value associated with the event' })
     @Type(() => Number)
-    @IsDecimal()
+    @IsNumber({}, { message: 'value must be a number' })
     @Min(0)
     value: number;
 }
