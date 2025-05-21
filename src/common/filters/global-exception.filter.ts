@@ -20,6 +20,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
 
         let status = HttpStatus.INTERNAL_SERVER_ERROR;
         let message = 'Internal server error';
+        const logMessage = `Exception thrown: ${JSON.stringify(this.serializeError(exception))}`;
 
         if (exception instanceof HttpException) {
             status = exception.getStatus();
@@ -31,7 +32,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
                 timestamp: new Date().toISOString(),
                 path: request.url,
                 status,
-                message,
+                logMessage,
             })}`,
         );
 
@@ -41,5 +42,16 @@ export class GlobalExceptionFilter implements ExceptionFilter {
             path: request.url,
             message,
         });
+    }
+
+    private serializeError(error: unknown) {
+        if (error instanceof Error) {
+            return {
+                name: error.name,
+                message: error.message,
+                stack: error.stack,
+            };
+        }
+        return error;
     }
 }
