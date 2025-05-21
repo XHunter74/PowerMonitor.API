@@ -6,7 +6,7 @@ export class SysInfoModel {
     distro: string;
     cpuManufacturer: string;
     cpuBrand: string;
-    cpuSpeed: string;
+    cpuSpeed: number;
     cpuCores: number;
     systemUptime: SystemUptime;
     systemDateTimeStr: string;

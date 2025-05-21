@@ -8,14 +8,8 @@ import { CollectDataModule } from '../collect-data/collect-data.module';
 import { MqttConnectionService } from './mqtt-connection.service';
 
 @Module({
-    imports: [
-        LoggerModule,
-        ConfigModule,
-        PowerDataModule,
-        ServicesModule,
-        CollectDataModule,
-    ],
+    imports: [LoggerModule, ConfigModule, PowerDataModule, ServicesModule, CollectDataModule],
     providers: [MqttClientService, MqttConnectionService],
     exports: [MqttClientService],
 })
-export class MqttModule { }
+export class MqttModule {}

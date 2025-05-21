@@ -5,20 +5,18 @@ import { Constants } from '../../constants';
 import { Injectable } from '@nestjs/common';
 import { CoefficientsModel } from '../../common/models/coefficients.model';
 import { environment } from '../../environments';
+import * as si from 'systeminformation';
+import uptime from 'os-uptime';
 
 @Injectable()
 export class ServicesService {
-
     private sysInfoData: SysInfoModel;
 
-    constructor(
-        private readonly dataService: DataService,
-    ) { }
+    constructor(private readonly dataService: DataService) {}
 
     async getSystemInfo(): Promise<SysInfoModel> {
         patchDate();
         if (!this.sysInfoData) {
-            const si = require('systeminformation');
             const sysInfo = await si.getStaticData();
             this.sysInfoData = new SysInfoModel();
             this.sysInfoData.version = environment.version;
@@ -47,7 +45,9 @@ export class ServicesService {
     }
 
     async getCalibrationCoefficients(): Promise<CoefficientsModel> {
-        const boardSettingsRec = await this.dataService.getServerData(Constants.dataKeys.coefficients);
+        const boardSettingsRec = await this.dataService.getServerData(
+            Constants.dataKeys.coefficients,
+        );
         let coefficientsModel: CoefficientsModel;
         if (!boardSettingsRec) {
             coefficientsModel = new CoefficientsModel();
@@ -59,16 +59,17 @@ export class ServicesService {
         return coefficientsModel;
     }
 
-    async getSystemUptimeSeconds(): Promise<number> {
+    getSystemUptimeSeconds(): number {
         const uptimeData = getSystemUptime();
-        const result = uptimeData.days * 24 * 60 * 60 + uptimeData.hours * 60 * 60 +
-            uptimeData.minutes * 60 + uptimeData.seconds;
+        const result =
+            uptimeData.days * 24 * 60 * 60 +
+            uptimeData.hours * 60 * 60 +
+            uptimeData.minutes * 60 +
+            uptimeData.seconds;
         return result;
     }
 }
-
 function getSystemUptime(): SystemUptime {
-    const uptime = require('os-uptime');
     const startDate = uptime();
     const interval = new Date().getTime() - startDate.getTime();
     const systemUptime = intervalToSystemUptime(interval);

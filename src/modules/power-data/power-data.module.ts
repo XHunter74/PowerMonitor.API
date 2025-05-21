@@ -13,13 +13,19 @@ import { ConfigModule } from '../config/config.module';
 import { VoltageData } from '../../entities/voltage-data.entity';
 
 @Module({
-  imports: [
-    LoggerModule,
-    ConfigModule,
-    TypeOrmModule.forFeature([PowerAvailability, VoltageAmperageData, PowerData, PowerAcc, VoltageData]),
-  ],
-  controllers: [PowerDataController, PowerConsumptionController],
-  providers: [PowerDataService, EnergyMeteringService],
-  exports: [PowerDataService, EnergyMeteringService],
+    imports: [
+        LoggerModule,
+        ConfigModule,
+        TypeOrmModule.forFeature([
+            PowerAvailability,
+            VoltageAmperageData,
+            PowerData,
+            PowerAcc,
+            VoltageData,
+        ]),
+    ],
+    controllers: [PowerDataController, PowerConsumptionController],
+    providers: [PowerDataService, EnergyMeteringService],
+    exports: [PowerDataService, EnergyMeteringService],
 })
-export class PowerDataModule { }
+export class PowerDataModule {}

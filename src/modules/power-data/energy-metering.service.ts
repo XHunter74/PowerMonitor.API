@@ -12,7 +12,7 @@ export class EnergyMeteringService {
         private readonly config: ConfigService,
         @InjectRepository(PowerAcc)
         private readonly powerAccRepository: Repository<PowerAcc>,
-    ) { }
+    ) {}
 
     async getPowerMeterData(): Promise<MeterDataDto[]> {
         const records = await this.powerAccRepository
@@ -26,7 +26,10 @@ export class EnergyMeteringService {
         for (let i = 0; i < records.length; i++) {
             const newRecord = new MeterDataDto();
             newRecord.id = records[i].id;
-            newRecord.monitorData = +(records[i].startValue + Math.round(records[i].powerAcc / 1000 * 10) / 10).toFixed(1);
+            newRecord.monitorData = +(
+                records[i].startValue +
+                Math.round((records[i].powerAcc / 1000) * 10) / 10
+            ).toFixed(1);
             newRecord.coefficient = records[i].coefficient;
             newRecord.eventDate = records[i].updated;
             const next = i + 1;
@@ -49,9 +52,12 @@ export class EnergyMeteringService {
     }
 
     public async getCurrentPowerConsumptionData(): Promise<number> {
-        const powerAcc = await this.powerAccRepository.findOne({ where: {}, order: { id: 'DESC' } });
+        const powerAcc = await this.powerAccRepository.findOne({
+            where: {},
+            order: { id: 'DESC' },
+        });
         if (powerAcc) {
-            const result = powerAcc.startValue + Math.round(powerAcc.powerAcc / 1000 * 10) / 10;
+            const result = powerAcc.startValue + Math.round((powerAcc.powerAcc / 1000) * 10) / 10;
             return result;
         } else {
             return 0;
@@ -78,7 +84,8 @@ export class EnergyMeteringService {
         if (lastRecord.coefficient !== this.config.powerCoefficient) {
             let newData = new PowerAcc();
             newData.created = new Date();
-            newData.startValue = Math.round((lastRecord.startValue + lastRecord.powerAcc / 1000) * 10) / 10;
+            newData.startValue =
+                Math.round((lastRecord.startValue + lastRecord.powerAcc / 1000) * 10) / 10;
             newData.coefficient = this.config.powerCoefficient;
             newData = await this.powerAccRepository.save(newData);
         }

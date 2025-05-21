@@ -1,15 +1,9 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    Index,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 import { IsNotEmpty } from 'class-validator';
 import { ColumnNumericTransformer } from './numeric-column-transformer';
 
 @Entity({ name: 'power-acc' })
 export class PowerAcc {
-
     @PrimaryGeneratedColumn()
     id: number;
 

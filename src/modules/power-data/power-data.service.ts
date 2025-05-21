@@ -11,7 +11,6 @@ import { LogMethod } from '../../common/decorators/log-method.decorator';
 
 @Injectable()
 export class PowerDataService {
-
     constructor(
         @InjectRepository(VoltageAmperageData)
         private readonly voltageAmperageRepository: Repository<VoltageAmperageData>,
@@ -21,7 +20,7 @@ export class PowerDataService {
         private readonly powerDataRepository: Repository<PowerData>,
         @InjectRepository(PowerAvailability)
         private readonly powerAvailabilityRepository: Repository<PowerAvailability>,
-    ) { }
+    ) {}
 
     @LogMethod()
     async getPowerDataStats(month: number, dayOfWeek: number): Promise<PowerDataStatsModel[]> {
@@ -34,7 +33,7 @@ export class PowerDataService {
                 'EXTRACT(month FROM record.created) AS month',
                 'CASE WHEN EXTRACT(dow FROM record.created) = 0 THEN 7 ELSE EXTRACT(dow FROM record.created) END AS day_of_week',
                 'record.hours',
-                'ROUND(SUM(record.power) / COUNT(*) / 1000, 2) AS power'
+                'ROUND(SUM(record.power) / COUNT(*) / 1000, 2) AS power',
             ])
             .where('record.power > 0')
             .andWhere('record.created <> CURRENT_DATE')
@@ -43,43 +42,63 @@ export class PowerDataService {
             .groupBy('month, day_of_week, record.hours')
             .orderBy('month, day_of_week, record.hours')
             .getRawMany();
-        return result.map(e => new PowerDataStatsModel(e.month, e.day_of_week, e.hours, Number(e.power)));
+        return result.map(
+            (e) => new PowerDataStatsModel(e.month, e.day_of_week, e.hours, Number(e.power)),
+        );
     }
 
     @LogMethod()
-    async getPowerDataHourly(startDate: Date, finishDate: Date, options?: { suppressLogging?: boolean }): Promise<any[]> {
+    async getPowerDataHourly(
+        startDate: Date,
+        finishDate: Date,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        options?: { suppressLogging?: boolean },
+    ): Promise<any[]> {
         const records = await this.powerDataRepository
             .createQueryBuilder('record')
-            .where('record.created >= :startDate and record.created <= :finishDate', { startDate, finishDate })
+            .where('record.created >= :startDate and record.created <= :finishDate', {
+                startDate,
+                finishDate,
+            })
             .orderBy('record.created', 'ASC')
             .addOrderBy('record.hours', 'ASC')
             .getMany();
-        return records.map(record => ({
+        return records.map((record) => ({
             created: record.created,
             hours: record.hours,
-            power: Math.round(record.power / 1000 * 100) / 100,
+            power: Math.round((record.power / 1000) * 100) / 100,
         }));
     }
 
     @LogMethod()
-    async getPowerDataDaily(startDate: Date, finishDate: Date, options?: { suppressLogging?: boolean }): Promise<any[]> {
+    async getPowerDataDaily(
+        startDate: Date,
+        finishDate: Date,
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        options?: { suppressLogging?: boolean },
+    ): Promise<any[]> {
         const records = await this.powerDataRepository
             .createQueryBuilder('record')
             .select('record.created, SUM(record.power) as power')
             .groupBy('record.created')
-            .where('record.created >= :startDate and record.created <= :finishDate', { startDate, finishDate })
+            .where('record.created >= :startDate and record.created <= :finishDate', {
+                startDate,
+                finishDate,
+            })
             .orderBy('record.created', 'ASC')
             .getRawMany();
-        return records.map(record => ({
+        return records.map((record) => ({
             created: record['created'],
-            power: Math.round(record['power'] / 1000 * 100) / 100,
+            power: Math.round((record['power'] / 1000) * 100) / 100,
         }));
     }
 
     async getPowerDataMonthly(startDate: Date, finishDate: Date): Promise<any[]> {
         const records = await this.powerDataRepository
             .createQueryBuilder('record')
-            .select('EXTRACT(month from record.created) as month, EXTRACT(year from record.created) as year')
+            .select(
+                'EXTRACT(month from record.created) as month, EXTRACT(year from record.created) as year',
+            )
             .addSelect('SUM(record.power) as power')
             .groupBy('EXTRACT(month from record.created), EXTRACT(year from record.created)')
             .where('record.created >= :startDate and record.created <= :finishDate')
@@ -87,11 +106,11 @@ export class PowerDataService {
             .setParameters({ startDate, finishDate })
             .getRawMany();
 
-        const data = records.map(record => {
+        const data = records.map((record) => {
             return {
                 year: record['year'],
                 month: record['month'],
-                power: Math.round(record['power'] / 1000 * 100) / 100,
+                power: Math.round((record['power'] / 1000) * 100) / 100,
             };
         });
         return data;
@@ -106,20 +125,20 @@ export class PowerDataService {
             .orderBy('EXTRACT(year from record.created)', 'ASC')
             .getRawMany();
 
-        const data = records.map(record => {
+        const data = records.map((record) => {
             return {
                 year: record['year'],
                 month: record['month'],
-                power: Math.round(record['power'] / 1000 * 100) / 100,
+                power: Math.round((record['power'] / 1000) * 100) / 100,
             };
         });
         return data;
     }
 
     async getPowerAvailabilityData(startDate: Date, finishDate: Date): Promise<any[]> {
-        let startRequestDate = new Date(startDate);
+        const startRequestDate = new Date(startDate);
         startRequestDate.setDate(startRequestDate.getDate() - 1);
-        let finishRequestDate = new Date(finishDate);
+        const finishRequestDate = new Date(finishDate);
         finishRequestDate.setDate(finishRequestDate.getDate() + 1);
         let records = await this.powerAvailabilityRepository
             .createQueryBuilder('record')
@@ -128,7 +147,7 @@ export class PowerDataService {
             .setParameters({ startDate: startRequestDate, finishDate: finishRequestDate })
             .getMany();
 
-        let startRecords = records.map(record => {
+        let startRecords = records.map((record) => {
             return {
                 id: record.id,
                 type: 'S',
@@ -143,7 +162,7 @@ export class PowerDataService {
             .setParameters({ startDate: startRequestDate, finishDate: finishRequestDate })
             .getMany();
 
-        const finishRecords = records.map(record => {
+        const finishRecords = records.map((record) => {
             return {
                 id: record.id,
                 type: 'F',
@@ -168,30 +187,50 @@ export class PowerDataService {
                     finishDateInt = startRecords[i - 1].eventDate.getTime();
                 }
                 const startDateInt = startRecords[i - 1].eventDate.getTime();
-                data.push(
-                    {
-                        start: startRecords[i - 1].eventDate,
-                        finish: new Date(finishDateInt),
-                        month: new Date(startDateInt).getMonth() + 1,
-                        year: new Date(startDateInt).getFullYear(),
-                        day: new Date(startDateInt).getDate(),
-                        duration: finishDateInt - startDateInt,
-                    },
-                );
+                data.push({
+                    start: startRecords[i - 1].eventDate,
+                    finish: new Date(finishDateInt),
+                    month: new Date(startDateInt).getMonth() + 1,
+                    year: new Date(startDateInt).getFullYear(),
+                    day: new Date(startDateInt).getDate(),
+                    duration: finishDateInt - startDateInt,
+                });
             }
             let result = [];
-            for (let item of data) {
-                const start = item.start.getFullYear() * 365 + item.start.getMonth() * 30 + item.start.getDate();
-                const finish = item.finish.getFullYear() * 365 + item.finish.getMonth() * 30 + item.finish.getDate();
+            for (const item of data) {
+                const start =
+                    item.start.getFullYear() * 365 +
+                    item.start.getMonth() * 30 +
+                    item.start.getDate();
+                const finish =
+                    item.finish.getFullYear() * 365 +
+                    item.finish.getMonth() * 30 +
+                    item.finish.getDate();
                 if (start === finish) {
                     result.push(item);
                 } else {
                     const todayItem = { ...item };
-                    const finishDate = new Date(item.start.getFullYear(), item.start.getMonth(), item.start.getDate(), 23, 59, 59, 999);
+                    const finishDate = new Date(
+                        item.start.getFullYear(),
+                        item.start.getMonth(),
+                        item.start.getDate(),
+                        23,
+                        59,
+                        59,
+                        999,
+                    );
                     todayItem.finish = finishDate;
                     todayItem.duration = finishDate.getTime() - item.start.getTime();
                     result.push(todayItem);
-                    const startDate = new Date(item.finish.getFullYear(), item.finish.getMonth(), item.finish.getDate(), 0, 0, 0, 0);
+                    const startDate = new Date(
+                        item.finish.getFullYear(),
+                        item.finish.getMonth(),
+                        item.finish.getDate(),
+                        0,
+                        0,
+                        0,
+                        0,
+                    );
                     const tomorrowItem = {
                         start: startDate,
                         finish: item.finish,
@@ -203,7 +242,11 @@ export class PowerDataService {
                     result.push(tomorrowItem);
                 }
             }
-            result = result.filter(e => new Date(e.year, e.month - 1, e.day) >= startDate && new Date(e.year, e.month - 1, e.day) <= finishDate);
+            result = result.filter(
+                (e) =>
+                    new Date(e.year, e.month - 1, e.day) >= startDate &&
+                    new Date(e.year, e.month - 1, e.day) <= finishDate,
+            );
             return result;
         } else {
             return [];
@@ -211,67 +254,66 @@ export class PowerDataService {
     }
 
     async getPowerAvailabilityDailyData(startDate: Date, finishDate: Date): Promise<any[]> {
-        const data = (await this.getPowerAvailabilityData(startDate, finishDate))
-            .reduce((a, b) => {
-                let current = a.find(e => (e.year * 365 + e.month * 30 + e.day) === (b.year * 365 + b.month * 30 + b.day));
-                if (current) {
-                    current.duration = current.duration + b.duration;
-                    current.events = current.events + 1;
-                } else {
-                    current = {
-                        month: b.month,
-                        year: b.year,
-                        day: b.day,
-                        duration: b.duration,
-                        events: 1,
-                    };
-                    a.push(current);
-                }
-                return a;
-            }, []);
+        const data = (await this.getPowerAvailabilityData(startDate, finishDate)).reduce((a, b) => {
+            let current = a.find(
+                (e) => e.year * 365 + e.month * 30 + e.day === b.year * 365 + b.month * 30 + b.day,
+            );
+            if (current) {
+                current.duration = current.duration + b.duration;
+                current.events = current.events + 1;
+            } else {
+                current = {
+                    month: b.month,
+                    year: b.year,
+                    day: b.day,
+                    duration: b.duration,
+                    events: 1,
+                };
+                a.push(current);
+            }
+            return a;
+        }, []);
 
         return data;
     }
 
     async getPowerAvailabilityMonthlyData(startDate: Date, finishDate: Date): Promise<any[]> {
-        const data = (await this.getPowerAvailabilityData(startDate, finishDate))
-            .reduce((a, b) => {
-                let current = a.find(e => e.month === b.month && e.year === b.year);
-                if (current) {
-                    current.duration = current.duration + b.duration;
-                    current.events = current.events + 1;
-                } else {
-                    current = {
-                        month: b.month,
-                        year: b.year,
-                        duration: b.duration,
-                        events: 1,
-                    };
-                    a.push(current);
-                }
-                return a;
-            }, []);
+        const data = (await this.getPowerAvailabilityData(startDate, finishDate)).reduce((a, b) => {
+            let current = a.find((e) => e.month === b.month && e.year === b.year);
+            if (current) {
+                current.duration = current.duration + b.duration;
+                current.events = current.events + 1;
+            } else {
+                current = {
+                    month: b.month,
+                    year: b.year,
+                    duration: b.duration,
+                    events: 1,
+                };
+                a.push(current);
+            }
+            return a;
+        }, []);
 
         return data;
     }
 
     async getPowerAvailabilityYearlyData(startDate: Date, finishDate: Date): Promise<any[]> {
-        const data = (await this.getPowerAvailabilityData(startDate, finishDate))
-            .reduce((a, b) => {
-                let current = a.find(e => e.year === b.year);
-                if (current) {
-                    current.duration = current.duration + b.duration;
-                    current.events = current.events + 1;
-                } else {
-                    current = {
-                        year: b.year,
-                        duration: b.duration,
-                        events: 1,
-                    };
-                    a.push(current);
-                }
-                return a;
-            }, []);
+        const data = (await this.getPowerAvailabilityData(startDate, finishDate)).reduce((a, b) => {
+            let current = a.find((e) => e.year === b.year);
+            if (current) {
+                current.duration = current.duration + b.duration;
+                current.events = current.events + 1;
+            } else {
+                current = {
+                    year: b.year,
+                    duration: b.duration,
+                    events: 1,
+                };
+                a.push(current);
+            }
+            return a;
+        }, []);
 
         return data;
     }
@@ -284,16 +326,16 @@ export class PowerDataService {
             .setParameters({ startDate, finishDate })
             .getMany();
 
-        const data = records.map(record => {
+        const data = records.map((record) => {
             return {
                 created: record.created,
                 hours: record.hours,
                 amperageMin: record.amperageMin,
                 amperageMax: record.amperageMax,
-                amperageAvg: Math.round(record.amperageSum / record.samples * 100) / 100,
+                amperageAvg: Math.round((record.amperageSum / record.samples) * 100) / 100,
                 voltageMin: record.voltageMin,
                 voltageMax: record.voltageMax,
-                voltageAvg: Math.round(record.voltageSum / record.samples * 100) / 100,
+                voltageAvg: Math.round((record.voltageSum / record.samples) * 100) / 100,
             };
         });
         return data;
@@ -307,15 +349,14 @@ export class PowerDataService {
             .setParameters({ startDate, finishDate })
             .getMany();
 
-        const data = records.map(record => {
+        const data = records.map((record) => {
             return {
                 created: record.created,
-                voltage: record.voltage
+                voltage: record.voltage,
             };
         });
         return data;
     }
-
 }
 
 function compare(a: number | string | Date, b: number | string | Date, isAsc: boolean) {

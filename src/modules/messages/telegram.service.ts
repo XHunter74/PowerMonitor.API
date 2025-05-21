@@ -6,7 +6,6 @@ import { ConfigService } from '../config/config.service';
 
 @Injectable()
 export class TelegramService {
-
     private telegramBot: TelegramBot;
 
     constructor(
@@ -20,11 +19,15 @@ export class TelegramService {
         this.logger.info(`[${TelegramService.name}].${this.sendTelegramMessage.name} => Start`);
         try {
             const result = await this.telegramBot.sendMessage(this.config.telegramChatId, message);
-            this.logger.info(`[${TelegramService.name}].${this.sendTelegramMessage.name} => ` +
-                `Message '${result.message_id}' was sending successfully `);
+            this.logger.info(
+                `[${TelegramService.name}].${this.sendTelegramMessage.name} => ` +
+                    `Message '${result.message_id}' was sending successfully `,
+            );
         } catch (error) {
-            this.logger.error(`[${TelegramService.name}].${this.sendTelegramMessage.name} => ` +
-                `Error: ${error}`);
+            this.logger.error(
+                `[${TelegramService.name}].${this.sendTelegramMessage.name} => ` +
+                    `Error: ${error}`,
+            );
         }
     }
 }

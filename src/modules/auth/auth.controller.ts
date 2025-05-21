@@ -1,4 +1,15 @@
-import { Controller, Post, Body, HttpCode, UseGuards, Query, Req, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import {
+    Controller,
+    Post,
+    Body,
+    HttpCode,
+    UseGuards,
+    Query,
+    Req,
+    HttpException,
+    HttpStatus,
+    Inject,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
 import { LoginModelDto } from '../../common/models/login.model.dto';
@@ -14,11 +25,10 @@ import { Logger } from 'winston';
 @ApiTags('Auth')
 @Controller('api/auth')
 export class AuthController {
-
     constructor(
         @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         private readonly authService: AuthService,
-    ) { }
+    ) {}
 
     /**
      * Authenticates a user and returns a JWT access and refresh token.
@@ -32,8 +42,10 @@ export class AuthController {
     @ApiResponse({ status: 200, description: 'JWT access and refresh token returned.' })
     async userLogin(@Body() loginModel: LoginModelDto): Promise<TokenDto> {
         this.logger.info(`[${AuthController.name}].${this.userLogin.name} => Start`);
-        this.logger.debug(`[${AuthController.name}].${this.userLogin.name} => ` +
-            ` User: '${JSON.stringify(loginModel)}'`);
+        this.logger.debug(
+            `[${AuthController.name}].${this.userLogin.name} => ` +
+                ` User: '${JSON.stringify(loginModel)}'`,
+        );
 
         const token = await this.authService.login(loginModel);
 
@@ -55,7 +67,10 @@ export class AuthController {
     async changePassword(@Req() request: Request, @Query('password') password: string) {
         const user = request['user'] as UserEntity;
         this.logger.info(`[${AuthController.name}].${this.changePassword.name} => Start`);
-        this.logger.debug(`[${AuthController.name}].${this.changePassword.name} => User = '${JSON.stringify(user)}'`);
+        this.logger.debug(
+            `[${AuthController.name}].${this.changePassword.name} => ` +
+                `User = '${JSON.stringify(user)}'`,
+        );
         await this.authService.changePassword(user.username, password);
         this.logger.info(`[${AuthController.name}].${this.changePassword.name} => Finish`);
     }
@@ -89,10 +104,16 @@ export class AuthController {
     @ApiResponse({ status: 201, description: 'User created successfully.' })
     async createUser(@Body() createUserDto: CreateUserDto): Promise<UserEntity> {
         this.logger.info(`[${AuthController.name}].${this.createUser.name} => Start`);
-        this.logger.debug(`[${AuthController.name}].${this.createUser.name} => ` +
-            `User: '${JSON.stringify(createUserDto)}'`);
+        this.logger.debug(
+            `[${AuthController.name}].${this.createUser.name} => ` +
+                `User: '${JSON.stringify(createUserDto)}'`,
+        );
 
-        const newUser = await this.authService.createNewUser(createUserDto.name, createUserDto.role, createUserDto.password);
+        const newUser = await this.authService.createNewUser(
+            createUserDto.name,
+            createUserDto.role,
+            createUserDto.password,
+        );
 
         this.logger.info(`[${AuthController.name}].${this.createUser.name} => Finish`);
         return newUser;

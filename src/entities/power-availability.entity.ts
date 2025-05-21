@@ -1,14 +1,8 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    Index,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 import { IsNotEmpty } from 'class-validator';
 
 @Entity()
 export class PowerAvailability {
-
     @PrimaryGeneratedColumn()
     id: number;
 

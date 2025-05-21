@@ -4,7 +4,7 @@ class RolesGuardInternal implements CanActivate {
     private allowedRoles: string[];
 
     constructor(allowedRoles: string[]) {
-        this.allowedRoles = allowedRoles.map(role => role.toLowerCase());
+        this.allowedRoles = allowedRoles.map((role) => role.toLowerCase());
     }
 
     canActivate(context: ExecutionContext): boolean {

@@ -1,5 +1,11 @@
 import { JwtService } from '@nestjs/jwt';
-import { Injectable, UnauthorizedException, HttpException, HttpStatus, Inject } from '@nestjs/common';
+import {
+    Injectable,
+    UnauthorizedException,
+    HttpException,
+    HttpStatus,
+    Inject,
+} from '@nestjs/common';
 import { LoginModelDto } from '../../common/models/login.model.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
@@ -18,7 +24,6 @@ import { Logger } from 'winston';
 
 @Injectable()
 export class AuthService {
-
     constructor(
         @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         private readonly jwtService: JwtService,
@@ -26,11 +31,13 @@ export class AuthService {
         private readonly config: ConfigService,
         @InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
         @InjectRepository(UserTokensEntity) private tokensRepository: Repository<UserTokensEntity>,
-    ) { }
+    ) {}
 
     @LogMethod()
     async login(loginModel: LoginModelDto): Promise<TokenDto> {
-        const user = await this.usersRepository.findOne({ where: { username: loginModel.username } });
+        const user = await this.usersRepository.findOne({
+            where: { username: loginModel.username },
+        });
         if (!user || !bcrypt.compareSync(loginModel.password, user.password)) {
             throw new UnauthorizedException('Invalid UserName/Password');
         }
@@ -39,8 +46,14 @@ export class AuthService {
 
     @LogMethod()
     async loginByRefreshToken(refreshToken: string): Promise<TokenDto> {
-        const tokenInDb = await this.tokensRepository.findOne({ relations: ['user'], where: { token: refreshToken } });
-        if (!tokenInDb || moment(tokenInDb.created).add(this.config.refreshTokenLifeTime, 's') < moment()) {
+        const tokenInDb = await this.tokensRepository.findOne({
+            relations: ['user'],
+            where: { token: refreshToken },
+        });
+        if (
+            !tokenInDb ||
+            moment(tokenInDb.created).add(this.config.refreshTokenLifeTime, 's') < moment()
+        ) {
             throw new HttpException('Token is expired or does not exist', HttpStatus.UNAUTHORIZED);
         }
         await this.tokensRepository.remove(tokenInDb);
@@ -62,8 +75,10 @@ export class AuthService {
             where: { username },
         });
         if (!userInDb) {
-            this.logger.error(`[${AuthService.name}].${this.createRefreshToken.name} => ` +
-                `Error: User '${username}' does not exists`);
+            this.logger.error(
+                `[${AuthService.name}].${this.createRefreshToken.name} => ` +
+                    `Error: User '${username}' does not exists`,
+            );
             throw new HttpException('User does not exists', HttpStatus.BAD_REQUEST);
         }
 

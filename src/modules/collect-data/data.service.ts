@@ -13,7 +13,6 @@ import { VoltageData } from '../../entities/voltage-data.entity';
 
 @Injectable()
 export class DataService {
-
     constructor(
         @InjectRepository(ServerData)
         private serverDataRepository: Repository<ServerData>,
@@ -25,7 +24,7 @@ export class DataService {
         private powerDataRepository: Repository<PowerData>,
         @InjectRepository(PowerAcc)
         private powerAccRepository: Repository<PowerAcc>,
-    ) { }
+    ) {}
 
     public async processVoltageData(data: SensorsData) {
         if (data.amperage && data.voltage) {
@@ -40,9 +39,15 @@ export class DataService {
     public async processVoltageAmperageData(data: SensorsData) {
         if (data.amperage && data.voltage) {
             const currentDate = new Date();
-            const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+            const today = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                currentDate.getDate(),
+            );
 
-            let voltageAmperageData = await this.voltageAmperageRepository.findOne({ where: { created: today, hours: currentDate.getHours() } });
+            let voltageAmperageData = await this.voltageAmperageRepository.findOne({
+                where: { created: today, hours: currentDate.getHours() },
+            });
 
             if (!voltageAmperageData) {
                 voltageAmperageData = new VoltageAmperageData();
@@ -50,17 +55,29 @@ export class DataService {
 
             voltageAmperageData.amperageSum = voltageAmperageData.amperageSum + data.amperage;
             voltageAmperageData.samples = voltageAmperageData.samples + 1;
-            if (data.amperage > 0 && voltageAmperageData.amperageMin === 0 || voltageAmperageData.amperageMin > data.amperage) {
+            if (
+                (data.amperage > 0 && voltageAmperageData.amperageMin === 0) ||
+                voltageAmperageData.amperageMin > data.amperage
+            ) {
                 voltageAmperageData.amperageMin = data.amperage;
             }
-            if (voltageAmperageData.amperageMax === 0 || voltageAmperageData.amperageMax < data.amperage) {
+            if (
+                voltageAmperageData.amperageMax === 0 ||
+                voltageAmperageData.amperageMax < data.amperage
+            ) {
                 voltageAmperageData.amperageMax = data.amperage;
             }
             voltageAmperageData.voltageSum = voltageAmperageData.voltageSum + data.voltage;
-            if (data.voltage > 0 && voltageAmperageData.voltageMin === 0 || voltageAmperageData.voltageMin > data.voltage) {
+            if (
+                (data.voltage > 0 && voltageAmperageData.voltageMin === 0) ||
+                voltageAmperageData.voltageMin > data.voltage
+            ) {
                 voltageAmperageData.voltageMin = data.voltage;
             }
-            if (voltageAmperageData.voltageMax === 0 || voltageAmperageData.voltageMax < data.voltage) {
+            if (
+                voltageAmperageData.voltageMax === 0 ||
+                voltageAmperageData.voltageMax < data.voltage
+            ) {
                 voltageAmperageData.voltageMax = data.voltage;
             }
 
@@ -73,9 +90,15 @@ export class DataService {
     public async processPowerData(data: SensorsData) {
         if (data.power) {
             const currentDate = new Date();
-            const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+            const today = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth(),
+                currentDate.getDate(),
+            );
 
-            let powerData = await this.powerDataRepository.findOne({ where: { created: today, hours: currentDate.getHours() } });
+            let powerData = await this.powerDataRepository.findOne({
+                where: { created: today, hours: currentDate.getHours() },
+            });
 
             if (!powerData) {
                 powerData = new PowerData();
@@ -86,13 +109,15 @@ export class DataService {
 
             await this.powerDataRepository.save(powerData);
 
-            const powerAcc = await this.powerAccRepository.findOne({ where: {}, order: { id: 'DESC' } });
+            const powerAcc = await this.powerAccRepository.findOne({
+                where: {},
+                order: { id: 'DESC' },
+            });
             if (powerAcc) {
                 powerAcc.powerAcc = data.power + powerAcc.powerAcc;
                 powerAcc.updated = currentDate;
                 await this.powerAccRepository.save(powerAcc);
             }
-
         }
     }
 
@@ -119,5 +144,4 @@ export class DataService {
         dataRec.updated = new Date();
         await this.serverDataRepository.save(dataRec);
     }
-
 }

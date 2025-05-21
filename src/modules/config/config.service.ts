@@ -132,9 +132,10 @@ export class ConfigService {
 
     get toEmails(): string[] {
         const emailsStr = this.envConfig.TO_EMAILS;
-        const emails = emailsStr.split(',')
-            .map(e => e.trim())
-            .filter(e => e && e.length > 0);
+        const emails = emailsStr
+            .split(',')
+            .map((e) => e.trim())
+            .filter((e) => e && e.length > 0);
         return emails;
     }
 
@@ -193,9 +194,10 @@ export class ConfigService {
 
     get allowOrigins(): string[] {
         const originsStr = this.envConfig.ALLOW_ORIGINS;
-        const origins = originsStr.split(',')
-            .map(e => e.trim())
-            .filter(e => e && e.length > 0);
+        const origins = originsStr
+            .split(',')
+            .map((e) => e.trim())
+            .filter((e) => e && e.length > 0);
         return origins;
     }
 

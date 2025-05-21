@@ -13,19 +13,19 @@ import { UserTokensEntity } from '../../entities/user-tokens.entity';
 
 const config = new ConfigService();
 @Module({
-  imports: [
-    LoggerModule,
-    TypeOrmModule.forFeature([UserEntity, UserTokensEntity]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.register({
-      secretOrPrivateKey: config.tokenSecretKey,
-      signOptions: {
-        expiresIn: config.tokenLifeTime,
-      },
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [ConfigService, AuthService, JwtStrategy, UtilsService],
-  exports: [PassportModule, AuthService],
+    imports: [
+        LoggerModule,
+        TypeOrmModule.forFeature([UserEntity, UserTokensEntity]),
+        PassportModule.register({ defaultStrategy: 'jwt' }),
+        JwtModule.register({
+            secretOrPrivateKey: config.tokenSecretKey,
+            signOptions: {
+                expiresIn: config.tokenLifeTime,
+            },
+        }),
+    ],
+    controllers: [AuthController],
+    providers: [ConfigService, AuthService, JwtStrategy, UtilsService],
+    exports: [PassportModule, AuthService],
 })
-export class AuthModule { }
+export class AuthModule {}

@@ -1,16 +1,10 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    Index,
-} from 'typeorm';
-import { Length, IsNotEmpty } from 'class-validator';
+import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
+import { IsNotEmpty } from 'class-validator';
 import { ColumnNumericTransformer } from './numeric-column-transformer';
 
 @Entity()
 @Index(['created', 'hours'], { unique: true })
 export class VoltageAmperageData {
-
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -81,7 +75,11 @@ export class VoltageAmperageData {
 
     constructor() {
         const currentDate = new Date();
-        const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+        const today = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            currentDate.getDate(),
+        );
         this.created = today;
         this.hours = currentDate.getHours();
         this.amperageMax = 0;

@@ -1,4 +1,14 @@
-import { Controller, Get, UseGuards, Post, Body, Put, Param, Delete, HttpCode, Inject } from '@nestjs/common';
+import {
+    Controller,
+    Get,
+    UseGuards,
+    Post,
+    Body,
+    Param,
+    Delete,
+    HttpCode,
+    Inject,
+} from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/swagger';
 import { Logger } from 'winston';
 import { EnergyMeteringService } from './energy-metering.service';
@@ -12,11 +22,10 @@ import { WINSTON_LOGGER } from '../logger/logger.module';
 @ApiTags('Power Consumption')
 @Controller('api/power-consumption')
 export class PowerConsumptionController {
-
     constructor(
         @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         private readonly energyMeteringService: EnergyMeteringService,
-    ) { }
+    ) {}
 
     /**
      * Returns all energy metering data. Admin only.
@@ -27,9 +36,13 @@ export class PowerConsumptionController {
     @ApiOperation({ summary: 'Get all energy metering data (admin only).' })
     @ApiResponse({ status: 200, description: 'Array of meter data DTOs returned.' })
     async getEnergyMeteringData(): Promise<MeterDataDto[]> {
-        this.logger.info(`[${PowerConsumptionController.name}].${this.getEnergyMeteringData.name} => Start`);
+        this.logger.info(
+            `[${PowerConsumptionController.name}].${this.getEnergyMeteringData.name} => Start`,
+        );
         const data = await this.energyMeteringService.getPowerMeterData();
-        this.logger.info(`[${PowerConsumptionController.name}].${this.getEnergyMeteringData.name} => Finish`);
+        this.logger.info(
+            `[${PowerConsumptionController.name}].${this.getEnergyMeteringData.name} => Finish`,
+        );
         return data;
     }
 
@@ -44,11 +57,17 @@ export class PowerConsumptionController {
     @ApiBody({ type: FactualDataDto })
     @ApiResponse({ status: 201, description: 'Factual data record created.' })
     async addNewFactualData(@Body() factualData: FactualDataDto): Promise<PowerAcc> {
-        this.logger.info(`[${PowerConsumptionController.name}].${this.addNewFactualData.name} => Start`);
-        this.logger.info(`[${PowerConsumptionController.name}].${this.addNewFactualData.name} => ` +
-            `Factual Data = '${JSON.stringify(factualData)}'`);
+        this.logger.info(
+            `[${PowerConsumptionController.name}].${this.addNewFactualData.name} => Start`,
+        );
+        this.logger.info(
+            `[${PowerConsumptionController.name}].${this.addNewFactualData.name} => ` +
+                `Factual Data = '${JSON.stringify(factualData)}'`,
+        );
         const newData = await this.energyMeteringService.addNewFactualData(factualData);
-        this.logger.info(`[${PowerConsumptionController.name}].${this.addNewFactualData.name} => Finish`);
+        this.logger.info(
+            `[${PowerConsumptionController.name}].${this.addNewFactualData.name} => Finish`,
+        );
         return newData;
     }
 
@@ -64,12 +83,18 @@ export class PowerConsumptionController {
     @ApiParam({ name: 'recordId', type: Number })
     @ApiResponse({ status: 204, description: 'Factual data record deleted.' })
     async deleteFactualData(@Param('recordId') recordId: number) {
-        this.logger.info(`[${PowerConsumptionController.name}].${this.deleteFactualData.name} => Start`);
-        this.logger.info(`[${PowerConsumptionController.name}].${this.deleteFactualData.name} => ` +
-            `Record Id: '${recordId}'`);
+        this.logger.info(
+            `[${PowerConsumptionController.name}].${this.deleteFactualData.name} => Start`,
+        );
+        this.logger.info(
+            `[${PowerConsumptionController.name}].${this.deleteFactualData.name} => ` +
+                `Record Id: '${recordId}'`,
+        );
         recordId = Number(recordId);
         await this.energyMeteringService.deleteFactualData(recordId);
-        this.logger.info(`[${PowerConsumptionController.name}].${this.deleteFactualData.name} => Finish`);
+        this.logger.info(
+            `[${PowerConsumptionController.name}].${this.deleteFactualData.name} => Finish`,
+        );
         return `Deleted record with Id: ${recordId}`;
     }
 }

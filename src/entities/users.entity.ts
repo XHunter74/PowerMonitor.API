@@ -37,7 +37,7 @@ export class UserEntity {
     @UpdateDateColumn()
     updatedAt: Date;
 
-    @OneToMany(() => UserTokensEntity, tokens => tokens.user, { cascade: true, eager: true })
+    @OneToMany(() => UserTokensEntity, (tokens) => tokens.user, { cascade: true, eager: true })
     tokens: UserTokensEntity[];
 
     hashPassword() {

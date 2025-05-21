@@ -14,28 +14,28 @@ import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
 
 @Module({
-  imports: [
-    CacheModule.register(),
-    ConfigModule,
-    LoggerModule,
-    AuthModule,
-    ScheduledTasksModule,
-    PowerDataModule,
-    SocketModule,
-    ServicesModule,
-    ScheduleModule.forRoot(),
-    TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
-      useFactory: async () => (ormConfig),
-      inject: [ConfigService],
-    }),
-  ],
-  controllers: [],
-  providers: [
-    {
-      provide: APP_INTERCEPTOR,
-      useClass: CacheInterceptor,
-    },
-  ],
+    imports: [
+        CacheModule.register(),
+        ConfigModule,
+        LoggerModule,
+        AuthModule,
+        ScheduledTasksModule,
+        PowerDataModule,
+        SocketModule,
+        ServicesModule,
+        ScheduleModule.forRoot(),
+        TypeOrmModule.forRootAsync({
+            imports: [ConfigModule],
+            useFactory: () => ormConfig,
+            inject: [ConfigService],
+        }),
+    ],
+    controllers: [],
+    providers: [
+        {
+            provide: APP_INTERCEPTOR,
+            useClass: CacheInterceptor,
+        },
+    ],
 })
-export class AppModule { }
+export class AppModule {}

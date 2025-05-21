@@ -9,11 +9,10 @@ import { RolesGuard } from '../../common/guards/roles.guard';
 @ApiTags('Services')
 @Controller('api/services')
 export class ServicesController {
-
     constructor(
         @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         private readonly servicesService: ServicesService,
-    ) { }
+    ) {}
 
     /**
      * Returns system information for the device.
@@ -25,8 +24,10 @@ export class ServicesController {
     async getSysInfo() {
         this.logger.info(`[${ServicesController.name}].${this.getSysInfo.name} => Start`);
         const data = await this.servicesService.getSystemInfo();
-        this.logger.debug(`[${ServicesController.name}].${this.getSysInfo.name} => ` +
-            `System Info: '${JSON.stringify(data)}'`);
+        this.logger.debug(
+            `[${ServicesController.name}].${this.getSysInfo.name} => ` +
+                `System Info: '${JSON.stringify(data)}'`,
+        );
         this.logger.info(`[${ServicesController.name}].${this.getSysInfo.name} => Finish`);
         return data;
     }
@@ -41,8 +42,10 @@ export class ServicesController {
     async getSketchBuildDate() {
         this.logger.info(`[${ServicesController.name}].${this.getSketchBuildDate.name} => Start`);
         const versionInfo = await this.servicesService.getSketchBuildDate();
-        this.logger.debug(`[${ServicesController.name}].${this.getSketchBuildDate.name} => ` +
-            `Version Info: '${JSON.stringify(versionInfo)}'`);
+        this.logger.debug(
+            `[${ServicesController.name}].${this.getSketchBuildDate.name} => ` +
+                `Version Info: '${JSON.stringify(versionInfo)}'`,
+        );
         this.logger.info(`[${ServicesController.name}].${this.getSketchBuildDate.name} => Finish`);
         return versionInfo;
     }
@@ -55,11 +58,17 @@ export class ServicesController {
     @ApiOperation({ summary: 'Get the calibration coefficients for the device. Admin only.' })
     @ApiResponse({ status: 200, description: 'Calibration coefficients returned successfully.' })
     async getCalibrationCoefficients() {
-        this.logger.info(`[${ServicesController.name}].${this.getCalibrationCoefficients.name} => Start`);
+        this.logger.info(
+            `[${ServicesController.name}].${this.getCalibrationCoefficients.name} => Start`,
+        );
         const coefficients = await this.servicesService.getCalibrationCoefficients();
-        this.logger.debug(`[${ServicesController.name}].${this.getCalibrationCoefficients.name} => ` +
-            `Calibration Coefficients: '${JSON.stringify(coefficients)}'`);
-        this.logger.info(`[${ServicesController.name}].${this.getCalibrationCoefficients.name} => Finish`);
+        this.logger.debug(
+            `[${ServicesController.name}].${this.getCalibrationCoefficients.name} => ` +
+                `Calibration Coefficients: '${JSON.stringify(coefficients)}'`,
+        );
+        this.logger.info(
+            `[${ServicesController.name}].${this.getCalibrationCoefficients.name} => Finish`,
+        );
 
         return coefficients;
     }

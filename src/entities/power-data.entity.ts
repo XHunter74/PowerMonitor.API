@@ -1,16 +1,10 @@
-import {
-    Entity,
-    PrimaryGeneratedColumn,
-    Column,
-    Index,
-} from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, Index } from 'typeorm';
 import { IsNotEmpty } from 'class-validator';
 import { ColumnNumericTransformer } from './numeric-column-transformer';
 
 @Entity()
 @Index(['created', 'hours'], { unique: true })
 export class PowerData {
-
     @PrimaryGeneratedColumn()
     id: number;
 
@@ -37,7 +31,11 @@ export class PowerData {
 
     constructor() {
         const currentDate = new Date();
-        const today = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate());
+        const today = new Date(
+            currentDate.getFullYear(),
+            currentDate.getMonth(),
+            currentDate.getDate(),
+        );
         this.created = today;
         this.hours = currentDate.getHours();
         this.power = 0;

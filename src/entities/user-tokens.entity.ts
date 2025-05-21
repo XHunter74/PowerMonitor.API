@@ -12,6 +12,6 @@ export class UserTokensEntity {
     @Column('varchar', { length: 1024 })
     token: string;
 
-    @ManyToOne(() => UserEntity, user => user.tokens, { onDelete: 'CASCADE'})
+    @ManyToOne(() => UserEntity, (user) => user.tokens, { onDelete: 'CASCADE' })
     user: UserEntity;
 }

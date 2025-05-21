@@ -1,6 +1,6 @@
-import { IsNotEmpty } from "class-validator";
-import { Column, Entity, Index, PrimaryGeneratedColumn } from "typeorm";
-import { ColumnNumericTransformer } from "./numeric-column-transformer";
+import { IsNotEmpty } from 'class-validator';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
+import { ColumnNumericTransformer } from './numeric-column-transformer';
 
 @Entity()
 export class VoltageData {

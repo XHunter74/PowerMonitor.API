@@ -5,12 +5,9 @@ import { ServicesController } from './services.controller';
 import { CollectDataModule } from '../collect-data/collect-data.module';
 
 @Module({
-  imports: [
-    LoggerModule,
-    CollectDataModule,
-  ],
-  controllers: [ServicesController],
-  providers: [ServicesService],
-  exports: [ServicesService],
+    imports: [LoggerModule, CollectDataModule],
+    controllers: [ServicesController],
+    providers: [ServicesService],
+    exports: [ServicesService],
 })
-export class ServicesModule { }
+export class ServicesModule {}

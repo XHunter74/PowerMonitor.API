@@ -5,13 +5,9 @@ import { ConfigModule } from '../config/config.module';
 import { CollectDataModule } from '../collect-data/collect-data.module';
 
 @Module({
-  imports: [
-    LoggerModule,
-    ConfigModule,
-    CollectDataModule,
-  ],
-  controllers: [],
-  providers: [SocketService],
-  exports: [],
+    imports: [LoggerModule, ConfigModule, CollectDataModule],
+    controllers: [],
+    providers: [SocketService],
+    exports: [],
 })
-export class SocketModule { }
+export class SocketModule {}

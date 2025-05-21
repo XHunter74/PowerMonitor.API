@@ -10,20 +10,19 @@ import { MqttModule } from '../mqtt/mqtt.module';
 import { PowerDataModule } from '../power-data/power-data.module';
 import { HttpModule } from '@nestjs/axios';
 
-
 @Module({
-  imports: [
-    LoggerModule,
-    TypeOrmModule.forFeature([UserTokensEntity]),
-    ConfigModule,
-    HttpModule,
-    CollectDataModule,
-    ServicesModule,
-    MqttModule,
-    PowerDataModule,
-  ],
-  controllers: [],
-  providers: [ScheduledTasksService],
-  exports: [],
+    imports: [
+        LoggerModule,
+        TypeOrmModule.forFeature([UserTokensEntity]),
+        ConfigModule,
+        HttpModule,
+        CollectDataModule,
+        ServicesModule,
+        MqttModule,
+        PowerDataModule,
+    ],
+    controllers: [],
+    providers: [ScheduledTasksService],
+    exports: [],
 })
-export class ScheduledTasksModule { }
+export class ScheduledTasksModule {}

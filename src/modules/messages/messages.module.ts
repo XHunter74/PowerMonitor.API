@@ -5,11 +5,8 @@ import { TelegramService } from './telegram.service';
 import { EmailService } from './email.service';
 
 @Module({
-  imports: [
-    LoggerModule,
-    ConfigModule,
-  ],
-  providers: [TelegramService, EmailService],
-  exports: [TelegramService, EmailService],
+    imports: [LoggerModule, ConfigModule],
+    providers: [TelegramService, EmailService],
+    exports: [TelegramService, EmailService],
 })
-export class MessagesModule { }
+export class MessagesModule {}
