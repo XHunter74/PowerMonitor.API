@@ -1,7 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Matches } from 'class-validator';
+import { BaseQueryDto } from './base-query.dto';
 
-export class StartFinishDatesDto {
+export class StartFinishDatesDto extends BaseQueryDto {
     @ApiProperty({ example: '2020-01-01', description: 'Start date' })
     @Matches(/^\d{4}-\d{1,2}-\d{1,2}$/, {
         message: 'startDate must be in YYYY-M-D or YYYY-MM-DD format',

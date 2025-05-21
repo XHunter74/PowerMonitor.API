@@ -1,8 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Expose, Type } from 'class-transformer';
 import { IsInt, Min, Max } from 'class-validator';
+import { BaseQueryDto } from './base-query.dto';
 
-export class MonthDayOfWeekDto {
+export class MonthDayOfWeekDto extends BaseQueryDto {
     @ApiProperty({ example: 5, description: 'Month number (1-12)' })
     @Type(() => Number)
     @IsInt()

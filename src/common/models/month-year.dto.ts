@@ -1,13 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsInt, Min, Max } from 'class-validator';
+import { BaseQueryDto } from './base-query.dto';
 
 /**
  * DTO for specifying a month and year for queries.
  *
  * @example { "month": 5, "year": 2025 }
  */
-export class MonthYearDto {
+export class MonthYearDto extends BaseQueryDto {
     @ApiProperty({ example: 5, description: 'Month number (1-12)' })
     @Type(() => Number)
     @IsInt()
