@@ -9,7 +9,7 @@ import { ServicesService } from '../services/services.service';
 import { CollectDataService } from '../collect-data/collect-data.service';
 import { SensorsData } from '../../common/models/sensors-data';
 import { MqttConnectionService } from './mqtt-connection.service';
-import { daysInMonth } from '../../date-functions';
+import { daysInMonth } from '../../common/date-functions';
 import { Subscription } from 'rxjs';
 
 @Injectable()

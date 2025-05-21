@@ -12,7 +12,7 @@ import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
 import { PowerDataService } from './power-data.service';
 import { AuthGuard } from '@nestjs/passport';
-import { daysInMonth } from '../../date-functions';
+import { daysInMonth } from '../../common/date-functions';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Constants } from '../../constants';
 

@@ -1,34 +1,23 @@
 import 'reflect-metadata';
-import * as apm from 'elastic-apm-node';
+// eslint-disable-next-line import/no-duplicates
+import { initElasticApm } from './main.functions';
+
+// Should be before all imports
+initElasticApm();
+
 import { ConfigService } from './modules/config/config.service';
-
-const config = new ConfigService();
-
-if (config.elasticApmUrl && config.elasticApmApiKey) {
-    apm.start({
-        serviceName: 'power-monitor-api',
-        serverUrl: config.elasticApmUrl,
-        apiKey: config.elasticApmApiKey,
-        environment: process.env.NODE_ENV || 'development',
-        captureBody: 'all',
-        active: true,
-        logLevel: (config.logLevel as apm.LogLevel) || 'info',
-        centralConfig: false,
-    });
-}
-
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
-import * as ping from 'ping';
+
 import { SocketIoAdapter } from './modules/socket/socket.adapter';
 import { env } from 'process';
-import { delay } from './utils';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { WINSTON_LOGGER } from './modules/logger/logger.module';
 import { Logger } from 'winston';
-import { Constants } from './constants';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+// eslint-disable-next-line import/no-duplicates
+import { waitNetworkAccess } from './main.functions';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -40,7 +29,9 @@ async function bootstrap() {
         `[Startup].${bootstrap.name} => Check availability of host '${config.checkHostIp}'`,
     );
 
-    await waitNetworkAccess(config, logger);
+    // Without network access, the application will not start
+    // This is important for the production environment
+    await waitNetworkAccess(bootstrap.name, config, logger);
 
     logger.info(`[PowerMonitor app] => it is starting`);
 
@@ -64,6 +55,7 @@ async function bootstrap() {
     const document = SwaggerModule.createDocument(app, swaggerConfig);
     SwaggerModule.setup('swagger', app, document);
 
+    // Application configuration
     app.useLogger({
         log: (msg) => logger.info(msg),
         error: (msg) => logger.error(msg),
@@ -86,31 +78,6 @@ async function bootstrap() {
         process.send('ready');
         logger.info(`[Startup].${bootstrap.name} => Application started successfully`);
     });
-}
-
-async function waitNetworkAccess(config: ConfigService, logger: Logger) {
-    const mode = process.env.NODE_ENV;
-
-    if (!mode || (mode && mode === 'development')) {
-        logger.info(`[Startup].${bootstrap.name} => Application is running in '${mode}' mode`);
-        return;
-    }
-
-    let pingResult: any;
-
-    do {
-        pingResult = await ping.promise.probe(config.checkHostIp);
-        if (!pingResult.alive) {
-            logger.error(
-                `[Startup].${bootstrap.name} => Host '${config.checkHostIp}' is not available`,
-            );
-            await delay(Constants.PingDelay);
-        } else {
-            logger.info(`[Startup].${bootstrap.name} => Host '${config.checkHostIp}' is available`);
-        }
-    } while (!pingResult.alive);
-
-    await delay(Constants.NetworkWaitingDelay);
 }
 
 bootstrap().catch((err) => {

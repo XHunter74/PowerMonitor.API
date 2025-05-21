@@ -1,5 +1,5 @@
 import { SysInfoModel, SystemUptime } from '../../common/models/sys-info.model';
-import { patchDate } from '../../date-functions';
+import { patchDate } from '../../common/date-functions';
 import { DataService } from '../collect-data/data.service';
 import { Constants } from '../../constants';
 import { Injectable } from '@nestjs/common';
