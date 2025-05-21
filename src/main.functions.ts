@@ -4,6 +4,7 @@ import { Constants } from './constants';
 import { delay } from './common/utils';
 import * as ping from 'ping';
 import { Logger } from 'winston';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 export function initElasticApm() {
     const config = new ConfigService();
@@ -49,4 +50,25 @@ export async function waitNetworkAccess(
     } while (!pingResult.alive);
 
     await delay(Constants.NetworkWaitingDelay);
+}
+
+export function configureSwagger(app: any) {
+    const swaggerConfig = new DocumentBuilder()
+        .setTitle('PowerMonitor API')
+        .setDescription('API documentation for PowerMonitor')
+        .setVersion('1.0')
+        .addBearerAuth()
+        .addTag(
+            'Auth',
+            'Authentication endpoints for user login, password management, and user creation.',
+        )
+        .addTag('Power Data', 'Endpoints for retrieving and analyzing power and voltage data.')
+        .addTag(
+            'Power Consumption',
+            'Endpoints for managing and retrieving power consumption and metering data.',
+        )
+        .addTag('Services', 'Service endpoints for system info, calibration, and health checks.')
+        .build();
+    const document = SwaggerModule.createDocument(app, swaggerConfig);
+    SwaggerModule.setup('swagger', app, document);
 }

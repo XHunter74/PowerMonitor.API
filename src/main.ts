@@ -15,9 +15,8 @@ import { env } from 'process';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { WINSTON_LOGGER } from './modules/logger/logger.module';
 import { Logger } from 'winston';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 // eslint-disable-next-line import/no-duplicates
-import { waitNetworkAccess } from './main.functions';
+import { waitNetworkAccess, configureSwagger } from './main.functions';
 
 async function bootstrap() {
     const app = await NestFactory.create(AppModule);
@@ -36,24 +35,9 @@ async function bootstrap() {
     logger.info(`[PowerMonitor app] => it is starting`);
 
     // Swagger setup
-    const swaggerConfig = new DocumentBuilder()
-        .setTitle('PowerMonitor API')
-        .setDescription('API documentation for PowerMonitor')
-        .setVersion('1.0')
-        .addBearerAuth()
-        .addTag(
-            'Auth',
-            'Authentication endpoints for user login, password management, and user creation.',
-        )
-        .addTag('Power Data', 'Endpoints for retrieving and analyzing power and voltage data.')
-        .addTag(
-            'Power Consumption',
-            'Endpoints for managing and retrieving power consumption and metering data.',
-        )
-        .addTag('Services', 'Service endpoints for system info, calibration, and health checks.')
-        .build();
-    const document = SwaggerModule.createDocument(app, swaggerConfig);
-    SwaggerModule.setup('swagger', app, document);
+    if (config.isDevEnvironment) {
+        configureSwagger(app);
+    }
 
     // Application configuration
     app.useLogger({
