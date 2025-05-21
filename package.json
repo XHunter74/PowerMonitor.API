@@ -1,6 +1,6 @@
 {
     "name": "power-monitor.api",
-    "version": "1.1.81",
+    "version": "1.1.82",
     "description": "NestJS backend API for PowerMonitor: provides endpoints for power, voltage, and system data, with authentication, MQTT, and scheduled tasks.",
     "author": "Serhiy Krasovskyy <xhunter74@gmail.com>",
     "license": "MIT",
