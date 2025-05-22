@@ -1,7 +1,7 @@
 import { SysInfoModel, SystemUptime } from '../../common/models/sys-info.model';
 import { patchDate } from '../../common/date-functions';
 import { DataService } from '../collect-data/data.service';
-import { Constants, Intervals } from '../../constants';
+import { Constants, Intervals, IntervalsInSeconds } from '../../constants';
 import { Injectable } from '@nestjs/common';
 import { CoefficientsModel } from '../../common/models/coefficients.model';
 import { environment } from '../../environments';
@@ -62,9 +62,9 @@ export class ServicesService {
     getSystemUptimeSeconds(): number {
         const uptimeData = this.getSystemUptime();
         const result =
-            uptimeData.days * 24 * 60 * 60 +
-            uptimeData.hours * 60 * 60 +
-            uptimeData.minutes * 60 +
+            uptimeData.days * IntervalsInSeconds.OneDay +
+            uptimeData.hours * IntervalsInSeconds.OneHour +
+            uptimeData.minutes * IntervalsInSeconds.OneMinute +
             uptimeData.seconds;
         return result;
     }

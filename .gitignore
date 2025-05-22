@@ -32,6 +32,7 @@ lerna-debug.log*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/extensions.json
+undefined/
 logs-docker/
 server.off
 staging.env
