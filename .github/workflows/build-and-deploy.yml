@@ -107,7 +107,7 @@ jobs:
 
             - name: Install dependencies on target
               run: |
-                  cd /home/pi/PowerMonitor.API && sudo -u pi npm install --omit=dev
+                  cd /home/pi/PowerMonitor.API && sudo -u pi npm ci --omit=dev
 
             - name: Start PM2 app
               run: |
