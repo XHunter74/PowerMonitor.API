@@ -1,6 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { MqttClientService } from '../src/modules/mqtt/mqtt-client.service';
+import { SensorsDataModel } from '../dist/common/models/sensors-data.model';
 
 describe('MqttClientService', () => {
     let service: MqttClientService;
@@ -57,8 +58,7 @@ describe('MqttClientService', () => {
 
     it('publishCurrentAndVoltageData publishes if not dev and connected', () => {
         // SensorsData requires voltage, amperage, power, powerCoefficient
-        const { SensorsData } = require('../src/common/models/sensors-data');
-        const sensorsData = new SensorsData(220, 5, 0, 1);
+        const sensorsData = new SensorsDataModel(220, 5, 0, 1);
         service.publishCurrentAndVoltageData(sensorsData);
         expect(mqttConnectionService.publish.calledOnce).to.be.true;
     });

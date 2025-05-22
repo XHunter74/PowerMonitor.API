@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { SocketService } from '../src/modules/socket/socket.service';
-import { SensorsData } from '../src/common/models/sensors-data';
+import { SensorsDataModel } from '../src/common/models/sensors-data.model';
 
 describe('SocketService', () => {
     let service: SocketService;
@@ -50,7 +50,7 @@ describe('SocketService', () => {
         expect(collectDataService.getSensorsData.subscribe.calledOnce).to.be.true;
         // Get callback passed to subscribe
         const callback = collectDataService.getSensorsData.subscribe.firstCall.args[0];
-        const data = new SensorsData(10, 2, 0, 1);
+        const data = new SensorsDataModel(10, 2, 0, 1);
         // Simulate data emission
         callback(data);
         expect(serverMock.emit.calledOnceWith('sensors-data', data)).to.be.true;

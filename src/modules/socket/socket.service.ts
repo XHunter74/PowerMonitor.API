@@ -9,7 +9,7 @@ import {
     OnGatewayDisconnect,
     WebSocketServer,
 } from '@nestjs/websockets';
-import { SensorsData } from '../../common/models/sensors-data';
+import { SensorsDataModel } from '../../common/models/sensors-data.model';
 import { Subscription } from 'rxjs';
 
 @WebSocketGateway()
@@ -54,7 +54,7 @@ export class SocketService implements OnGatewayConnection, OnGatewayDisconnect {
     onSensorsData(client) {
         if (!this.clientSubscription) {
             this.clientSubscription = this.collectDataService.getSensorsData.subscribe(
-                (data: SensorsData) => {
+                (data: SensorsDataModel) => {
                     this.server.emit('sensors-data', data);
                 },
             );

@@ -1,4 +1,4 @@
-export class SensorsData {
+export class SensorsDataModel {
     voltage = 0;
     amperage = 0;
     power = 0;

@@ -1,7 +1,7 @@
 import { Repository } from 'typeorm';
 import { ServerData } from '../../entities/server-data.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SensorsData } from '../../common/models/sensors-data';
+import { SensorsDataModel } from '../../common/models/sensors-data.model';
 import { VoltageAmperageData } from '../../entities/voltage-amperage-data.entity';
 import { PowerData } from '../../entities/power-data.entity';
 import { CoefficientsModel } from '../../common/models/coefficients.model';
@@ -26,7 +26,7 @@ export class DataService {
         private powerAccRepository: Repository<PowerAcc>,
     ) {}
 
-    public async processVoltageData(data: SensorsData) {
+    public async processVoltageData(data: SensorsDataModel) {
         if (data.amperage && data.voltage) {
             const currentDate = new Date();
             const voltageData = new VoltageData();
@@ -36,7 +36,7 @@ export class DataService {
         }
     }
 
-    public async processVoltageAmperageData(data: SensorsData) {
+    public async processVoltageAmperageData(data: SensorsDataModel) {
         if (data.amperage && data.voltage) {
             const currentDate = new Date();
             const today = new Date(
@@ -87,7 +87,7 @@ export class DataService {
         }
     }
 
-    public async processPowerData(data: SensorsData) {
+    public async processPowerData(data: SensorsDataModel) {
         if (data.power) {
             const currentDate = new Date();
             const today = new Date(

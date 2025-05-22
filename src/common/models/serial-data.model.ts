@@ -1,4 +1,4 @@
-export class SerialData {
+export class SerialDataModel {
     type: 'data' | 'coefficients' | 'info';
     voltage: number;
     current: number;

@@ -7,7 +7,7 @@ import { MqttDataModel } from '../../common/models/mqtt-data.model';
 import { EnergyMeteringService } from '../power-data/energy-metering.service';
 import { ServicesService } from '../services/services.service';
 import { CollectDataService } from '../collect-data/collect-data.service';
-import { SensorsData } from '../../common/models/sensors-data';
+import { SensorsDataModel } from '../../common/models/sensors-data.model';
 import { MqttConnectionService } from './mqtt-connection.service';
 import { daysInMonth } from '../../common/date-functions';
 import { Subscription } from 'rxjs';
@@ -36,7 +36,7 @@ export class MqttClientService {
             );
         });
         this.clientSubscription = this.collectDataService.getSensorsData.subscribe(
-            (data: SensorsData) => {
+            (data: SensorsDataModel) => {
                 this.publishCurrentAndVoltageData(data);
             },
         );
@@ -50,7 +50,7 @@ export class MqttClientService {
         }
     }
 
-    public publishCurrentAndVoltageData(sensorsData: SensorsData) {
+    public publishCurrentAndVoltageData(sensorsData: SensorsDataModel) {
         if (!this.config.isDevEnvironment && this.mqttConnectionService.isConnected()) {
             const options = { retain: true, qos: 1 };
             const data = {

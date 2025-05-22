@@ -6,7 +6,7 @@ import { ConfigService } from '../src/modules/config/config.service';
 import { DataService } from '../src/modules/collect-data/data.service';
 import { TelegramService } from '../src/modules/messages/telegram.service';
 import { SerialPortService } from '../src/modules/collect-data/serial-port.service';
-import { BoardCoefficientsModel } from '../src/common/models/board-coefficients.model';
+import { BoardCoefficientsModel } from '../src/common/models/dto/board-coefficients.model';
 
 describe('CollectDataService', () => {
     let service: CollectDataService;

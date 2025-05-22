@@ -6,13 +6,13 @@ import {
     HttpStatus,
     Inject,
 } from '@nestjs/common';
-import { LoginModelDto } from '../../common/models/login.model.dto';
+import { LoginModelDto } from '../../common/models/dto/login.model.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../../entities/users.entity';
 import { Repository } from 'typeorm';
-import { JwtPayload } from '../../common/models/jwt-payload.interface';
-import { TokenDto } from '../../common/models/token.dto';
+import { JwtPayload } from './jwt-payload.interface';
+import { TokenDto } from '../../common/models/dto/token.dto';
 import { UtilsService } from './utils.service';
 import { ConfigService } from '../../modules/config/config.service';
 import { UserTokensEntity } from '../../entities/user-tokens.entity';

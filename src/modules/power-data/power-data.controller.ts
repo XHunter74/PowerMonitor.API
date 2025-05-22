@@ -7,10 +7,10 @@ import { AuthGuard } from '@nestjs/passport';
 import { daysInMonth } from '../../common/date-functions';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { Constants } from '../../constants';
-import { StartFinishDatesDto } from '../../common/models/start-finish-dates.dto';
-import { MonthYearDto } from '../../common/models/month-year.dto';
-import { YearDto } from '../../common/models/year.dto';
-import { MonthDayOfWeekDto } from '../../common/models/month-dayofweek.dto';
+import { StartFinishDatesDto } from '../../common/models/dto/start-finish-dates.dto';
+import { MonthYearDto } from '../../common/models/dto/month-year.dto';
+import { YearDto } from '../../common/models/dto/year.dto';
+import { MonthDayOfWeekDto } from '../../common/models/dto/month-dayofweek.dto';
 
 @ApiTags('Power Data')
 @Controller('api/power')

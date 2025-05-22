@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { EnergyMeteringService } from '../src/modules/power-data/energy-metering.service';
 import { ConfigService } from '../src/modules/config/config.service';
-import { FactualDataDto } from '../src/common/models/factual-data.dto';
+import { FactualDataDto } from '../src/common/models/dto/factual-data.dto';
 
 describe('EnergyMeteringService', () => {
     let service: EnergyMeteringService;

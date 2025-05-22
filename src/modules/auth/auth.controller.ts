@@ -12,12 +12,12 @@ import {
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { Request } from 'express';
-import { LoginModelDto } from '../../common/models/login.model.dto';
+import { LoginModelDto } from '../../common/models/dto/login.model.dto';
 import { AuthService } from './auth.service';
 import { AuthGuard } from '@nestjs/passport';
-import { TokenDto } from '../../common/models/token.dto';
+import { TokenDto } from '../../common/models/dto/token.dto';
 import { UserEntity } from '../../entities/users.entity';
-import { CreateUserDto } from '../../common/models/create-user.dto';
+import { CreateUserDto } from '../../common/models/dto/create-user.dto';
 import { RolesGuard } from '../../common/guards/roles.guard';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';

@@ -1,8 +1,8 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MeterDataDto } from '../../common/models/meter-data.dto';
-import { FactualDataDto } from '../../common/models/factual-data.dto';
+import { MeterDataDto } from '../../common/models/dto/meter-data.dto';
+import { FactualDataDto } from '../../common/models/dto/factual-data.dto';
 import { PowerAcc } from '../../entities/power-acc.entity';
 import { ConfigService } from '../config/config.service';
 

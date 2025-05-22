@@ -4,13 +4,13 @@ import { Injectable, Inject } from '@nestjs/common';
 import { Logger } from 'winston';
 
 import { VersionModel } from '../../common/models/version.model';
-import { SensorsData } from '../../common/models/sensors-data';
+import { SensorsDataModel } from '../../common/models/sensors-data.model';
 import { CoefficientsModel } from '../../common/models/coefficients.model';
-import { BoardCoefficientsModel } from '../../common/models/board-coefficients.model';
+import { BoardCoefficientsModel } from '../../common/models/dto/board-coefficients.model';
 import { ConfigService } from '../config/config.service';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { TelegramService } from '../messages/telegram.service';
-import { SerialData } from '../../common/models/serial-data';
+import { SerialDataModel } from '../../common/models/serial-data.model';
 
 import { DataService } from './data.service';
 import { SerialPortService } from './serial-port.service';
@@ -30,8 +30,8 @@ export class CollectDataService {
         return this.coefficientsSubject.asObservable();
     }
 
-    private sensorsDataSubject = new Subject<SensorsData>();
-    get getSensorsData(): Observable<SensorsData> {
+    private sensorsDataSubject = new Subject<SensorsDataModel>();
+    get getSensorsData(): Observable<SensorsDataModel> {
         return this.sensorsDataSubject.asObservable();
     }
 
@@ -85,13 +85,13 @@ export class CollectDataService {
 
     private async serialReceiveData(dataStr: string) {
         if (dataStr.startsWith('{') && dataStr.endsWith('}\r')) {
-            const data = JSON.parse(dataStr) as SerialData;
+            const data = JSON.parse(dataStr) as SerialDataModel;
             this.lastDataReceiveEvent = new Date();
             this.serialDataIsAvailable = true;
             switch (data.type) {
                 case 'data':
                     await this.processSensorData(
-                        new SensorsData(
+                        new SensorsDataModel(
                             data.voltage,
                             data.current,
                             data.power,
@@ -162,7 +162,7 @@ export class CollectDataService {
         }
     }
 
-    private async processSensorData(sensorData: SensorsData) {
+    private async processSensorData(sensorData: SensorsDataModel) {
         this.sensorsDataSubject.next(sensorData);
         await this.dataService.processVoltageAmperageData(sensorData);
         await this.dataService.processVoltageData(sensorData);
@@ -188,11 +188,11 @@ export class CollectDataService {
         }
     }
 
-    private getFakePowerData(): SensorsData {
+    private getFakePowerData(): SensorsDataModel {
         const amperage = randomInt(0, 100) / 10;
         const voltage = randomInt(2000, 2500) / 10;
         const power = amperage * voltage;
-        const data = new SensorsData(voltage, amperage, power, this.config.powerCoefficient);
+        const data = new SensorsDataModel(voltage, amperage, power, this.config.powerCoefficient);
         return data;
     }
 }

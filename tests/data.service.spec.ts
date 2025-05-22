@@ -7,7 +7,7 @@ import { PowerData } from '../src/entities/power-data.entity';
 import { PowerAcc } from '../src/entities/power-acc.entity';
 import { ServerData } from '../src/entities/server-data.entity';
 import { Constants } from '../src/constants';
-import { SensorsData } from '../src/common/models/sensors-data';
+import { SensorsDataModel } from '../src/common/models/sensors-data.model';
 import { CoefficientsModel } from '../src/common/models/coefficients.model';
 import { VersionModel } from '../src/common/models/version.model';
 
@@ -48,7 +48,7 @@ describe('DataService', () => {
 
     describe('processVoltageData', () => {
         it('should save voltage data when voltage and amperage present', async () => {
-            const input: SensorsData = { voltage: 120, amperage: 5 } as any;
+            const input: SensorsDataModel = { voltage: 120, amperage: 5 } as any;
             await dataService.processVoltageData(input);
             expect(voltageRepo.save.calledOnce).to.be.true;
             const saved: VoltageData = voltageRepo.save.firstCall.args[0];
@@ -64,7 +64,7 @@ describe('DataService', () => {
 
     describe('processVoltageAmperageData', () => {
         it('should create new record if none exists', async () => {
-            const input: SensorsData = { voltage: 10, amperage: 2 } as any;
+            const input: SensorsDataModel = { voltage: 10, amperage: 2 } as any;
             voltageAmpRepo.findOne.resolves(null);
             await dataService.processVoltageAmperageData(input);
             expect(voltageAmpRepo.save.calledOnce).to.be.true;
@@ -89,7 +89,7 @@ describe('DataService', () => {
             existing.amperageMin = 1;
             existing.amperageMax = 1;
             voltageAmpRepo.findOne.resolves(existing);
-            const input: SensorsData = { voltage: 15, amperage: 3 } as any;
+            const input: SensorsDataModel = { voltage: 15, amperage: 3 } as any;
             await dataService.processVoltageAmperageData(input);
             const rec: VoltageAmperageData = voltageAmpRepo.save.firstCall.args[0];
             expect(rec.voltageSum).to.equal(20);
@@ -108,7 +108,7 @@ describe('DataService', () => {
             existingPower.power = 5;
             powerDataRepo.findOne.resolves(existingPower);
             powerAccRepo.findOne.resolves({ powerAcc: 10 } as any);
-            const input: SensorsData = { power: 7 } as any;
+            const input: SensorsDataModel = { power: 7 } as any;
             await dataService.processPowerData(input);
             expect(powerDataRepo.save.calledOnce).to.be.true;
             expect(powerAccRepo.save.calledOnce).to.be.true;
