@@ -10,7 +10,10 @@ class RolesGuardInternal implements CanActivate {
     canActivate(context: ExecutionContext): boolean {
         const request = context.switchToHttp().getRequest();
         const user = request.user;
-        return user && this.allowedRoles.includes(user.role.toLowerCase());
+        if (!user || typeof user.role !== 'string') {
+            return false;
+        }
+        return this.allowedRoles.includes(user.role.toLowerCase());
     }
 }
 
