@@ -28,9 +28,9 @@ export class ServicesService {
             this.sysInfoData.cpuBrand = sysInfo.cpu.brand;
             this.sysInfoData.cpuSpeed = sysInfo.cpu.speed;
             this.sysInfoData.cpuCores = sysInfo.cpu.cores;
-            this.sysInfoData.systemUptime = getSystemUptime();
+            this.sysInfoData.systemUptime = this.getSystemUptime();
         }
-        this.sysInfoData.systemUptime = getSystemUptime();
+        this.sysInfoData.systemUptime = this.getSystemUptime();
         this.sysInfoData.systemDateTimeStr = new Date().toISOString();
         return this.sysInfoData;
     }
@@ -60,7 +60,7 @@ export class ServicesService {
     }
 
     getSystemUptimeSeconds(): number {
-        const uptimeData = getSystemUptime();
+        const uptimeData = this.getSystemUptime();
         const result =
             uptimeData.days * 24 * 60 * 60 +
             uptimeData.hours * 60 * 60 +
@@ -68,25 +68,25 @@ export class ServicesService {
             uptimeData.seconds;
         return result;
     }
-}
-function getSystemUptime(): SystemUptime {
-    const startDate = uptime();
-    const interval = new Date().getTime() - startDate.getTime();
-    const systemUptime = intervalToSystemUptime(interval);
-    return systemUptime;
-}
 
-function intervalToSystemUptime(interval: number): SystemUptime {
-    const result = new SystemUptime();
-    const oneDay = 1000 * 60 * 60 * 24;
-    result.days = Math.floor(interval / oneDay);
-    interval = interval - result.days * oneDay;
-    const oneHour = 1000 * 60 * 60;
-    result.hours = Math.floor(interval / oneHour);
-    interval = interval - result.hours * oneHour;
-    const oneMinute = 1000 * 60;
-    result.minutes = Math.floor(interval / oneMinute);
-    interval = interval - result.minutes * oneMinute;
-    result.seconds = Math.floor(interval / 1000);
-    return result;
+    protected getSystemUptime(): SystemUptime {
+        const startDate = uptime();
+        const interval = new Date().getTime() - startDate.getTime();
+        return this.intervalToSystemUptime(interval);
+    }
+
+    protected intervalToSystemUptime(interval: number): SystemUptime {
+        const result = new SystemUptime();
+        const oneDay = 1000 * 60 * 60 * 24;
+        result.days = Math.floor(interval / oneDay);
+        interval = interval - result.days * oneDay;
+        const oneHour = 1000 * 60 * 60;
+        result.hours = Math.floor(interval / oneHour);
+        interval = interval - result.hours * oneHour;
+        const oneMinute = 1000 * 60;
+        result.minutes = Math.floor(interval / oneMinute);
+        interval = interval - result.minutes * oneMinute;
+        result.seconds = Math.floor(interval / 1000);
+        return result;
+    }
 }

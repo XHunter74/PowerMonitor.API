@@ -38,6 +38,9 @@ jobs:
             - name: Lint
               run: npm run lint
 
+            - name: Run tests
+              run: npm run test
+
             - name: Bump version
               run: npm version patch --no-git-tag-version
 
