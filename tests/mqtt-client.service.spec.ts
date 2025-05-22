@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { MqttClientService } from '../src/modules/mqtt/mqtt-client.service';
-import { SensorsDataModel } from '../dist/common/models/sensors-data.model';
+import { SensorsDataModel } from '../src/common/models/sensors-data.model';
 
 describe('MqttClientService', () => {
     let service: MqttClientService;
