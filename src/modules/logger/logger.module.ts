@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '../config/config.module';
-import { ConfigService } from '../config/config.service';
+import { ConfigModule } from '../../config/config.module';
+import { ConfigService } from '../../config/config.service';
 import * as winston from 'winston';
 import 'winston-daily-rotate-file';
 import { ElasticsearchTransport } from 'winston-elasticsearch';

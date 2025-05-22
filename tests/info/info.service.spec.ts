@@ -1,20 +1,20 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { ServicesService } from '../../src/modules/services/services.service';
+import { InfoService } from '../../src/modules/info/info.service';
 import { DataService } from '../../src/modules/collect-data/data.service';
-import { CoefficientsModel } from '../../src/common/models/coefficients.model';
+import { CoefficientsModel } from '../../src/shared/models/coefficients.model';
 import * as si from 'systeminformation';
-import { SysInfoModel, SystemUptime } from '../../src/common/models/sys-info.model';
-import { environment } from '../../src/environments';
-import { Intervals } from '../../src/constants';
+import { SysInfoModel, SystemUptime } from '../../src/shared/models/sys-info.model';
+import { environment } from '../../src/config/environments';
+import { Intervals } from '../../src/config/constants';
 
-describe('ServicesService', () => {
-    let service: ServicesService;
+describe('InfoService', () => {
+    let service: InfoService;
     let dataServiceStub: sinon.SinonStubbedInstance<DataService>;
 
     beforeEach(() => {
         dataServiceStub = sinon.createStubInstance(DataService);
-        service = new ServicesService(dataServiceStub as unknown as DataService);
+        service = new InfoService(dataServiceStub as unknown as DataService);
     });
 
     afterEach(() => {
@@ -73,7 +73,7 @@ describe('ServicesService', () => {
         // Mock getSystemUptime to return a known value
         const fakeUptime = { days: 1, hours: 2, minutes: 3, seconds: 4 };
         const stub = sinon
-            .stub(service, 'getSystemUptime' as keyof ServicesService)
+            .stub(service, 'getSystemUptime' as keyof InfoService)
             .returns(fakeUptime as any);
         const result = service.getSystemUptimeSeconds();
         expect(result).to.equal(1 * 86400 + 2 * 3600 + 3 * 60 + 4);

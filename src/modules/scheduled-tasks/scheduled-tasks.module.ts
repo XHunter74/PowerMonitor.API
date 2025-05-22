@@ -1,9 +1,9 @@
 import { Module } from '@nestjs/common';
 import { LoggerModule } from '../logger/logger.module';
-import { ConfigModule } from '../config/config.module';
+import { ConfigModule } from '../../config/config.module';
 import { CollectDataModule } from '../collect-data/collect-data.module';
 import { ScheduledTasksService } from './scheduled-tasks.service';
-import { ServicesModule } from '../services/services.module';
+import { InfoModule } from '../info/info.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserTokensEntity } from '../../entities/user-tokens.entity';
 import { MqttModule } from '../mqtt/mqtt.module';
@@ -17,7 +17,7 @@ import { HttpModule } from '@nestjs/axios';
         ConfigModule,
         HttpModule,
         CollectDataModule,
-        ServicesModule,
+        InfoModule,
         MqttModule,
         PowerDataModule,
     ],

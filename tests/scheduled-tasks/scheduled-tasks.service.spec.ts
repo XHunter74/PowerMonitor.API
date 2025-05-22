@@ -1,7 +1,6 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { ScheduledTasksService } from '../../src/modules/scheduled-tasks/scheduled-tasks.service';
-import moment = require('moment');
 
 describe('ScheduledTasksService', () => {
     let service: ScheduledTasksService;

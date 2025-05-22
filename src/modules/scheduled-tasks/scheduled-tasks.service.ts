@@ -4,8 +4,8 @@ import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
 import { PowerAvailabilityService } from '../power-data/power-availability.service';
 import { CollectDataService } from '../collect-data/collect-data.service';
-import { ServicesService } from '../services/services.service';
-import { ConfigService } from '../config/config.service';
+import { InfoService } from '../info/info.service';
+import { ConfigService } from '../../config/config.service';
 import { InjectRepository } from '@nestjs/typeorm';
 import { EntityManager, Repository } from 'typeorm';
 import moment = require('moment');
@@ -13,7 +13,7 @@ import { UserTokensEntity } from '../../entities/user-tokens.entity';
 import { MqttClientService } from '../mqtt/mqtt-client.service';
 import { EnergyMeteringService } from '../power-data/energy-metering.service';
 import { Interval, Timeout } from '@nestjs/schedule';
-import { Intervals } from '../../constants';
+import { Intervals } from '../../config/constants';
 
 @Injectable()
 export class ScheduledTasksService implements OnApplicationShutdown {
@@ -22,7 +22,7 @@ export class ScheduledTasksService implements OnApplicationShutdown {
         private readonly powerAvailabilityService: PowerAvailabilityService,
         private readonly collectDataService: CollectDataService,
         private readonly energyMeteringService: EnergyMeteringService,
-        private readonly servicesService: ServicesService,
+        private readonly servicesService: InfoService,
         private readonly config: ConfigService,
         private readonly mqttService: MqttClientService,
         private readonly entityManager: EntityManager,

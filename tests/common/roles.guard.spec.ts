@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { RolesGuard } from '../../src/common/guards/roles.guard';
+import { RolesGuard } from '../../src/shared/guards/roles.guard';
 import { ExecutionContext } from '@nestjs/common';
 
 describe('RolesGuard', () => {

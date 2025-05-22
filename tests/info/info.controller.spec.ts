@@ -1,23 +1,23 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { ServicesController } from '../../src/modules/services/services.controller';
-import { ServicesService } from '../../src/modules/services/services.service';
+import { InfoController } from '../../src/modules/info/info.controller';
+import { InfoService } from '../../src/modules/info/info.service';
 import { Logger } from 'winston';
 
 describe('ServicesController', () => {
-    let controller: ServicesController;
-    let serviceStub: sinon.SinonStubbedInstance<ServicesService>;
+    let controller: InfoController;
+    let serviceStub: sinon.SinonStubbedInstance<InfoService>;
     let loggerStub: sinon.SinonStubbedInstance<Logger>;
 
     beforeEach(() => {
-        serviceStub = sinon.createStubInstance(ServicesService);
+        serviceStub = sinon.createStubInstance(InfoService);
         loggerStub = {
             info: sinon.stub(),
             debug: sinon.stub(),
             error: sinon.stub(),
             warn: sinon.stub(),
         } as any;
-        controller = new ServicesController(loggerStub as any, serviceStub as any);
+        controller = new InfoController(loggerStub as any, serviceStub as any);
     });
 
     afterEach(() => {

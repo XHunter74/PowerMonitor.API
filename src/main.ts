@@ -5,14 +5,14 @@ import { initElasticApm } from './main.functions';
 // Should be before all imports
 initElasticApm();
 
-import { ConfigService } from './modules/config/config.service';
+import { ConfigService } from './config/config.service';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 
 import { SocketIoAdapter } from './modules/socket/socket.adapter';
 import { env } from 'process';
-import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
 import { WINSTON_LOGGER } from './modules/logger/logger.module';
 import { Logger } from 'winston';
 // eslint-disable-next-line import/no-duplicates

@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { SocketService } from '../../src/modules/socket/socket.service';
-import { SensorsDataModel } from '../../src/common/models/sensors-data.model';
+import { SensorsDataModel } from '../../src/shared/models/sensors-data.model';
 
 describe('SocketService', () => {
     let service: SocketService;

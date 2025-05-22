@@ -9,7 +9,7 @@ import {
     OnGatewayDisconnect,
     WebSocketServer,
 } from '@nestjs/websockets';
-import { SensorsDataModel } from '../../common/models/sensors-data.model';
+import { SensorsDataModel } from '../../shared/models/sensors-data.model';
 import { Subscription } from 'rxjs';
 
 @WebSocketGateway()

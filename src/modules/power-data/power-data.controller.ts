@@ -4,13 +4,13 @@ import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
 import { PowerDataService } from './power-data.service';
 import { AuthGuard } from '@nestjs/passport';
-import { daysInMonth } from '../../common/date-functions';
-import { RolesGuard } from '../../common/guards/roles.guard';
-import { Constants } from '../../constants';
-import { StartFinishDatesDto } from '../../common/models/dto/start-finish-dates.dto';
-import { MonthYearDto } from '../../common/models/dto/month-year.dto';
-import { YearDto } from '../../common/models/dto/year.dto';
-import { MonthDayOfWeekDto } from '../../common/models/dto/month-dayofweek.dto';
+import { daysInMonth } from '../../shared/utils/date-functions';
+import { RolesGuard } from '../../shared/guards/roles.guard';
+import { Constants } from '../../config/constants';
+import { StartFinishDatesDto } from '../../shared/dto/start-finish-dates.dto';
+import { MonthYearDto } from '../../shared/dto/month-year.dto';
+import { YearDto } from '../../shared/dto/year.dto';
+import { MonthDayOfWeekDto } from '../../shared/dto/month-dayofweek.dto';
 
 @ApiTags('Power Data')
 @Controller('api/power')

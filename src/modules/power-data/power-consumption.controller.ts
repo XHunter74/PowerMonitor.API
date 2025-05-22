@@ -13,10 +13,10 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiParam } from '@nestjs/s
 import { Logger } from 'winston';
 import { EnergyMeteringService } from './energy-metering.service';
 import { AuthGuard } from '@nestjs/passport';
-import { MeterDataDto } from '../../common/models/dto/meter-data.dto';
-import { FactualDataDto } from '../../common/models/dto/factual-data.dto';
+import { MeterDataDto } from '../../shared/dto/meter-data.dto';
+import { FactualDataDto } from '../../shared/dto/factual-data.dto';
 import { PowerAcc } from '../../entities/power-acc.entity';
-import { RolesGuard } from '../../common/guards/roles.guard';
+import { RolesGuard } from '../../shared/guards/roles.guard';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 
 @ApiTags('Power Consumption')

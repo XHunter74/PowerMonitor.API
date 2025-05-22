@@ -2,11 +2,11 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 import { CollectDataService } from '../../src/modules/collect-data/collect-data.service';
 import type { Logger } from 'winston';
-import { ConfigService } from '../../src/modules/config/config.service';
+import { ConfigService } from '../../src/config/config.service';
 import { DataService } from '../../src/modules/collect-data/data.service';
 import { TelegramService } from '../../src/modules/messages/telegram.service';
 import { SerialPortService } from '../../src/modules/collect-data/serial-port.service';
-import { BoardCoefficientsModel } from '../../src/common/models/dto/board-coefficients.model';
+import { BoardCoefficientsModel } from '../../src/shared/dto/board-coefficients.model';
 
 describe('CollectDataService', () => {
     let service: CollectDataService;

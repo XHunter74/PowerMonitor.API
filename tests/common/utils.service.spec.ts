@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { Constants } from '../../src/constants';
+import { Constants } from '../../src/config/constants';
 
 describe('UtilsService', () => {
     let utilsService: any;

@@ -1,15 +1,15 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from '../../config/config.service';
 import { PowerDataService } from '../power-data/power-data.service';
-import { MqttDataModel } from '../../common/models/mqtt-data.model';
+import { MqttDataModel } from '../../shared/models/mqtt-data.model';
 import { EnergyMeteringService } from '../power-data/energy-metering.service';
-import { ServicesService } from '../services/services.service';
+import { InfoService } from '../info/info.service';
 import { CollectDataService } from '../collect-data/collect-data.service';
-import { SensorsDataModel } from '../../common/models/sensors-data.model';
+import { SensorsDataModel } from '../../shared/models/sensors-data.model';
 import { MqttConnectionService } from './mqtt-connection.service';
-import { daysInMonth } from '../../common/date-functions';
+import { daysInMonth } from '../../shared/utils/date-functions';
 import { Subscription } from 'rxjs';
 
 @Injectable()
@@ -21,7 +21,7 @@ export class MqttClientService {
         private readonly config: ConfigService,
         private readonly powerDataService: PowerDataService,
         private readonly energyMeteringService: EnergyMeteringService,
-        private readonly servicesService: ServicesService,
+        private readonly servicesService: InfoService,
         private readonly collectDataService: CollectDataService,
         private readonly mqttConnectionService: MqttConnectionService,
     ) {

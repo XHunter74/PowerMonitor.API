@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { connect, MqttClient, IClientOptions } from 'mqtt';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from '../../config/config.service';
 import { Logger } from 'winston';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 

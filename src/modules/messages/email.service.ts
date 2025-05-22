@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from '../../config/config.service';
 import * as nodemailer from 'nodemailer';
 
 @Injectable()

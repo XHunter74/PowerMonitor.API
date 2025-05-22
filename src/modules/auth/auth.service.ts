@@ -6,19 +6,19 @@ import {
     HttpStatus,
     Inject,
 } from '@nestjs/common';
-import { LoginModelDto } from '../../common/models/dto/login.model.dto';
+import { LoginModelDto } from '../../shared/dto/login.model.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcrypt';
 import { UserEntity } from '../../entities/users.entity';
 import { Repository } from 'typeorm';
 import { JwtPayload } from './jwt-payload.interface';
-import { TokenDto } from '../../common/models/dto/token.dto';
+import { TokenDto } from '../../shared/dto/token.dto';
 import { UtilsService } from './utils.service';
-import { ConfigService } from '../../modules/config/config.service';
+import { ConfigService } from '../../config/config.service';
 import { UserTokensEntity } from '../../entities/user-tokens.entity';
 import TokenGenerator = require('uuid-token-generator');
 import moment = require('moment');
-import { LogMethod } from '../../common/decorators/log-method.decorator';
+import { LogMethod } from '../../shared/decorators/log-method.decorator';
 import { WINSTON_LOGGER } from '../../modules/logger/logger.module';
 import { Logger } from 'winston';
 

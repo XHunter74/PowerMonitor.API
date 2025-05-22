@@ -1,12 +1,12 @@
 import { Repository } from 'typeorm';
 import { ServerData } from '../../entities/server-data.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { SensorsDataModel } from '../../common/models/sensors-data.model';
+import { SensorsDataModel } from '../../shared/models/sensors-data.model';
 import { VoltageAmperageData } from '../../entities/voltage-amperage-data.entity';
 import { PowerData } from '../../entities/power-data.entity';
-import { CoefficientsModel } from '../../common/models/coefficients.model';
-import { Constants } from '../../constants';
-import { VersionModel } from '../../common/models/version.model';
+import { CoefficientsModel } from '../../shared/models/coefficients.model';
+import { Constants } from '../../config/constants';
+import { VersionModel } from '../../shared/models/version.model';
 import { Injectable } from '@nestjs/common';
 import { PowerAcc } from '../../entities/power-acc.entity';
 import { VoltageData } from '../../entities/voltage-data.entity';

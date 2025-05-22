@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
-import { Constants } from '../../constants';
+import { Constants } from './constants';
 
 export class ConfigService {
     private readonly envConfig: { [key: string]: string };

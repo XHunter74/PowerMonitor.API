@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { PowerDataStatsModel } from '../../common/models/power-data-stats.model';
+import { PowerDataStatsModel } from '../../shared/models/power-data-stats.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VoltageAmperageData } from '../../entities/voltage-amperage-data.entity';
 import { Repository } from 'typeorm';
 import { PowerData } from '../../entities/power-data.entity';
 import { PowerAvailability } from '../../entities/power-availability.entity';
-import { Constants } from '../../constants';
+import { Constants } from '../../config/constants';
 import { VoltageData } from '../../entities/voltage-data.entity';
-import { LogMethod } from '../../common/decorators/log-method.decorator';
+import { LogMethod } from '../../shared/decorators/log-method.decorator';
 
 @Injectable()
 export class PowerDataService {

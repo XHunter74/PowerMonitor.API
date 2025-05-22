@@ -9,7 +9,7 @@ import { PowerDataController } from './power-data.controller';
 import { PowerConsumptionController } from './power-consumption.controller';
 import { EnergyMeteringService } from './energy-metering.service';
 import { PowerAcc } from '../../entities/power-acc.entity';
-import { ConfigModule } from '../config/config.module';
+import { ConfigModule } from '../../config/config.module';
 import { VoltageData } from '../../entities/voltage-data.entity';
 
 @Module({

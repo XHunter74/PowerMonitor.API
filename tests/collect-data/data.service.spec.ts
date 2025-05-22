@@ -5,10 +5,10 @@ import { VoltageData } from '../../src/entities/voltage-data.entity';
 import { VoltageAmperageData } from '../../src/entities/voltage-amperage-data.entity';
 import { PowerData } from '../../src/entities/power-data.entity';
 import { ServerData } from '../../src/entities/server-data.entity';
-import { Constants } from '../../src/constants';
-import { SensorsDataModel } from '../../src/common/models/sensors-data.model';
-import { CoefficientsModel } from '../../src/common/models/coefficients.model';
-import { VersionModel } from '../../src/common/models/version.model';
+import { Constants } from '../../src/config/constants';
+import { SensorsDataModel } from '../../src/shared/models/sensors-data.model';
+import { CoefficientsModel } from '../../src/shared/models/coefficients.model';
+import { VersionModel } from '../../src/shared/models/version.model';
 
 describe('DataService', () => {
     let dataService: DataService;

@@ -5,7 +5,7 @@ import { PowerAvailabilityService } from '../../modules/power-data/power-availab
 import { PowerAvailability } from '../../entities/power-availability.entity';
 import { CollectDataService } from './collect-data.service';
 import { DataService } from './data.service';
-import { ConfigModule } from '../config/config.module';
+import { ConfigModule } from '../../config/config.module';
 import { ServerData } from '../../entities/server-data.entity';
 import { VoltageAmperageData } from '../../entities/voltage-amperage-data.entity';
 import { PowerData } from '../../entities/power-data.entity';

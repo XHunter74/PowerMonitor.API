@@ -1,4 +1,4 @@
-import { Intervals } from '../constants';
+import { Intervals } from '../../config/constants';
 
 export {};
 

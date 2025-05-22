@@ -1,5 +1,5 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { ConfigService } from './modules/config/config.service';
+import { ConfigService } from './config/config.service';
 
 const config = new ConfigService();
 

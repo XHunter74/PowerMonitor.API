@@ -1,10 +1,10 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { MeterDataDto } from '../../common/models/dto/meter-data.dto';
-import { FactualDataDto } from '../../common/models/dto/factual-data.dto';
+import { MeterDataDto } from '../../shared/dto/meter-data.dto';
+import { FactualDataDto } from '../../shared/dto/factual-data.dto';
 import { PowerAcc } from '../../entities/power-acc.entity';
-import { ConfigService } from '../config/config.service';
+import { ConfigService } from '../../config/config.service';
 
 @Injectable()
 export class EnergyMeteringService {

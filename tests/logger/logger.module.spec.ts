@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as winston from 'winston';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
-import { ConfigService } from '../../src/modules/config/config.service';
+import { ConfigService } from '../../src/config/config.service';
 import { Test, TestingModule } from '@nestjs/testing';
 import { LoggerModule, WINSTON_LOGGER } from '../../src/modules/logger/logger.module';
 

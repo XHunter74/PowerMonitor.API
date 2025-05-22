@@ -1,15 +1,15 @@
-import { SysInfoModel, SystemUptime } from '../../common/models/sys-info.model';
-import { patchDate } from '../../common/date-functions';
+import { SysInfoModel, SystemUptime } from '../../shared/models/sys-info.model';
+import { patchDate } from '../../shared/utils/date-functions';
 import { DataService } from '../collect-data/data.service';
-import { Constants, Intervals, IntervalsInSeconds } from '../../constants';
+import { Constants, Intervals, IntervalsInSeconds } from '../../config/constants';
 import { Injectable } from '@nestjs/common';
-import { CoefficientsModel } from '../../common/models/coefficients.model';
-import { environment } from '../../environments';
+import { CoefficientsModel } from '../../shared/models/coefficients.model';
+import { environment } from '../../config/environments';
 import * as si from 'systeminformation';
 import * as uptime from 'os-uptime';
 
 @Injectable()
-export class ServicesService {
+export class InfoService {
     private sysInfoData: SysInfoModel;
 
     constructor(private readonly dataService: DataService) {}

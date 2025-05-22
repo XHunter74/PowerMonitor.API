@@ -1,11 +1,11 @@
 import * as apm from 'elastic-apm-node';
-import { ConfigService } from './modules/config/config.service';
-import { Constants } from './constants';
-import { delay } from './common/utils';
+import { ConfigService } from './config/config.service';
+import { Constants } from './config/constants';
+import { delay } from './shared/utils/utils';
 import * as ping from 'ping';
 import { Logger } from 'winston';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { environment } from './environments';
+import { environment } from './config/environments';
 
 export function initElasticApm() {
     const config = new ConfigService();

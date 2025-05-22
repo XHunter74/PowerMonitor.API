@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { GlobalExceptionFilter } from '../../src/common/filters/global-exception.filter';
+import { GlobalExceptionFilter } from '../../src/shared/filters/global-exception.filter';
 import { Logger } from 'winston';
 import { ArgumentsHost, HttpException, HttpStatus } from '@nestjs/common';
 

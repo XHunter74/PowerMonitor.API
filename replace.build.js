@@ -2,9 +2,9 @@ var replace = require('replace-in-file');
 var package = require("./package.json");
 var buildVersion = package.version;
 const options = {
-    files: 'src/environments.ts',
+    files: 'src/config/environments.ts',
     from: /version: '(.*)'/g,
-    to: "version: '"+ buildVersion + "'",
+    to: "version: '" + buildVersion + "'",
     allowEmptyPaths: false,
 };
 

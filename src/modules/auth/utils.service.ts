@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { promisify } from 'util';
 import * as bcrypt from 'bcrypt';
-import { Constants } from '../../constants';
+import { Constants } from '../../config/constants';
 
 const hashAsync = promisify(bcrypt.hash);
 

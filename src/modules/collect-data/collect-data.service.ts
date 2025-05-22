@@ -2,17 +2,17 @@ import 'reflect-metadata';
 import { Observable, Subject } from 'rxjs';
 import { Injectable, Inject } from '@nestjs/common';
 import { Logger } from 'winston';
-import { VersionModel } from '../../common/models/version.model';
-import { SensorsDataModel } from '../../common/models/sensors-data.model';
-import { CoefficientsModel } from '../../common/models/coefficients.model';
-import { BoardCoefficientsModel } from '../../common/models/dto/board-coefficients.model';
-import { ConfigService } from '../config/config.service';
+import { VersionModel } from '../../shared/models/version.model';
+import { SensorsDataModel } from '../../shared/models/sensors-data.model';
+import { CoefficientsModel } from '../../shared/models/coefficients.model';
+import { BoardCoefficientsModel } from '../../shared/dto/board-coefficients.model';
+import { ConfigService } from '../../config/config.service';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { TelegramService } from '../messages/telegram.service';
-import { SerialDataModel } from '../../common/models/serial-data.model';
+import { SerialDataModel } from '../../shared/models/serial-data.model';
 import { DataService } from './data.service';
 import { SerialPortService } from './serial-port.service';
-import { randomInt } from '../../common/utils';
+import { randomInt } from '../../shared/utils/utils';
 
 @Injectable()
 export class CollectDataService {
