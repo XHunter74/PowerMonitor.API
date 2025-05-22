@@ -10,7 +10,20 @@ on:
 jobs:
     build:
         runs-on: ubuntu-latest
+        outputs:
+            src_changed: ${{ steps.src-check.outputs.src_changed }}
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Check if src folder changed
+              id: src-check
+              run: |
+                  if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^src/'; then
+                    echo "src_changed=true" >> $GITHUB_OUTPUT
+                  else
+                    echo "src_changed=false" >> $GITHUB_OUTPUT
+                  fi
             - name: Checkout repository
               uses: actions/checkout@v4
 
@@ -40,6 +53,7 @@ jobs:
                   git config user.email "github-actions[bot]@users.noreply.github.com"
 
             - name: Commit and push version bump, lockfile, and environments
+              if: steps.src-check.outputs.src_changed == 'true'
               run: |
                   VERSION=$(node -p "require('./package.json').version")
                   git fetch --prune --unshallow || true
@@ -63,6 +77,7 @@ jobs:
     deploy:
         runs-on: [self-hosted, linux, arm]
         needs: build
+        if: needs.build.outputs.src_changed == 'true'
         steps:
             - name: Download artifact
               uses: actions/download-artifact@v4
