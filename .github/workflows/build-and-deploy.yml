@@ -1,0 +1,72 @@
+name: Build and Deploy PowerMonitor API
+
+on:
+    push:
+        branches:
+            - master
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '20'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Lint
+              run: npm run lint
+
+            - name: Bump version
+              run: npm version patch --no-git-tag-version
+
+            - name: Replace build
+              run: node ./replace.build.js
+
+            - name: Build
+              run: tsc -p tsconfig.build.prod.json
+
+            - name: Archive dist and package files
+              run: |
+                  zip -r powermonitor-api.zip dist package.json package-lock.json
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: powermonitor-api-artifact
+                  path: powermonitor-api.zip
+
+    deploy:
+        runs-on: [self-hosted, linux, arm]
+        needs: build
+        steps:
+            - name: Download artifact
+              uses: actions/download-artifact@v4
+              with:
+                  name: powermonitor-api-artifact
+
+            - name: Stop PM2 app
+              run: |
+                  sudo -u pi pm2 stop PowerMonitor || true
+
+            - name: Remove old dist folder
+              run: |
+                  sudo -u pi rm -rf /home/pi/PowerMonitor.API/dist
+
+            - name: Unpack archive to target
+              run: |
+                  sudo -u pi unzip -o powermonitor-api.zip -d /home/pi/PowerMonitor.API
+
+            - name: Install dependencies on target
+              run: |
+                  cd /home/pi/PowerMonitor.API && sudo -u pi npm install --omit=dev
+
+            - name: Start PM2 app
+              run: |
+                  sudo -u pi pm2 start PowerMonitor || sudo -u pi pm2 restart PowerMonitor
