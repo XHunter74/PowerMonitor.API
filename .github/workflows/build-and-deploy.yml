@@ -15,11 +15,17 @@ jobs:
         steps:
             - name: Checkout repository
               uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
             - name: Check if src folder changed
               id: src-check
               run: |
-                  if git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^src/'; then
+                  BEFORE=${{ github.event.before }}
+                  if [ -z "$BEFORE" ] || [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+                    BEFORE=$(git rev-parse HEAD^)
+                  fi
+                  if git diff --name-only $BEFORE ${{ github.sha }} | grep '^src/'; then
                     echo "src_changed=true" >> $GITHUB_OUTPUT
                   else
                     echo "src_changed=false" >> $GITHUB_OUTPUT

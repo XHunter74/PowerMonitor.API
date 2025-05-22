@@ -11,3 +11,10 @@ export class Constants {
     public static PingDelay = 500;
     public static HashCostFactor = 10;
 }
+
+export class Intervals {
+    public static OneSecond = 1000;
+    public static OneMinute = 60 * 1000;
+    public static OneHour = 60 * 60 * 1000;
+    public static OneDay = 24 * 60 * 60 * 1000;
+}

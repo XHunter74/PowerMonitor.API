@@ -1,7 +1,7 @@
 import { SysInfoModel, SystemUptime } from '../../common/models/sys-info.model';
 import { patchDate } from '../../common/date-functions';
 import { DataService } from '../collect-data/data.service';
-import { Constants } from '../../constants';
+import { Constants, Intervals } from '../../constants';
 import { Injectable } from '@nestjs/common';
 import { CoefficientsModel } from '../../common/models/coefficients.model';
 import { environment } from '../../environments';
@@ -77,16 +77,13 @@ export class ServicesService {
 
     protected intervalToSystemUptime(interval: number): SystemUptime {
         const result = new SystemUptime();
-        const oneDay = 1000 * 60 * 60 * 24;
-        result.days = Math.floor(interval / oneDay);
-        interval = interval - result.days * oneDay;
-        const oneHour = 1000 * 60 * 60;
-        result.hours = Math.floor(interval / oneHour);
-        interval = interval - result.hours * oneHour;
-        const oneMinute = 1000 * 60;
-        result.minutes = Math.floor(interval / oneMinute);
-        interval = interval - result.minutes * oneMinute;
-        result.seconds = Math.floor(interval / 1000);
+        result.days = Math.floor(interval / Intervals.OneDay);
+        interval = interval - result.days * Intervals.OneDay;
+        result.hours = Math.floor(interval / Intervals.OneHour);
+        interval = interval - result.hours * Intervals.OneHour;
+        result.minutes = Math.floor(interval / Intervals.OneMinute);
+        interval = interval - result.minutes * Intervals.OneMinute;
+        result.seconds = Math.floor(interval / Intervals.OneSecond);
         return result;
     }
 }
