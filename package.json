@@ -26,7 +26,7 @@
         "lint": "eslint --ext .ts src/",
         "typeorm:cli": "ts-node ./node_modules/typeorm/cli -f ./src/ormconfig.ts",
         "test": "mocha -r ts-node/register tests/**/*.spec.ts",
-        "coverage": "c8 --reporter=text --reporter=html --report-dir=./coverage mocha -r ts-node/register -r source-map-support/register \"tests/**/*.spec.ts\""
+        "coverage": "c8 mocha -r ts-node/register -r source-map-support/register \"tests/**/*.spec.ts\""
     },
     "dependencies": {
         "@elastic/elasticsearch": "^9.0.1",
@@ -99,5 +99,15 @@
         "tsconfig-paths": "4.2.0",
         "typescript": "~5.3.3",
         "wait-on": "^7.2.0"
+    },
+    "c8": {
+        "reporter": [
+            "text",
+            "html"
+        ],
+        "report-dir": "coverage",
+        "exclude": [
+            "test/**/*.ts"
+        ]
     }
 }
