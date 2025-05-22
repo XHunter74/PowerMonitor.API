@@ -1,3 +1,5 @@
+import { Intervals } from '../constants';
+
 export {};
 
 declare global {
@@ -8,7 +10,7 @@ declare global {
 
 export function patchDate() {
     Date.prototype.addHours = function (this: Date, h: number): Date {
-        this.setTime(this.getTime() + h * 60 * 60 * 1000);
+        this.setTime(this.getTime() + h * Intervals.OneHour);
         return this;
     };
 }
