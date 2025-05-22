@@ -1,17 +1,25 @@
 import { Inject, Injectable } from '@nestjs/common';
-import { SerialPort, ReadlineParser } from 'serialport';
+// Use require for serialport to enable runtime mocking
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const serialport = require('serialport');
+const SerialPort = serialport.SerialPort;
+const ReadlineParser = serialport.ReadlineParser;
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import type { Logger } from 'winston';
 
 @Injectable()
 export class SerialPortService {
     private serialPort: any;
+    // Expose parser instance for testing purposes
+    private parser: any;
 
     constructor(@Inject(WINSTON_LOGGER) private readonly logger: Logger) {}
 
     initSerial(path: string, baudRate: number, onData: (data: string) => void) {
         this.serialPort = new SerialPort({ path, baudRate });
         const parser = new ReadlineParser();
+        // store parser to allow access in tests
+        this.parser = parser;
         this.serialPort.pipe(parser);
         parser.on('data', onData);
 
