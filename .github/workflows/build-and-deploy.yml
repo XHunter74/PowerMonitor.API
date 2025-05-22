@@ -67,7 +67,7 @@ jobs:
                   VERSION=$(node -p "require('./package.json').version")
                   git fetch --prune --unshallow || true
                   git checkout master
-                  git add package.json package-lock.json src/environments.ts
+                  git add package.json package-lock.json src/config/environments.ts
                   git commit -m "[skip ci] $VERSION" || echo "No changes to commit"
                   git tag v$VERSION
                   git push origin master
