@@ -71,6 +71,7 @@
         "winston-elasticsearch": "^0.19.0"
     },
     "devDependencies": {
+        "@nestjs/testing": "^10.4.17",
         "@types/chai": "^5.2.2",
         "@types/express": "^4.17.21",
         "@types/mocha": "^10.0.10",
