@@ -47,7 +47,8 @@ jobs:
                   git add package.json package-lock.json src/environments.ts
                   git commit -m "[skip ci] $VERSION" || echo "No changes to commit"
                   git tag v$VERSION
-                  git push origin master --follow-tags
+                  git push origin master
+                  git push origin v$VERSION
 
             - name: Archive dist and package files
               run: |
