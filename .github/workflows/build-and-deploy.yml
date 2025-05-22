@@ -42,10 +42,12 @@ jobs:
             - name: Commit and push version bump, lockfile, and environments
               run: |
                   VERSION=$(node -p "require('./package.json').version")
+                  git fetch --prune --unshallow || true
+                  git checkout master
                   git add package.json package-lock.json src/environments.ts
                   git commit -m "[skip ci] $VERSION" || echo "No changes to commit"
                   git tag v$VERSION
-                  git push --follow-tags
+                  git push origin master --follow-tags
 
             - name: Archive dist and package files
               run: |
