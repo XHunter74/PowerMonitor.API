@@ -1,3 +1,5 @@
+permissions:
+    contents: write
 name: Build and Deploy PowerMonitor API
 
 on:
@@ -31,6 +33,17 @@ jobs:
 
             - name: Build
               run: tsc -p tsconfig.build.prod.json
+
+            - name: Configure git
+              run: |
+                  git config user.name "github-actions[bot]"
+                  git config user.email "github-actions[bot]@users.noreply.github.com"
+
+            - name: Commit and push version bump and lockfile
+              run: |
+                  git add package.json package-lock.json
+                  git commit -m "chore: bump version [skip ci]" || echo "No changes to commit"
+                  git push
 
             - name: Archive dist and package files
               run: |
