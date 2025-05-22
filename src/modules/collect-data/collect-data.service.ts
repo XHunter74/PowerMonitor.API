@@ -14,6 +14,7 @@ import { SerialDataModel } from '../../common/models/serial-data.model';
 
 import { DataService } from './data.service';
 import { SerialPortService } from './serial-port.service';
+import { randomInt } from '../../common/utils';
 
 @Injectable()
 export class CollectDataService {
@@ -195,8 +196,4 @@ export class CollectDataService {
         const data = new SensorsDataModel(voltage, amperage, power, this.config.powerCoefficient);
         return data;
     }
-}
-
-function randomInt(min: number, max: number) {
-    return Math.floor(Math.random() * (max - min + 1)) + min;
 }
