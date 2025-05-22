@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { Constants } from '../src/constants';
+import { Constants } from '../../src/constants';
 
 describe('UtilsService', () => {
     let utilsService: any;
@@ -11,8 +11,8 @@ describe('UtilsService', () => {
         // Stub bcrypt.hash before loading UtilsService to ensure hashAsync uses stub
         hashStub = sinon.stub(require('bcrypt'), 'hash');
         // Clear module cache so hashAsync is recreated with our stub
-        delete require.cache[require.resolve('../src/modules/auth/utils.service')];
-        UtilsServiceClass = require('../src/modules/auth/utils.service').UtilsService;
+        delete require.cache[require.resolve('../../src/modules/auth/utils.service')];
+        UtilsServiceClass = require('../../src/modules/auth/utils.service').UtilsService;
         utilsService = new UtilsServiceClass();
     });
 

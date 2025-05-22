@@ -27,7 +27,7 @@ describe('MqttConnectionService', () => {
         };
         connectStub = sinon.stub().returns(mqttClient);
         // Inject stubbed mqtt.connect before requiring the service
-        const serviceModule = proxyquire('../src/modules/mqtt/mqtt-connection.service', {
+        const serviceModule = proxyquire('../../src/modules/mqtt/mqtt-connection.service', {
             mqtt: { connect: connectStub },
         });
         service = new serviceModule.MqttConnectionService(logger, config);

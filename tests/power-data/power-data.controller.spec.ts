@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { PowerDataController } from '../src/modules/power-data/power-data.controller';
+import { PowerDataController } from '../../src/modules/power-data/power-data.controller';
 
 describe('PowerDataController', () => {
     let controller: PowerDataController;

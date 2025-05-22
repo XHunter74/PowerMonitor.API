@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { ServicesController } from '../src/modules/services/services.controller';
-import { ServicesService } from '../src/modules/services/services.service';
+import { ServicesController } from '../../src/modules/services/services.controller';
+import { ServicesService } from '../../src/modules/services/services.service';
 import { Logger } from 'winston';
 
 describe('ServicesController', () => {

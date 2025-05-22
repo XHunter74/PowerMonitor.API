@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import * as sinon from 'sinon';
 import * as dotenv from 'dotenv';
 import * as fs from 'fs';
-import { ConfigService } from '../src/modules/config/config.service';
+import { ConfigService } from '../../src/modules/config/config.service';
 
 describe('ConfigService', () => {
     let readFileSyncStub: sinon.SinonStub;

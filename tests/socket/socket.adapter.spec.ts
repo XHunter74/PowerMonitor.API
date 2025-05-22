@@ -1,6 +1,6 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { SocketIoAdapter } from '../src/modules/socket/socket.adapter';
+import { SocketIoAdapter } from '../../src/modules/socket/socket.adapter';
 import { IoAdapter } from '@nestjs/platform-socket.io';
 import { ServerOptions, Server } from 'socket.io';
 

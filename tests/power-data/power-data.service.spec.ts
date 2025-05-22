@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { PowerDataService } from '../src/modules/power-data/power-data.service';
-import { PowerDataStatsModel } from '../src/common/models/power-data-stats.model';
+import { PowerDataService } from '../../src/modules/power-data/power-data.service';
+import { PowerDataStatsModel } from '../../src/common/models/power-data-stats.model';
 
 describe('PowerDataService', () => {
     let service: PowerDataService;

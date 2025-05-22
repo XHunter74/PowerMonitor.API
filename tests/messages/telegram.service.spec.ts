@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { TelegramService } from '../src/modules/messages/telegram.service';
+import { TelegramService } from '../../src/modules/messages/telegram.service';
 import { Logger } from 'winston';
-import { ConfigService } from '../src/modules/config/config.service';
+import { ConfigService } from '../../src/modules/config/config.service';
 import TelegramBot = require('node-telegram-bot-api');
 
 describe('TelegramService', () => {

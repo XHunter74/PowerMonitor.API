@@ -1,8 +1,8 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { EmailService } from '../src/modules/messages/email.service';
+import { EmailService } from '../../src/modules/messages/email.service';
 import { Logger } from 'winston';
-import { ConfigService } from '../src/modules/config/config.service';
+import { ConfigService } from '../../src/modules/config/config.service';
 import * as nodemailer from 'nodemailer';
 
 describe('EmailService', () => {

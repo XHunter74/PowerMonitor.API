@@ -1,7 +1,7 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { PowerAvailabilityService } from '../src/modules/power-data/power-availability.service';
-import { PowerAvailability } from '../src/entities/power-availability.entity';
+import { PowerAvailabilityService } from '../../src/modules/power-data/power-availability.service';
+import { PowerAvailability } from '../../src/entities/power-availability.entity';
 
 // Mocks
 class LoggerMock {

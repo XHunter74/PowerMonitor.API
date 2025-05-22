@@ -5,7 +5,7 @@ const SerialPortStub = sinon.stub();
 const ReadlineParserStub = sinon.stub();
 // Use proxyquire to inject stubs
 const proxyquire = require('proxyquire').noCallThru();
-const { SerialPortService } = proxyquire('../src/modules/collect-data/serial-port.service', {
+const { SerialPortService } = proxyquire('../../src/modules/collect-data/serial-port.service', {
     serialport: { SerialPort: SerialPortStub, ReadlineParser: ReadlineParserStub },
 });
 import type { Logger } from 'winston';

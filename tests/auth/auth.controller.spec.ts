@@ -1,10 +1,10 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { AuthController } from '../src/modules/auth/auth.controller';
-import { AuthService } from '../src/modules/auth/auth.service';
+import { AuthController } from '../../src/modules/auth/auth.controller';
+import { AuthService } from '../../src/modules/auth/auth.service';
 import { Logger } from 'winston';
 import { Request } from 'express';
-import { CreateUserDto } from '../src/common/models/dto/create-user.dto';
+import { CreateUserDto } from '../../src/common/models/dto/create-user.dto';
 import { HttpException, HttpStatus } from '@nestjs/common';
 
 describe('AuthController', () => {

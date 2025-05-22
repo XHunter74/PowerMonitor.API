@@ -1,5 +1,5 @@
 import { expect } from 'chai';
-import { patchDate, daysInMonth } from '../src/common/date-functions';
+import { patchDate, daysInMonth } from '../../src/common/date-functions';
 
 describe('date-functions', () => {
     describe('patchDate', () => {

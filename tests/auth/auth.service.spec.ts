@@ -1,10 +1,10 @@
 import * as chai from 'chai';
 import * as sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import { AuthService } from '../src/modules/auth/auth.service';
+import { AuthService } from '../../src/modules/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
-import { UtilsService } from '../src/modules/auth/utils.service';
-import { ConfigService } from '../src/modules/config/config.service';
+import { UtilsService } from '../../src/modules/auth/utils.service';
+import { ConfigService } from '../../src/modules/config/config.service';
 import { Repository } from 'typeorm';
 import { Logger } from 'winston';
 import { UnauthorizedException, HttpException, HttpStatus } from '@nestjs/common';

@@ -2,9 +2,9 @@ import { expect } from 'chai';
 import * as winston from 'winston';
 import * as sinon from 'sinon';
 import * as proxyquire from 'proxyquire';
-import { ConfigService } from '../src/modules/config/config.service';
+import { ConfigService } from '../../src/modules/config/config.service';
 import { Test, TestingModule } from '@nestjs/testing';
-import { LoggerModule, WINSTON_LOGGER } from '../src/modules/logger/logger.module';
+import { LoggerModule, WINSTON_LOGGER } from '../../src/modules/logger/logger.module';
 
 describe('LoggerModule', () => {
     let module: TestingModule;
@@ -48,7 +48,7 @@ describe('LoggerModule', () => {
             on() {}
         }
         const { LoggerModule: ProxiedLoggerModule, WINSTON_LOGGER: PROXIED_WINSTON_LOGGER } =
-            proxyquire('../src/modules/logger/logger.module', {
+            proxyquire('../../src/modules/logger/logger.module', {
                 'winston-elasticsearch': { ElasticsearchTransport: ElasticsearchTransportStub },
             });
         const elasticConfig = {

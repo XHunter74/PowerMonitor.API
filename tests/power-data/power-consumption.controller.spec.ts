@@ -1,9 +1,9 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { PowerConsumptionController } from '../src/modules/power-data/power-consumption.controller';
-import { FactualDataDto } from '../src/common/models/dto/factual-data.dto';
-import { MeterDataDto } from '../src/common/models/dto/meter-data.dto';
-import { PowerAcc } from '../src/entities/power-acc.entity';
+import { PowerConsumptionController } from '../../src/modules/power-data/power-consumption.controller';
+import { FactualDataDto } from '../../src/common/models/dto/factual-data.dto';
+import { MeterDataDto } from '../../src/common/models/dto/meter-data.dto';
+import { PowerAcc } from '../../src/entities/power-acc.entity';
 
 describe('PowerConsumptionController', () => {
     let controller: PowerConsumptionController;

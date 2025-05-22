@@ -1,13 +1,12 @@
 import { expect } from 'chai';
 import * as sinon from 'sinon';
-import { ServicesService } from '../src/modules/services/services.service';
-import { DataService } from '../src/modules/collect-data/data.service';
-import { CoefficientsModel } from '../src/common/models/coefficients.model';
+import { ServicesService } from '../../src/modules/services/services.service';
+import { DataService } from '../../src/modules/collect-data/data.service';
+import { CoefficientsModel } from '../../src/common/models/coefficients.model';
 import * as si from 'systeminformation';
-import * as osUptime from 'os-uptime';
-import { SysInfoModel, SystemUptime } from '../src/common/models/sys-info.model';
-import { environment } from '../src/environments';
-import { Intervals } from '../src/constants';
+import { SysInfoModel, SystemUptime } from '../../src/common/models/sys-info.model';
+import { environment } from '../../src/environments';
+import { Intervals } from '../../src/constants';
 
 describe('ServicesService', () => {
     let service: ServicesService;
