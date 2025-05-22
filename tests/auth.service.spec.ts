@@ -1,14 +1,16 @@
-import { expect } from 'chai';
+import * as chai from 'chai';
 import * as sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 import { AuthService } from '../src/modules/auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
 import { UtilsService } from '../src/modules/auth/utils.service';
 import { ConfigService } from '../src/modules/config/config.service';
-import { UserEntity } from '../src/entities/users.entity';
-import { UserTokensEntity } from '../src/entities/user-tokens.entity';
 import { Repository } from 'typeorm';
 import { Logger } from 'winston';
 import { UnauthorizedException, HttpException, HttpStatus } from '@nestjs/common';
+
+chai.use(sinonChai);
+const expect = chai.expect;
 
 // Mocks
 function createRepositoryMock() {
@@ -163,6 +165,70 @@ describe('AuthService', () => {
             usersRepository.save.resolves({ username: 'user', role: 'ADMIN', password: null });
             const result = await authService.createNewUser('user', 'admin', 'pass');
             expect(result).to.deep.equal({ username: 'user', role: 'ADMIN', password: null });
+        });
+    });
+
+    describe('createRefreshToken (private)', () => {
+        let TokenGenerator: any;
+        beforeEach(() => {
+            // stub token generator to return fixed token
+            TokenGenerator = require('uuid-token-generator');
+            sinon.stub(TokenGenerator.prototype, 'generate').returns('fixed-refresh');
+        });
+        afterEach(() => {
+            sinon.restore();
+        });
+
+        it('should throw HttpException if user not found', async () => {
+            usersRepository.findOne.resolves(null);
+            try {
+                // access private method
+                await (authService as any).createRefreshToken('unknown');
+                expect.fail('Should throw');
+            } catch (e) {
+                expect(e).to.be.instanceOf(HttpException);
+                expect(e.getStatus()).to.equal(HttpStatus.BAD_REQUEST);
+            }
+        });
+
+        it('should generate and save a refresh token for existing user', async () => {
+            const fakeUser = { username: 'user' };
+            usersRepository.findOne.resolves(fakeUser);
+            tokensRepository.save.resolvesArg(0);
+            const token = await (authService as any).createRefreshToken('user');
+            expect(token).to.equal('fixed-refresh');
+            // ensure save called with a UserTokensEntity having our token
+            const saved = (tokensRepository.save as sinon.SinonStub).getCall(0).args[0];
+            expect(saved).to.have.property('token', 'fixed-refresh');
+            expect(saved).to.have.property('user', fakeUser);
+        });
+    });
+
+    describe('createUserToken (private)', () => {
+        beforeEach(() => {
+            // stub createRefreshToken to return known value
+            sinon.stub(authService as any, 'createRefreshToken').resolves('refresh-abc');
+            // stub jwtService.sign to return known token
+            (jwtService.sign as sinon.SinonStub).returns('jwt-abc');
+        });
+        afterEach(() => {
+            sinon.restore();
+        });
+
+        it('should produce a TokenDto with correct fields', async () => {
+            const tokenDto = await (authService as any).createUserToken('bob', 'USER');
+            expect(tokenDto).to.have.property('token', 'jwt-abc');
+            expect(tokenDto).to.have.property('refreshToken', 'refresh-abc');
+            expect(tokenDto).to.have.property('expiresIn', configService.tokenLifeTime);
+        });
+
+        it('should call jwtService.sign with correct payload', async () => {
+            await (authService as any).createUserToken('alice', 'ADMIN');
+            expect(jwtService.sign.calledOnce).to.be.true;
+            expect(jwtService.sign).to.have.been.calledWithExactly({
+                username: 'alice',
+                role: 'ADMIN',
+            });
         });
     });
 });
