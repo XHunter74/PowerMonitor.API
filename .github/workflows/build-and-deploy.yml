@@ -111,4 +111,4 @@ jobs:
 
             - name: Start PM2 app
               run: |
-                  sudo -u pi pm2 start PowerMonitor || sudo -u pi pm2 restart PowerMonitor
+                  sudo -u pi pm2 start /home/pi/PowerMonitor.API/ecosystem.config.js --only PowerMonitor
