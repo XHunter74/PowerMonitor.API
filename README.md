@@ -12,6 +12,10 @@ PowerMonitor API is a backend service for monitoring, collecting, and analyzing 
 - MQTT integration for real-time data
 - Logging with Winston
 - Real-time updates via WebSockets (Socket.IO)
+- Receives serial data frames from the monitoring board over a serial port, e.g.:
+    ```json
+    { "type": "data", "voltage": 220.0, "current": 5.0, "frequency": 50.0 }
+    ```
 - Centralized logging to Elasticsearch (via Winston Elasticsearch transport)
 - Application Performance Monitoring with Elastic APM (elastic-apm-node)
 
