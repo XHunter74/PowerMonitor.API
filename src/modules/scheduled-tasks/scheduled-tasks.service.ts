@@ -13,6 +13,7 @@ import { UserTokensEntity } from '../../entities/user-tokens.entity';
 import { MqttClientService } from '../mqtt/mqtt-client.service';
 import { EnergyMeteringService } from '../power-data/energy-metering.service';
 import { Interval, Timeout } from '@nestjs/schedule';
+import { Intervals } from '../../constants';
 
 @Injectable()
 export class ScheduledTasksService implements OnApplicationShutdown {
@@ -28,7 +29,7 @@ export class ScheduledTasksService implements OnApplicationShutdown {
         @InjectRepository(UserTokensEntity) private tokensRepository: Repository<UserTokensEntity>,
     ) {}
 
-    @Timeout(1000)
+    @Timeout(Intervals.OneSecond)
     async runOnStart() {
         this.logger.info(`[${ScheduledTasksService.name}].${this.runOnStart.name} => Start`);
         if (!this.config.isDevEnvironment) {
@@ -40,7 +41,7 @@ export class ScheduledTasksService implements OnApplicationShutdown {
         this.logger.info(`[${ScheduledTasksService.name}].${this.runOnStart.name} => Finish`);
     }
 
-    @Interval(5000)
+    @Interval(Intervals.OneSecond * 5)
     async runPeriodically() {
         try {
             await this.powerAvailabilityService.updatePowerAvailability();
@@ -65,7 +66,7 @@ export class ScheduledTasksService implements OnApplicationShutdown {
         }
     }
 
-    @Interval(3600000)
+    @Interval(Intervals.OneHour)
     async runHourly() {
         this.logger.info(`[${ScheduledTasksService.name}].${this.runHourly.name} => Start`);
         try {
