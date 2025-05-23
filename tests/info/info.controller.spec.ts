@@ -75,8 +75,13 @@ describe('ServicesController', () => {
         expect(serviceStub.getCalibrationCoefficients.calledOnce).to.be.true;
     });
 
-    it('should return pong for ping', () => {
-        const result = controller.ping();
+    it('should return pong for GET ping', () => {
+        const result = controller.pingGet();
+        expect(result).to.deep.equal({ response: 'pong' });
+    });
+
+    it('should return pong for POST ping', () => {
+        const result = controller.pingPost();
         expect(result).to.deep.equal({ response: 'pong' });
     });
 });
