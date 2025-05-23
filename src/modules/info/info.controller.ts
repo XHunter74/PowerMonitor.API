@@ -76,9 +76,10 @@ export class InfoController {
     /**
      * Health check endpoint. Returns 'pong'.
      */
+    @Get('ping')
     @Post('ping')
     @ApiOperation({ summary: 'Health check endpoint. Returns pong.' })
-    @ApiResponse({ status: 201, description: 'Pong returned.' })
+    @ApiResponse({ status: 200, description: 'Pong returned.' })
     ping() {
         return { response: 'pong' };
     }
