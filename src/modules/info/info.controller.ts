@@ -73,14 +73,27 @@ export class InfoController {
         return coefficients;
     }
 
+    private pongResponse() {
+        return { response: 'pong' };
+    }
+
     /**
-     * Health check endpoint. Returns 'pong'.
+     * Health check endpoint. Returns 'pong' (GET).
      */
     @Get('ping')
+    @ApiOperation({ summary: 'Health check endpoint. Returns pong.' })
+    @ApiResponse({ status: 200, description: 'Pong returned.' })
+    pingGet() {
+        return this.pongResponse();
+    }
+
+    /**
+     * Health check endpoint. Returns 'pong' (POST).
+     */
     @Post('ping')
     @ApiOperation({ summary: 'Health check endpoint. Returns pong.' })
     @ApiResponse({ status: 200, description: 'Pong returned.' })
-    ping() {
-        return { response: 'pong' };
+    pingPost() {
+        return this.pongResponse();
     }
 }
