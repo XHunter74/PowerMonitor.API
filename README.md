@@ -1,5 +1,10 @@
 # PowerMonitor API
 
+![Version](https://img.shields.io/github/package-json/v/xhunter74/PowerMonitor.API?path=package.json&color=blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Build](https://img.shields.io/badge/build-passing-brightgreen)
+![Dependencies](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen)
+
 PowerMonitor API is a backend service for monitoring, collecting, and analyzing power consumption and availability data. Built with [NestJS](https://nestjs.com/) and TypeScript, it provides RESTful endpoints for retrieving and managing power, voltage, amperage, and energy metering data, as well as system and calibration information.
 
 ## Features
