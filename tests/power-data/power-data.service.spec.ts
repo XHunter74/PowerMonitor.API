@@ -9,6 +9,7 @@ describe('PowerDataService', () => {
     let voltageRepo: any;
     let powerDataRepo: any;
     let powerAvailabilityRepo: any;
+    let cacheManager: any;
 
     beforeEach(() => {
         voltageAmperageRepo = {
@@ -20,11 +21,13 @@ describe('PowerDataService', () => {
         voltageRepo = { createQueryBuilder: sinon.stub(), getMany: sinon.stub() };
         powerDataRepo = { createQueryBuilder: sinon.stub(), getMany: sinon.stub() };
         powerAvailabilityRepo = { createQueryBuilder: sinon.stub(), getMany: sinon.stub() };
+        cacheManager = { get: sinon.stub(), set: sinon.stub() };
         service = new PowerDataService(
             voltageAmperageRepo,
             voltageRepo,
             powerDataRepo,
             powerAvailabilityRepo,
+            cacheManager,
         );
     });
 
@@ -33,7 +36,6 @@ describe('PowerDataService', () => {
     });
 
     it('getPowerAvailabilityData returns pairs sorted and filtered', async () => {
-        // Stub availability repo to return start and finish events
         const repoStub = {
             createQueryBuilder: sinon.stub(),
         } as any;
@@ -66,11 +68,13 @@ describe('PowerDataService', () => {
         // chain calls
         powerAvailabilityRepo.createQueryBuilder.onFirstCall().returns(qbStart);
         powerAvailabilityRepo.createQueryBuilder.onSecondCall().returns(qbFinish);
+        // reuse existing cacheManager stub
         service = new PowerDataService(
             voltageAmperageRepo,
             voltageRepo,
             powerDataRepo,
             powerAvailabilityRepo,
+            cacheManager,
         );
         const result = await service.getPowerAvailabilityData(
             new Date('2025-05-22'),
