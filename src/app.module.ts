@@ -8,14 +8,17 @@ import { AuthModule } from './modules/auth/auth.module';
 import { ScheduledTasksModule } from './modules/scheduled-tasks/scheduled-tasks.module';
 import { SocketModule } from './modules/socket/socket.module';
 import { InfoModule } from './modules/info/info.module';
-import { APP_INTERCEPTOR } from '@nestjs/core';
 import { ScheduleModule } from '@nestjs/schedule';
-import { CacheInterceptor, CacheModule } from '@nestjs/cache-manager';
+import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
+import { Constants } from './config/constants';
 
 @Module({
     imports: [
-        CacheModule.register(),
+        CacheModule.register({
+            isGlobal: true,
+            ttl: Constants.CacheTtl,
+        }),
         ConfigModule,
         LoggerModule,
         AuthModule,
@@ -31,11 +34,5 @@ import { Module } from '@nestjs/common';
         }),
     ],
     controllers: [],
-    providers: [
-        {
-            provide: APP_INTERCEPTOR,
-            useClass: CacheInterceptor,
-        },
-    ],
 })
 export class AppModule {}
