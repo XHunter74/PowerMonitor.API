@@ -32,7 +32,7 @@ export class PowerDataService {
             .select([
                 'EXTRACT(month FROM record.created) AS month',
                 'CASE WHEN EXTRACT(dow FROM record.created) = 0 THEN 7 ELSE EXTRACT(dow FROM record.created) END AS day_of_week',
-                'record.hours',
+                'record.hours AS hours',
                 'ROUND(SUM(record.power) / COUNT(*) / 1000, 2) AS power',
             ])
             .where('record.power > 0')
