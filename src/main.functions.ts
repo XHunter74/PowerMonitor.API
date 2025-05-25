@@ -16,7 +16,7 @@ export function initElasticApm() {
             serviceVersion: environment.version,
             serverUrl: config.elasticApmUrl,
             apiKey: config.elasticApmApiKey,
-            environment: process.env.NODE_ENV || 'development',
+            environment: process.env.NODE_ENV || Constants.ApmDefaultEnvironment,
             captureBody: 'all',
             active: true,
             logLevel: (config.logLevel as apm.LogLevel) || 'info',
@@ -32,7 +32,7 @@ export async function waitNetworkAccess(
 ) {
     const mode = process.env.NODE_ENV;
 
-    if (!mode || (mode && mode === 'development')) {
+    if (!mode || (mode && mode !== Constants.ProductionEnvironment)) {
         logger.info(`[Startup].${bootstrapName} => Application is running in '${mode}' mode`);
         return;
     }

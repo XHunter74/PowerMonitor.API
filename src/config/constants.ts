@@ -17,6 +17,8 @@ export class Intervals {
     public static OneMinute = 60 * 1000;
     public static OneHour = 60 * 60 * 1000;
     public static OneDay = 24 * 60 * 60 * 1000;
+    public static ApmDefaultEnvironment = 'development';
+    public static ProductionEnvironment = 'production';
 }
 
 export class IntervalsInSeconds {
