@@ -1,8 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Inject } from '@nestjs/common';
 import { PowerDataStatsModel } from '../../shared/models/power-data-stats.model';
 import { InjectRepository } from '@nestjs/typeorm';
 import { VoltageAmperageData } from '../../entities/voltage-amperage-data.entity';
 import { Repository } from 'typeorm';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import { PowerData } from '../../entities/power-data.entity';
 import { PowerAvailability } from '../../entities/power-availability.entity';
 import { Constants } from '../../config/constants';
@@ -20,6 +22,7 @@ export class PowerDataService {
         private readonly powerDataRepository: Repository<PowerData>,
         @InjectRepository(PowerAvailability)
         private readonly powerAvailabilityRepository: Repository<PowerAvailability>,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
     @LogMethod()
@@ -54,6 +57,16 @@ export class PowerDataService {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         options?: { suppressLogging?: boolean },
     ): Promise<any[]> {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const isHistorical = finishDate < now;
+        const cacheKey = `powerDataHourly:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        if (isHistorical) {
+            const cached = await this.cacheManager.get<any[]>(cacheKey);
+            if (cached) {
+                return cached;
+            }
+        }
         const records = await this.powerDataRepository
             .createQueryBuilder('record')
             .where('record.created >= :startDate and record.created <= :finishDate', {
@@ -63,11 +76,15 @@ export class PowerDataService {
             .orderBy('record.created', 'ASC')
             .addOrderBy('record.hours', 'ASC')
             .getMany();
-        return records.map((record) => ({
+        const result = records.map((record) => ({
             created: record.created,
             hours: record.hours,
             power: Math.round((record.power / 1000) * 100) / 100,
         }));
+        if (isHistorical) {
+            await this.cacheManager.set(cacheKey, result, 0);
+        }
+        return result;
     }
 
     @LogMethod()
@@ -77,6 +94,16 @@ export class PowerDataService {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         options?: { suppressLogging?: boolean },
     ): Promise<any[]> {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const isHistorical = finishDate < now;
+        const cacheKey = `powerDataDaily:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        if (isHistorical) {
+            const cached = await this.cacheManager.get<any[]>(cacheKey);
+            if (cached) {
+                return cached;
+            }
+        }
         const records = await this.powerDataRepository
             .createQueryBuilder('record')
             .select('record.created, SUM(record.power) as power')
@@ -87,13 +114,27 @@ export class PowerDataService {
             })
             .orderBy('record.created', 'ASC')
             .getRawMany();
-        return records.map((record) => ({
+        const result = records.map((record) => ({
             created: record['created'],
             power: Math.round((record['power'] / 1000) * 100) / 100,
         }));
+        if (isHistorical) {
+            await this.cacheManager.set(cacheKey, result, 0);
+        }
+        return result;
     }
 
     async getPowerDataMonthly(startDate: Date, finishDate: Date): Promise<any[]> {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const isHistorical = finishDate < now;
+        const cacheKey = `powerDataMonthly:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        if (isHistorical) {
+            const cached = await this.cacheManager.get<any[]>(cacheKey);
+            if (cached) {
+                return cached;
+            }
+        }
         const records = await this.powerDataRepository
             .createQueryBuilder('record')
             .select(
@@ -106,13 +147,14 @@ export class PowerDataService {
             .setParameters({ startDate, finishDate })
             .getRawMany();
 
-        const data = records.map((record) => {
-            return {
-                year: record['year'],
-                month: record['month'],
-                power: Math.round((record['power'] / 1000) * 100) / 100,
-            };
-        });
+        const data = records.map((record) => ({
+            year: record['year'],
+            month: record['month'],
+            power: Math.round((record['power'] / 1000) * 100) / 100,
+        }));
+        if (isHistorical) {
+            await this.cacheManager.set(cacheKey, data, 0);
+        }
         return data;
     }
 
@@ -136,6 +178,16 @@ export class PowerDataService {
     }
 
     async getPowerAvailabilityData(startDate: Date, finishDate: Date): Promise<any[]> {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const isHistorical = finishDate < now;
+        const cacheKey = `powerAvailabilityData:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        if (isHistorical) {
+            const cached = await this.cacheManager.get<any[]>(cacheKey);
+            if (cached) {
+                return cached;
+            }
+        }
         const startRequestDate = new Date(startDate);
         startRequestDate.setDate(startRequestDate.getDate() - 1);
         const finishRequestDate = new Date(finishDate);
@@ -247,13 +299,31 @@ export class PowerDataService {
                     new Date(e.year, e.month - 1, e.day) >= startDate &&
                     new Date(e.year, e.month - 1, e.day) <= finishDate,
             );
-            return result;
+            const finalData = result;
+            if (isHistorical) {
+                await this.cacheManager.set(cacheKey, finalData, 0);
+            }
+            return finalData;
         } else {
-            return [];
+            const finalData: any[] = [];
+            if (isHistorical) {
+                await this.cacheManager.set(cacheKey, finalData, 0);
+            }
+            return finalData;
         }
     }
 
     async getPowerAvailabilityDailyData(startDate: Date, finishDate: Date): Promise<any[]> {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        const isHistorical = finishDate < now;
+        const cacheKeyDaily = `powerAvailabilityDaily:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        if (isHistorical) {
+            const cached = await this.cacheManager.get<any[]>(cacheKeyDaily);
+            if (cached) {
+                return cached;
+            }
+        }
         const data = (await this.getPowerAvailabilityData(startDate, finishDate)).reduce((a, b) => {
             let current = a.find(
                 (e) => e.year * 365 + e.month * 30 + e.day === b.year * 365 + b.month * 30 + b.day,
@@ -274,10 +344,23 @@ export class PowerDataService {
             return a;
         }, []);
 
+        if (isHistorical) {
+            await this.cacheManager.set(cacheKeyDaily, data, 0);
+        }
         return data;
     }
 
     async getPowerAvailabilityMonthlyData(startDate: Date, finishDate: Date): Promise<any[]> {
+        const nowMon = new Date();
+        nowMon.setHours(0, 0, 0, 0);
+        const isHistorical = finishDate < nowMon;
+        const cacheKeyMon = `powerAvailabilityMonthly:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        if (isHistorical) {
+            const cached = await this.cacheManager.get<any[]>(cacheKeyMon);
+            if (cached) {
+                return cached;
+            }
+        }
         const data = (await this.getPowerAvailabilityData(startDate, finishDate)).reduce((a, b) => {
             let current = a.find((e) => e.month === b.month && e.year === b.year);
             if (current) {
@@ -295,6 +378,9 @@ export class PowerDataService {
             return a;
         }, []);
 
+        if (isHistorical) {
+            await this.cacheManager.set(cacheKeyMon, data, 0);
+        }
         return data;
     }
 
@@ -319,6 +405,16 @@ export class PowerDataService {
     }
 
     async getVoltageAmperage(startDate: Date, finishDate: Date): Promise<any[]> {
+        const nowVA = new Date();
+        nowVA.setHours(0, 0, 0, 0);
+        const isHistoricalVA = finishDate < nowVA;
+        const cacheKeyVA = `voltageAmperage:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        if (isHistoricalVA) {
+            const cached = await this.cacheManager.get<any[]>(cacheKeyVA);
+            if (cached) {
+                return cached;
+            }
+        }
         const records = await this.voltageAmperageRepository
             .createQueryBuilder('record')
             .where('record.created >= :startDate and record.created <= :finishDate')
@@ -326,18 +422,19 @@ export class PowerDataService {
             .setParameters({ startDate, finishDate })
             .getMany();
 
-        const data = records.map((record) => {
-            return {
-                created: record.created,
-                hours: record.hours,
-                amperageMin: record.amperageMin,
-                amperageMax: record.amperageMax,
-                amperageAvg: Math.round((record.amperageSum / record.samples) * 100) / 100,
-                voltageMin: record.voltageMin,
-                voltageMax: record.voltageMax,
-                voltageAvg: Math.round((record.voltageSum / record.samples) * 100) / 100,
-            };
-        });
+        const data = records.map((record) => ({
+            created: record.created,
+            hours: record.hours,
+            amperageMin: record.amperageMin,
+            amperageMax: record.amperageMax,
+            amperageAvg: Math.round((record.amperageSum / record.samples) * 100) / 100,
+            voltageMin: record.voltageMin,
+            voltageMax: record.voltageMax,
+            voltageAvg: Math.round((record.voltageSum / record.samples) * 100) / 100,
+        }));
+        if (isHistoricalVA) {
+            await this.cacheManager.set(cacheKeyVA, data, 0);
+        }
         return data;
     }
 
