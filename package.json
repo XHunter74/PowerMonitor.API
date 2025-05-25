@@ -25,7 +25,7 @@
         "start:docker": "node dist/main.js",
         "lint": "eslint --ext .ts src/",
         "typeorm:cli": "ts-node ./node_modules/typeorm/cli -f ./src/ormconfig.ts",
-        "test": "mocha -r ts-node/register tests/**/*.spec.ts",
+        "test": "node ./test-runner.js",
         "coverage": "c8 mocha -r ts-node/register -r source-map-support/register \"tests/**/*.spec.ts\""
     },
     "dependencies": {
