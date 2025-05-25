@@ -226,6 +226,54 @@ describe('PowerDataService', () => {
             expect(result).to.deep.equal(dummy);
             sinon.assert.notCalled(powerDataRepo.createQueryBuilder);
         });
+
+        it('getPowerAvailabilityData returns cached data when available', async () => {
+            const start = new Date('2025-05-20');
+            const finish = new Date('2025-05-23');
+            const key = `powerAvailabilityData:${start.toISOString()}:${finish.toISOString()}`;
+            const dummy = [{ start, finish, duration: 3600 }];
+            cacheManager.get.withArgs(key).resolves(dummy);
+            const result = await service.getPowerAvailabilityData(start, finish);
+            expect(result).to.deep.equal(dummy);
+            sinon.assert.notCalled(powerAvailabilityRepo.createQueryBuilder);
+        });
+
+        it('getPowerAvailabilityDailyData returns cached data when available', async () => {
+            const start = new Date('2025-05-20');
+            const finish = new Date('2025-05-23');
+            const key = `powerAvailabilityDaily:${start.toISOString()}:${finish.toISOString()}`;
+            const dummy = [{ year: 2025, month: 5, day: 20, duration: 3600, events: 1 }];
+            cacheManager.get.withArgs(key).resolves(dummy);
+            const spy = sinon.spy(service, 'getPowerAvailabilityData');
+            const result = await service.getPowerAvailabilityDailyData(start, finish);
+            expect(result).to.deep.equal(dummy);
+            sinon.assert.notCalled(spy);
+            spy.restore();
+        });
+
+        it('getPowerAvailabilityMonthlyData returns cached data when available', async () => {
+            const start = new Date('2025-05-01');
+            const finish = new Date('2025-05-24');
+            const key = `powerAvailabilityMonthly:${start.toISOString()}:${finish.toISOString()}`;
+            const dummy = [{ year: 2025, month: 5, duration: 7200, events: 2 }];
+            cacheManager.get.withArgs(key).resolves(dummy);
+            const spy = sinon.spy(service, 'getPowerAvailabilityData');
+            const result = await service.getPowerAvailabilityMonthlyData(start, finish);
+            expect(result).to.deep.equal(dummy);
+            sinon.assert.notCalled(spy);
+            spy.restore();
+        });
+
+        it('getVoltageAmperage returns cached data when available', async () => {
+            const start = new Date('2025-05-20');
+            const finish = new Date('2025-05-23');
+            const key = `voltageAmperage:${start.toISOString()}:${finish.toISOString()}`;
+            const dummy = [{ created: start, hours: 1, voltageAvg: 230, amperageAvg: 10 }];
+            cacheManager.get.withArgs(key).resolves(dummy);
+            const result = await service.getVoltageAmperage(start, finish);
+            expect(result).to.deep.equal(dummy);
+            sinon.assert.notCalled(voltageAmperageRepo.createQueryBuilder);
+        });
     });
 
     it('getPowerDataStats returns mapped stats', async () => {
@@ -327,6 +375,4 @@ describe('PowerDataService', () => {
         );
         expect(result).to.deep.equal([]);
     });
-
-    // Additional tests for getPowerAvailabilityData, getPowerAvailabilityDailyData, getPowerAvailabilityMonthlyData, getPowerAvailabilityYearlyData, getVoltageAmperage, getVoltageData can be added similarly
 });
