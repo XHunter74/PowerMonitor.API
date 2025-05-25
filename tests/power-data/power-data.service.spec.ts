@@ -184,6 +184,50 @@ describe('PowerDataService', () => {
         expect(volt).to.deep.equal([{ created: new Date('2025-05-22'), voltage: 230 }]);
     });
 
+    describe('caching behaviour', () => {
+        let clock: sinon.SinonFakeTimers;
+        before(() => {
+            // freeze time to 2025-05-25 to make historical checks deterministic
+            clock = sinon.useFakeTimers(new Date('2025-05-25T00:00:00Z').getTime());
+        });
+        after(() => {
+            clock.restore();
+        });
+        it('getPowerDataHourly returns cached data when available', async () => {
+            const start = new Date('2025-05-20');
+            const finish = new Date('2025-05-23');
+            const key = `powerDataHourly:${start.toISOString()}:${finish.toISOString()}`;
+            const dummy = [{ created: start, hours: 1, power: 1 }];
+            cacheManager.get.withArgs(key).resolves(dummy);
+            const result = await service.getPowerDataHourly(start, finish);
+            expect(result).to.deep.equal(dummy);
+            sinon.assert.notCalled(powerDataRepo.createQueryBuilder);
+        });
+
+        it('getPowerDataDaily returns cached data when available', async () => {
+            const start = new Date('2025-05-20');
+            const finish = new Date('2025-05-23');
+            const key = `powerDataDaily:${start.toISOString()}:${finish.toISOString()}`;
+            const dummy = [{ created: start, power: 2 }];
+            cacheManager.get.withArgs(key).resolves(dummy);
+            const result = await service.getPowerDataDaily(start, finish);
+            expect(result).to.deep.equal(dummy);
+            sinon.assert.notCalled(powerDataRepo.createQueryBuilder);
+        });
+
+        it('getPowerDataMonthly returns cached data when available', async () => {
+            // use a historical range (finish before current date May 25, 2025)
+            const start = new Date('2025-05-01');
+            const finish = new Date('2025-05-24');
+            const key = `powerDataMonthly:${start.toISOString()}:${finish.toISOString()}`;
+            const dummy = [{ year: 2025, month: 5, power: 5 }];
+            cacheManager.get.withArgs(key).resolves(dummy);
+            const result = await service.getPowerDataMonthly(start, finish);
+            expect(result).to.deep.equal(dummy);
+            sinon.assert.notCalled(powerDataRepo.createQueryBuilder);
+        });
+    });
+
     it('getPowerDataStats returns mapped stats', async () => {
         const qb = {
             select: sinon.stub().returnsThis(),
