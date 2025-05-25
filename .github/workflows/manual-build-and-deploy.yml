@@ -28,11 +28,26 @@ jobs:
             - name: Run tests
               run: npm run test
 
+            - name: Check version bump eligibility
+              id: version-check
+              run: |
+                  VERSION=$(node -p "require('./package.json').version")
+                  # Skip bump if version ends with .0 or .0.0
+                  if echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.0$|^[0-9]+\.0\.0$'; then
+                    echo "bump=false" >> $GITHUB_OUTPUT
+                  else
+                    echo "bump=true" >> $GITHUB_OUTPUT
+                  fi
+
             - name: Bump version
+              if: steps.version-check.outputs.bump == 'true'
               run: npm version patch --no-git-tag-version
 
             - name: Replace build
               run: node ./replace.build.js
+
+            - name: Check versions
+              run: npm run test tests/shared/version-consistency.spec.ts
 
             - name: Build
               run: tsc -p tsconfig.build.prod.json

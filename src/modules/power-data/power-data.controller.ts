@@ -1,4 +1,4 @@
-import { Controller, Get, Query, UseGuards, Inject } from '@nestjs/common';
+import { Controller, Get, Query, UseGuards, Inject, UseInterceptors } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiQuery } from '@nestjs/swagger';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
@@ -6,11 +6,13 @@ import { PowerDataService } from './power-data.service';
 import { AuthGuard } from '@nestjs/passport';
 import { daysInMonth } from '../../shared/utils/date-functions';
 import { RolesGuard } from '../../shared/guards/roles.guard';
-import { Constants } from '../../config/constants';
+import { Constants, Intervals } from '../../config/constants';
 import { StartFinishDatesDto } from '../../shared/dto/start-finish-dates.dto';
 import { MonthYearDto } from '../../shared/dto/month-year.dto';
 import { YearDto } from '../../shared/dto/year.dto';
 import { MonthDayOfWeekDto } from '../../shared/dto/month-dayofweek.dto';
+import { CacheTTL } from '@nestjs/cache-manager';
+import { IgnoreTsCacheInterceptor } from '../../shared/interceptors/ignore-ts.interceptor';
 
 @ApiTags('Power Data')
 @Controller('api/power')
@@ -107,6 +109,8 @@ export class PowerDataController {
      * @param dayOfWeek Day of week (1-7, Monday=1)
      */
     @Get('power-data-stats')
+    @UseInterceptors(IgnoreTsCacheInterceptor)
+    @CacheTTL(Intervals.OneDay)
     @UseGuards(AuthGuard('jwt'))
     @ApiOperation({ summary: 'Get power data statistics for a given month and day of week.' })
     @ApiQuery({ name: 'month', type: Number, required: false })
