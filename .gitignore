@@ -37,3 +37,4 @@ logs-docker/
 server.off
 staging.env
 production.env
+Documents/
