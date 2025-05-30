@@ -48,7 +48,7 @@ async function bootstrap() {
         verbose: (msg) => (logger.verbose ? logger.verbose(msg) : logger.info(msg)),
     });
     app.enableShutdownHooks();
-    app.enableCors({ credentials: true, origin: config.allowOrigins });
+    app.enableCors({ credentials: true, origin: config.allowOrigins, maxAge: config.corsMaxAge });
     app.useGlobalPipes(
         new ValidationPipe({
             whitelist: true,

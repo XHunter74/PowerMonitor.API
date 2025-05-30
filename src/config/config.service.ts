@@ -201,6 +201,18 @@ export class ConfigService {
         return origins;
     }
 
+    get corsMaxAge(): number {
+        const value = this.envConfig.CORS_MAX_AGE;
+        if (!value) {
+            return 0;
+        }
+        const result = Number(value);
+        if (isNaN(result)) {
+            return 0;
+        }
+        return result;
+    }
+
     get telegramToken(): string {
         return this.envConfig.TELEGRAM_TOKEN;
     }
