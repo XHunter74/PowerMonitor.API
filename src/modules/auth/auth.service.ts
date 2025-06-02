@@ -41,7 +41,7 @@ export class AuthService {
         if (!user || !bcrypt.compareSync(loginModel.password, user.password)) {
             throw new UnauthorizedException('Invalid UserName/Password');
         }
-        return await this.createUserToken(user.username, user.role);
+        return await this.createUserToken(user, user.role);
     }
 
     @LogMethod()
