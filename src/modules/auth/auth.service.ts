@@ -1,4 +1,6 @@
 import { JwtService } from '@nestjs/jwt';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 import {
     Injectable,
     UnauthorizedException,
@@ -31,6 +33,7 @@ export class AuthService {
         private readonly config: ConfigService,
         @InjectRepository(UserEntity) private usersRepository: Repository<UserEntity>,
         @InjectRepository(UserTokensEntity) private tokensRepository: Repository<UserTokensEntity>,
+        @Inject(CACHE_MANAGER) private cacheManager: Cache,
     ) {}
 
     @LogMethod()
@@ -81,6 +84,15 @@ export class AuthService {
         contactToken.token = token;
         contactToken.created = new Date();
         await this.tokensRepository.save(contactToken);
+
+        if (this.cacheManager) {
+            await this.cacheManager.set(
+                `refreshToke-${user.id}`,
+                `refreshToken:${token}`,
+                this.config.refreshTokenLifeTime,
+            );
+        }
+
         this.logger.info(`[${AuthService.name}].${this.createRefreshToken.name} => Finish`);
         return token;
     }
