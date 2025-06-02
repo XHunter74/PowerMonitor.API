@@ -57,36 +57,27 @@ export class AuthService {
             throw new HttpException('Token is expired or does not exist', HttpStatus.UNAUTHORIZED);
         }
         await this.tokensRepository.remove(tokenInDb);
-        return await this.createUserToken(tokenInDb.user.username, tokenInDb.user.role);
+        return await this.createUserToken(tokenInDb.user, tokenInDb.user.role);
     }
 
-    private async createUserToken(username: string, role: string): Promise<TokenDto> {
+    private async createUserToken(user: UserEntity, role: string): Promise<TokenDto> {
+        const username = user.username;
         const jwtPayload: JwtPayload = { username, role };
         const token = new TokenDto();
         token.token = this.jwtService.sign(jwtPayload);
-        token.refreshToken = await this.createRefreshToken(username);
+        token.refreshToken = await this.createRefreshToken(user);
         token.expiresIn = this.config.tokenLifeTime;
         return token;
     }
 
-    private async createRefreshToken(username: string): Promise<string> {
+    private async createRefreshToken(user: UserEntity): Promise<string> {
         this.logger.info(`[${AuthService.name}].${this.createRefreshToken.name} => Start`);
-        const userInDb = await this.usersRepository.findOne({
-            where: { username },
-        });
-        if (!userInDb) {
-            this.logger.error(
-                `[${AuthService.name}].${this.createRefreshToken.name} => ` +
-                    `Error: User '${username}' does not exists`,
-            );
-            throw new HttpException('User does not exists', HttpStatus.BAD_REQUEST);
-        }
 
         const tokenGenerator = new TokenGenerator(1024, TokenGenerator.BASE62);
         const token = tokenGenerator.generate();
 
         const contactToken = new UserTokensEntity();
-        contactToken.user = userInDb;
+        contactToken.user = user;
         contactToken.token = token;
         contactToken.created = new Date();
         await this.tokensRepository.save(contactToken);
