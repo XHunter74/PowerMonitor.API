@@ -74,6 +74,9 @@ export class AuthService {
     }
 
     private async createRefreshToken(user: UserEntity): Promise<string> {
+        if (!user) {
+            throw new HttpException('User not found', HttpStatus.BAD_REQUEST);
+        }
         this.logger.info(`[${AuthService.name}].${this.createRefreshToken.name} => Start`);
 
         const tokenGenerator = new TokenGenerator(1024, TokenGenerator.BASE62);

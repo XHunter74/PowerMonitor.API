@@ -48,6 +48,25 @@ describe('AuthService', () => {
             info: sinon.stub().callsFake((message: string, ...meta: any[]) => {}),
             error: sinon.stub().callsFake((message: string, ...meta: any[]) => {}),
         };
+        // Add a stub for cacheManager as the 7th argument
+        const cacheManager = {
+            set: sinon.stub().resolves(),
+            get: sinon.stub().resolves(),
+            del: sinon.stub().resolves(),
+            reset: sinon.stub().resolves(),
+            wrap: sinon.stub(),
+            store: {
+                get: sinon.stub(),
+                set: sinon.stub(),
+                del: sinon.stub(),
+                reset: sinon.stub(),
+                keys: sinon.stub(),
+                mget: sinon.stub(),
+                mset: sinon.stub(),
+                mdel: sinon.stub(),
+                ttl: sinon.stub(),
+            },
+        };
         authService = new AuthService(
             logger as any,
             jwtService as any,
@@ -55,6 +74,7 @@ describe('AuthService', () => {
             configService as ConfigService,
             usersRepository,
             tokensRepository,
+            cacheManager,
         );
     });
 
@@ -182,8 +202,8 @@ describe('AuthService', () => {
         it('should throw HttpException if user not found', async () => {
             usersRepository.findOne.resolves(null);
             try {
-                // access private method
-                await (authService as any).createRefreshToken('unknown');
+                // pass null to simulate missing user
+                await (authService as any).createRefreshToken(null);
                 expect.fail('Should throw');
             } catch (e) {
                 expect(e).to.be.instanceOf(HttpException);
@@ -195,7 +215,7 @@ describe('AuthService', () => {
             const fakeUser = { username: 'user' };
             usersRepository.findOne.resolves(fakeUser);
             tokensRepository.save.resolvesArg(0);
-            const token = await (authService as any).createRefreshToken('user');
+            const token = await (authService as any).createRefreshToken(fakeUser);
             expect(token).to.equal('fixed-refresh');
             // ensure save called with a UserTokensEntity having our token
             const saved = (tokensRepository.save as sinon.SinonStub).getCall(0).args[0];
@@ -216,14 +236,16 @@ describe('AuthService', () => {
         });
 
         it('should produce a TokenDto with correct fields', async () => {
-            const tokenDto = await (authService as any).createUserToken('bob', 'USER');
+            const userObj = { username: 'bob', role: 'USER' };
+            const tokenDto = await (authService as any).createUserToken(userObj, 'USER');
             expect(tokenDto).to.have.property('token', 'jwt-abc');
             expect(tokenDto).to.have.property('refreshToken', 'refresh-abc');
             expect(tokenDto).to.have.property('expiresIn', configService.tokenLifeTime);
         });
 
         it('should call jwtService.sign with correct payload', async () => {
-            await (authService as any).createUserToken('alice', 'ADMIN');
+            const userObj = { username: 'alice', role: 'ADMIN' };
+            await (authService as any).createUserToken(userObj, 'ADMIN');
             expect(jwtService.sign.calledOnce).to.be.true;
             expect(jwtService.sign).to.have.been.calledWithExactly({
                 username: 'alice',
