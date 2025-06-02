@@ -18,7 +18,7 @@ const config = new ConfigService();
         TypeOrmModule.forFeature([UserEntity, UserTokensEntity]),
         PassportModule.register({ defaultStrategy: 'jwt' }),
         JwtModule.register({
-            secretOrPrivateKey: config.tokenSecretKey,
+            secret: config.tokenSecretKey,
             signOptions: {
                 expiresIn: config.tokenLifeTime,
             },
