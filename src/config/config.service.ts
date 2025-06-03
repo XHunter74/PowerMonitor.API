@@ -220,4 +220,16 @@ export class ConfigService {
     get telegramChatId(): number {
         return Number(this.envConfig.TELEGRAM_CHAT_ID);
     }
+
+    get redisHost(): string {
+        return this.envConfig.REDIS_HOST;
+    }
+
+    get redisPort(): number {
+        return Number(this.envConfig.REDIS_PORT);
+    }
+
+    get redisPassword(): string {
+        return this.envConfig.REDIS_PASSWORD;
+    }
 }
