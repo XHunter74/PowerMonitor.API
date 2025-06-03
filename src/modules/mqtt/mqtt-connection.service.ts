@@ -12,6 +12,9 @@ export class MqttConnectionService {
         @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         config: ConfigService,
     ) {
+        if (config.isDevEnvironment) {
+            return;
+        }
         const options: IClientOptions = {
             host: config.mqttServer,
             port: config.mqttPort,

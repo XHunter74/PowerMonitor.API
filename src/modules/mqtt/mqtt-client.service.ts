@@ -25,6 +25,9 @@ export class MqttClientService {
         private readonly collectDataService: CollectDataService,
         private readonly mqttConnectionService: MqttConnectionService,
     ) {
+        if (config.isDevEnvironment) {
+            return;
+        }
         this.mqttConnectionService.onConnect(() => {
             this.logger.debug(
                 `[${MqttClientService.name}].Constructor => MQTT client is connected`,
