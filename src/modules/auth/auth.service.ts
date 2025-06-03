@@ -49,10 +49,7 @@ export class AuthService {
 
     @LogMethod()
     async loginByRefreshToken(refreshToken: string): Promise<TokenDto> {
-        const tokenInDb = await this.tokensRepository.findOne({
-            relations: ['user'],
-            where: { token: refreshToken },
-        });
+        const tokenInDb = await this.getRefreshTokenFromDb(refreshToken);
         if (
             !tokenInDb ||
             moment(tokenInDb.created).add(this.config.refreshTokenLifeTime, 's') < moment()
@@ -61,6 +58,26 @@ export class AuthService {
         }
         await this.tokensRepository.remove(tokenInDb);
         return await this.createUserToken(tokenInDb.user, tokenInDb.user.role);
+    }
+
+    private async getRefreshTokenFromDb(refreshToken: string): Promise<UserTokensEntity> {
+        let tokenInDb: UserTokensEntity = null;
+        if (this.cacheManager) {
+            const tokenId = Number.parseInt(
+                await this.cacheManager.get(`refreshToken-${refreshToken}`),
+            );
+            tokenInDb = await this.tokensRepository.findOne({
+                relations: ['user'],
+                where: { id: tokenId },
+            });
+        }
+        if (!tokenInDb) {
+            tokenInDb = await this.tokensRepository.findOne({
+                relations: ['user'],
+                where: { token: refreshToken },
+            });
+        }
+        return tokenInDb;
     }
 
     private async createUserToken(user: UserEntity, role: string): Promise<TokenDto> {
@@ -90,8 +107,8 @@ export class AuthService {
 
         if (this.cacheManager) {
             await this.cacheManager.set(
-                `refreshToke-${user.id}`,
-                `refreshToken:${token}`,
+                `refreshToken-${token}`,
+                contactToken.id,
                 this.config.refreshTokenLifeTime,
             );
         }
