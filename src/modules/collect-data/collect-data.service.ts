@@ -13,6 +13,7 @@ import { SerialDataModel } from '../../shared/models/serial-data.model';
 import { DataService } from './data.service';
 import { SerialPortService } from './serial-port.service';
 import { randomInt } from '../../shared/utils/utils';
+import { Constants } from '../../config/constants';
 
 @Injectable()
 export class CollectDataService {
@@ -99,7 +100,7 @@ export class CollectDataService {
                     );
                     break;
                 case 'coefficients':
-                    this.logger.debug(
+                    this.logger.info(
                         `[${CollectDataService.name}].${this.serialReceiveData.name} => ` +
                             `Board Coefficients: '${JSON.stringify(data)}`,
                     );
@@ -110,7 +111,7 @@ export class CollectDataService {
                     );
                     break;
                 case 'info':
-                    this.logger.debug(
+                    this.logger.info(
                         `[${CollectDataService.name}].${this.serialReceiveData.name} => ` +
                             `Board Info: '${JSON.stringify(data)}`,
                     );
@@ -162,6 +163,13 @@ export class CollectDataService {
     }
 
     private async processSensorData(sensorData: SensorsDataModel) {
+        if (sensorData.voltage > Constants.MaxVoltage) {
+            this.logger.error(
+                `[${CollectDataService.name}].${this.processSensorData.name} => ` +
+                    `Voltage is too high: ${sensorData.voltage}V`,
+            );
+            return;
+        }
         this.sensorsDataSubject.next(sensorData);
         await this.dataService.processVoltageAmperageData(sensorData);
         await this.dataService.processVoltageData(sensorData);

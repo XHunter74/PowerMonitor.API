@@ -20,6 +20,7 @@ export class Constants {
     public static CacheTtl = Intervals.OneHour;
     public static ApmDefaultEnvironment = 'development';
     public static ProductionEnvironment = 'production';
+    public static MaxVoltage = 400;
 }
 
 export class IntervalsInSeconds {
