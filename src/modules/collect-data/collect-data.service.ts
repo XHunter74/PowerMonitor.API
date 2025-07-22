@@ -73,7 +73,7 @@ export class CollectDataService {
     }
 
     public setBoardCoefficients(coefficients: BoardCoefficientsModel) {
-        this.logger.debug(
+        this.logger.info(
             `[${CollectDataService.name}].${this.setBoardCoefficients.name} => ` +
                 `New board coefficients: '${JSON.stringify(coefficients)}'`,
         );
