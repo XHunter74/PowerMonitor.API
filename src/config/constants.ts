@@ -12,7 +12,7 @@ export class Constants {
         boardVersion: 'board-version',
         coefficients: 'coefficients',
     };
-    public static rebootDuration = 90000;
+    public static RebootDuration = 90000;
     public static StartYear = 2019;
     public static NetworkWaitingDelay = 30000;
     public static PingDelay = 500;

@@ -234,7 +234,7 @@ export class PowerDataService {
         if (startRecords.length >= 2) {
             const data = [];
             for (let i = 1; i < startRecords.length; i = i + 2) {
-                let finishDateInt = startRecords[i].eventDate.getTime() - Constants.rebootDuration;
+                let finishDateInt = startRecords[i].eventDate.getTime() - Constants.RebootDuration;
                 if (finishDateInt < startRecords[i - 1].eventDate.getTime()) {
                     finishDateInt = startRecords[i - 1].eventDate.getTime();
                 }
