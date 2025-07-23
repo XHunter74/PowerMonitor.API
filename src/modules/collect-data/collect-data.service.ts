@@ -12,7 +12,7 @@ import { TelegramService } from '../messages/telegram.service';
 import { SerialDataModel } from '../../shared/models/serial-data.model';
 import { DataService } from './data.service';
 import { SerialPortService } from './serial-port.service';
-import { randomInt } from '../../shared/utils/utils';
+import { delay, randomInt } from '../../shared/utils/utils';
 import { Constants } from '../../config/constants';
 
 @Injectable()
@@ -58,10 +58,23 @@ export class CollectDataService {
                 void this.serialReceiveData(data);
             },
         );
+        this.serialPortService.getSerialPortOpen.subscribe(() => {
+            void this.processSerialPortOpen();
+        });
     }
 
     stop() {
         this.serialPortService.close();
+    }
+
+    private async processSerialPortOpen() {
+        const newCalibration = new BoardCoefficientsModel();
+        newCalibration.voltageCalibration = this.config.voltageCalibration;
+        newCalibration.currentCalibration = this.config.currentCalibration;
+        newCalibration.powerFactorCalibration = this.config.powerFactorCalibration;
+        this.setBoardCoefficients(newCalibration);
+        await delay(1000);
+        this.requestBuildDate();
     }
 
     public requestBuildDate() {
