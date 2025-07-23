@@ -68,12 +68,14 @@ export class CollectDataService {
     }
 
     private async processSerialPortOpen() {
+        this.requestCoefficients();
+        await delay(500);
         const newCalibration = new BoardCoefficientsModel();
         newCalibration.voltageCalibration = this.config.voltageCalibration;
         newCalibration.currentCalibration = this.config.currentCalibration;
         newCalibration.powerFactorCalibration = this.config.powerFactorCalibration;
         this.setBoardCoefficients(newCalibration);
-        await delay(1000);
+        await delay(500);
         this.requestBuildDate();
     }
 
@@ -193,7 +195,7 @@ export class CollectDataService {
         if (!this.serialDataIsAvailable) {
             return;
         }
-        const boundaryDate = new Date(Date.now() - 20000);
+        const boundaryDate = new Date(Date.now() - Constants.SerialDataTimeout);
         if (boundaryDate > this.lastDataReceiveEvent) {
             this.serialDataIsAvailable = false;
             this.logger.error(
