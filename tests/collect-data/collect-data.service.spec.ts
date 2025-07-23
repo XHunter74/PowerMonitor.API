@@ -46,6 +46,9 @@ describe('CollectDataService', () => {
             initSerial: sinon.stub(),
             close: sinon.stub(),
             write: sinon.stub(),
+            getSerialPortOpen: {
+                subscribe: sinon.stub(),
+            },
         } as any;
 
         service = new CollectDataService(
@@ -84,7 +87,7 @@ describe('CollectDataService', () => {
         coeff.currentCalibration = 20;
         coeff.powerFactorCalibration = 30;
         service.setBoardCoefficients(coeff);
-        expect(loggerStub.debug.calledOnce).to.be.true;
+        expect(loggerStub.info.calledOnce).to.be.true;
         const msg = serialPortStub.write.getCall(0).args[0] as string;
         expect(msg).to.equal('s10:20:30\n');
     });
