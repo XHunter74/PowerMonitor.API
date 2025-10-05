@@ -100,7 +100,16 @@ export class CollectDataService {
 
     private async serialReceiveData(dataStr: string) {
         if (dataStr.startsWith('{') && dataStr.endsWith('}\r')) {
-            const data = JSON.parse(dataStr) as SerialDataModel;
+            let data = null;
+            try {
+                data = JSON.parse(dataStr) as SerialDataModel;
+            } catch (err) {
+                this.logger.error(
+                    `[${CollectDataService.name}].${this.serialReceiveData.name} => ` +
+                        `Error parsing serial data: '${dataStr}' - ${err}`,
+                );
+                return;
+            }
             this.lastDataReceiveEvent = new Date();
             this.serialDataIsAvailable = true;
             switch (data.type) {
