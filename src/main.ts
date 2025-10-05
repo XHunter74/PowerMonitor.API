@@ -1,9 +1,9 @@
 import 'reflect-metadata';
 // eslint-disable-next-line import/no-duplicates
-import { initElasticApm } from './main.functions';
+// import { initElasticApm } from './main.functions';
 
 // Should be before all imports
-initElasticApm();
+// initElasticApm();
 
 import { ConfigService } from './config/config.service';
 import { NestFactory } from '@nestjs/core';
