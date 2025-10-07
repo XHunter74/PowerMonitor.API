@@ -235,6 +235,10 @@ export class CollectDataService {
         current: number,
         powerFactor: number,
     ) {
+        this.logger.info(
+            `[${CollectDataService.name}].${this.processCalibrationCoefficientsData.name} => ` +
+                `Board Coefficients Received - Voltage: ${voltage}, Current: ${current}, Power Factor: ${powerFactor}`,
+        );
         const coefficients = new BoardCoefficientsModel();
         coefficients.voltageCalibration = voltage;
         coefficients.currentCalibration = current;
