@@ -19,8 +19,16 @@ import { Constants } from '../../config/constants';
 export class CollectDataService {
     private lastDataReceiveEvent: Date;
     private serialDataIsAvailable: boolean;
+    // --- Added build date tracing state ---
+    private lastBuildDateRequest: Date | null = null;
+    private buildDateRetryAttempts = 0;
+    private buildDateReceived = false;
+    private readonly maxBuildDateRetries = 3;
+    private readonly buildDateRetryDelayMs = 2000;
+    // ---------------------------------------
 
     private sketchBuildDateSubject = new Subject<VersionModel>();
+
     get sketchBuildDate(): Observable<VersionModel> {
         return this.sketchBuildDateSubject.asObservable();
     }
@@ -76,11 +84,21 @@ export class CollectDataService {
         newCalibration.powerFactorCalibration = this.config.powerFactorCalibration;
         this.setBoardCoefficients(newCalibration);
         await delay(500);
-        this.requestBuildDate();
+        this.requestBuildDate(); // initial request now tracked & may retry
     }
 
-    public requestBuildDate() {
+    public requestBuildDate(isRetry = false) {
+        if (!isRetry) {
+            this.buildDateRetryAttempts = 0;
+            this.buildDateReceived = false;
+        }
+        this.lastBuildDateRequest = new Date();
+        this.logger.info(
+            `[${CollectDataService.name}].${this.requestBuildDate.name} => ` +
+                `Sending build date request (attempt ${this.buildDateRetryAttempts + 1}/${this.maxBuildDateRetries})`,
+        );
         this.serialPortService.write('d\n');
+        this.scheduleBuildDateRetry();
     }
 
     public requestCoefficients() {
@@ -98,15 +116,40 @@ export class CollectDataService {
         );
     }
 
+    private scheduleBuildDateRetry() {
+        if (this.buildDateReceived) {
+            return;
+        }
+        if (this.buildDateRetryAttempts >= this.maxBuildDateRetries) {
+            this.logger.error(
+                `[${CollectDataService.name}].${this.scheduleBuildDateRetry.name} => ` +
+                    `Build date not received after ${this.maxBuildDateRetries} attempts`,
+            );
+            return;
+        }
+        this.buildDateRetryAttempts++;
+        setTimeout(() => {
+            if (!this.buildDateReceived) {
+                this.logger.warn(
+                    `[${CollectDataService.name}].${this.scheduleBuildDateRetry.name} => ` +
+                        `No build date response yet, retrying (attempt ${this.buildDateRetryAttempts + 1})`,
+                );
+                this.requestBuildDate(true);
+            }
+        }, this.buildDateRetryDelayMs);
+    }
+
     private async serialReceiveData(dataStr: string) {
-        if (dataStr.startsWith('{') && dataStr.endsWith('}\r')) {
+        const raw = dataStr;
+        const trimmed = dataStr.trim(); // handles \r, \n, or both
+        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
             let data = null;
             try {
-                data = JSON.parse(dataStr) as SerialDataModel;
+                data = JSON.parse(trimmed) as SerialDataModel;
             } catch (err) {
                 this.logger.error(
                     `[${CollectDataService.name}].${this.serialReceiveData.name} => ` +
-                        `Error parsing serial data: '${dataStr}' - ${err}`,
+                        `Error parsing serial JSON: '${raw.replace(/\r|\n/g, '\\n')}' - ${err}`,
                 );
                 return;
             }
@@ -137,22 +180,54 @@ export class CollectDataService {
                 case 'info':
                     this.logger.info(
                         `[${CollectDataService.name}].${this.serialReceiveData.name} => ` +
-                            `Board Info: '${JSON.stringify(data)}`,
+                            `Board Info Raw: '${trimmed}'`,
                     );
                     await this.processBoardVersionData(data.version, data.date);
                     break;
+                default:
+                    this.logger.warn(
+                        `[${CollectDataService.name}].${this.serialReceiveData.name} => ` +
+                            `Unknown data.type='${data.type}' Raw='${trimmed}'`,
+                    );
+                    break;
             }
+        } else {
+            // Non-JSON line (could be noise / boot messages)
+            this.logger.debug(
+                `[${CollectDataService.name}].${this.serialReceiveData.name} => ` +
+                    `Ignoring non-JSON line: '${raw.replace(/\r|\n/g, '\\n')}'`,
+            );
         }
     }
 
     private async processBoardVersionData(version: string, dateStr: string) {
         const versionData = new VersionModel();
-        versionData.buildDate = new Date(dateStr);
+        const parsedDate = new Date(dateStr);
+
+        if (isNaN(parsedDate.getTime())) {
+            this.logger.error(
+                `[${CollectDataService.name}].${this.processBoardVersionData.name} => ` +
+                    `Invalid build date string received: '${dateStr}'`,
+            );
+        }
+
+        versionData.buildDate = parsedDate;
         versionData.version = version;
+
         await this.dataService.processBoardVersionData(versionData);
+
         if (this.sketchBuildDateSubject) {
             this.sketchBuildDateSubject.next(versionData);
         }
+        this.buildDateReceived = true;
+        const latencyMs = this.lastBuildDateRequest
+            ? Date.now() - this.lastBuildDateRequest.getTime()
+            : -1;
+
+        this.logger.info(
+            `[${CollectDataService.name}].${this.processBoardVersionData.name} => ` +
+                `Build date received (version='${version}', date='${dateStr}', latency=${latencyMs}ms)`,
+        );
     }
 
     private async processCalibrationCoefficientsData(
