@@ -1,29 +1,9 @@
-import * as apm from 'elastic-apm-node';
 import { ConfigService } from './config/config.service';
 import { Constants } from './config/constants';
 import { delay } from './shared/utils/utils';
 import * as ping from 'ping';
 import { Logger } from 'winston';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { environment } from './config/environments';
-
-export function initElasticApm() {
-    const config = new ConfigService();
-
-    if (config.elasticApmUrl && config.elasticApmApiKey) {
-        apm.start({
-            serviceName: 'power-monitor-api',
-            serviceVersion: environment.version,
-            serverUrl: config.elasticApmUrl,
-            apiKey: config.elasticApmApiKey,
-            environment: process.env.NODE_ENV || Constants.ApmDefaultEnvironment,
-            captureBody: 'all',
-            active: true,
-            logLevel: (config.logLevel as apm.LogLevel) || 'info',
-            centralConfig: false,
-        });
-    }
-}
 
 export async function waitNetworkAccess(
     bootstrapName: string,

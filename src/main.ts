@@ -1,9 +1,4 @@
 import 'reflect-metadata';
-// eslint-disable-next-line import/no-duplicates
-// import { initElasticApm } from './main.functions';
-
-// Should be before all imports
-// initElasticApm();
 
 import { ConfigService } from './config/config.service';
 import { NestFactory } from '@nestjs/core';
@@ -15,7 +10,6 @@ import { env } from 'process';
 import { GlobalExceptionFilter } from './shared/filters/global-exception.filter';
 import { WINSTON_LOGGER } from './modules/logger/logger.module';
 import { Logger } from 'winston';
-// eslint-disable-next-line import/no-duplicates
 import { waitNetworkAccess, configureSwagger } from './main.functions';
 
 async function bootstrap() {
