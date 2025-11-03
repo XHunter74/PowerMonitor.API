@@ -8,6 +8,7 @@ import { ConfigService } from '../../src/config/config.service';
 import { Repository } from 'typeorm';
 import { Logger } from 'winston';
 import { UnauthorizedException, HttpException, HttpStatus } from '@nestjs/common';
+import { Cache } from 'cache-manager';
 
 chai.use(sinonChai);
 const expect = chai.expect;
@@ -30,6 +31,7 @@ describe('AuthService', () => {
     let usersRepository: any;
     let tokensRepository: any;
     let logger: Partial<Logger>;
+    let cacheManager: Partial<Cache>;
 
     beforeEach(() => {
         jwtService = {
@@ -45,28 +47,19 @@ describe('AuthService', () => {
         usersRepository = createRepositoryMock();
         tokensRepository = createRepositoryMock();
         logger = {
-            info: sinon.stub().callsFake((message: string, ...meta: any[]) => {}),
-            error: sinon.stub().callsFake((message: string, ...meta: any[]) => {}),
+            info: sinon.stub().callsFake((...args: any[]) => {}),
+            error: sinon.stub().callsFake((...args: any[]) => {}),
+            warn: sinon.stub().callsFake((...args: any[]) => {}),
+            debug: sinon.stub().callsFake((...args: any[]) => {}),
         };
-        // Add a stub for cacheManager as the 7th argument
-        const cacheManager = {
+        cacheManager = {
             set: sinon.stub().resolves(),
-            get: sinon.stub().resolves(),
+            get: sinon.stub().resolves(undefined),
             del: sinon.stub().resolves(),
             reset: sinon.stub().resolves(),
             wrap: sinon.stub(),
-            store: {
-                get: sinon.stub(),
-                set: sinon.stub(),
-                del: sinon.stub(),
-                reset: sinon.stub(),
-                keys: sinon.stub(),
-                mget: sinon.stub(),
-                mset: sinon.stub(),
-                mdel: sinon.stub(),
-                ttl: sinon.stub(),
-            },
-        };
+        } as any;
+
         authService = new AuthService(
             logger as any,
             jwtService as any,
@@ -74,7 +67,7 @@ describe('AuthService', () => {
             configService as ConfigService,
             usersRepository,
             tokensRepository,
-            cacheManager,
+            cacheManager as any,
         );
     });
 
