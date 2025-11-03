@@ -26,6 +26,14 @@ export class CollectDataService {
     private readonly maxBuildDateRetries = 3;
     private readonly buildDateRetryDelayMs = 2000;
     // ---------------------------------------
+    // --- Added coefficients tracing state ---
+    private lastCoefficientsRequest: Date | null = null;
+    private coefficientsRetryAttempts = 0;
+    private coefficientsReceived = false;
+    private pendingCoefficients: BoardCoefficientsModel | null = null;
+    private readonly maxCoefficientsRetries = 3;
+    private readonly coefficientsRetryDelayMs = 2000;
+    // ----------------------------------------
 
     private sketchBuildDateSubject = new Subject<VersionModel>();
 
@@ -105,15 +113,45 @@ export class CollectDataService {
         this.serialPortService.write('i\n');
     }
 
-    public setBoardCoefficients(coefficients: BoardCoefficientsModel) {
+    public setBoardCoefficients(coefficients: BoardCoefficientsModel, isRetry = false) {
+        if (!isRetry) {
+            this.coefficientsRetryAttempts = 0;
+            this.coefficientsReceived = false;
+            this.pendingCoefficients = coefficients;
+        }
+        this.lastCoefficientsRequest = new Date();
         this.logger.info(
             `[${CollectDataService.name}].${this.setBoardCoefficients.name} => ` +
-                `New board coefficients: '${JSON.stringify(coefficients)}'`,
+                `Sending board coefficients (attempt ${this.coefficientsRetryAttempts + 1}/${this.maxCoefficientsRetries}): '${JSON.stringify(coefficients)}'`,
         );
         this.serialPortService.write(
             `s${coefficients.voltageCalibration}:${coefficients.currentCalibration}:` +
                 `${coefficients.powerFactorCalibration}\n`,
         );
+        this.scheduleCoefficientsRetry();
+    }
+
+    private scheduleCoefficientsRetry() {
+        if (this.coefficientsReceived) {
+            return;
+        }
+        if (this.coefficientsRetryAttempts >= this.maxCoefficientsRetries) {
+            this.logger.error(
+                `[${CollectDataService.name}].${this.scheduleCoefficientsRetry.name} => ` +
+                    `Coefficients not confirmed after ${this.maxCoefficientsRetries} attempts`,
+            );
+            return;
+        }
+        this.coefficientsRetryAttempts++;
+        setTimeout(() => {
+            if (!this.coefficientsReceived && this.pendingCoefficients) {
+                this.logger.warn(
+                    `[${CollectDataService.name}].${this.scheduleCoefficientsRetry.name} => ` +
+                        `No coefficients confirmation yet, retrying (attempt ${this.coefficientsRetryAttempts + 1})`,
+                );
+                this.setBoardCoefficients(this.pendingCoefficients, true);
+            }
+        }, this.coefficientsRetryDelayMs);
     }
 
     private scheduleBuildDateRetry() {
@@ -247,11 +285,37 @@ export class CollectDataService {
         newCoefficients.voltageCalibration = this.config.voltageCalibration;
         newCoefficients.currentCalibration = this.config.currentCalibration;
         newCoefficients.powerFactorCalibration = this.config.powerFactorCalibration;
-        if (
+
+        // Check if received coefficients match the pending (expected) coefficients
+        const matchesPending =
+            this.pendingCoefficients &&
+            coefficients.voltageCalibration === this.pendingCoefficients.voltageCalibration &&
+            coefficients.currentCalibration === this.pendingCoefficients.currentCalibration &&
+            coefficients.powerFactorCalibration === this.pendingCoefficients.powerFactorCalibration;
+
+        if (matchesPending) {
+            this.coefficientsReceived = true;
+            const latencyMs = this.lastCoefficientsRequest
+                ? Date.now() - this.lastCoefficientsRequest.getTime()
+                : -1;
+            this.logger.info(
+                `[${CollectDataService.name}].${this.processCalibrationCoefficientsData.name} => ` +
+                    `Coefficients confirmed (latency=${latencyMs}ms)`,
+            );
+            await this.dataService.processCalibrationCoefficientsData(coefficients);
+            if (this.coefficientsSubject) {
+                this.coefficientsSubject.next(coefficients);
+            }
+        } else if (
             newCoefficients.voltageCalibration === coefficients.voltageCalibration &&
             newCoefficients.currentCalibration === coefficients.currentCalibration &&
             newCoefficients.powerFactorCalibration === coefficients.powerFactorCalibration
         ) {
+            // Coefficients match config but we weren't expecting them (no pending request)
+            this.logger.info(
+                `[${CollectDataService.name}].${this.processCalibrationCoefficientsData.name} => ` +
+                    `Coefficients match config (no pending request)`,
+            );
             await this.dataService.processCalibrationCoefficientsData(coefficients);
             if (this.coefficientsSubject) {
                 this.coefficientsSubject.next(coefficients);
@@ -259,7 +323,8 @@ export class CollectDataService {
         } else {
             this.logger.error(
                 `[${CollectDataService.name}].${this.processCalibrationCoefficientsData.name} ` +
-                    `=> The error happens for setting board coefficients`,
+                    `=> Coefficients mismatch - Expected: ${JSON.stringify(this.pendingCoefficients || newCoefficients)}, ` +
+                    `Received: ${JSON.stringify(coefficients)}`,
             );
             this.setBoardCoefficients(newCoefficients);
         }
