@@ -22,6 +22,7 @@ export class Constants {
     public static ProductionEnvironment = 'production';
     public static MaxVoltage = 400;
     public static SerialDataTimeout = 20000; // 20 seconds
+    public static CacheOneDay = Intervals.OneDay * 1000;
 }
 
 export class IntervalsInSeconds {

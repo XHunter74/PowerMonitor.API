@@ -82,7 +82,7 @@ export class PowerDataService {
             power: Math.round((record.power / 1000) * 100) / 100,
         }));
         if (isHistorical) {
-            await this.cacheManager.set(cacheKey, result, 0);
+            await this.cacheManager.set(cacheKey, result, Constants.CacheOneDay);
         }
         return result;
     }
@@ -119,7 +119,7 @@ export class PowerDataService {
             power: Math.round((record['power'] / 1000) * 100) / 100,
         }));
         if (isHistorical) {
-            await this.cacheManager.set(cacheKey, result, 0);
+            await this.cacheManager.set(cacheKey, result, Constants.CacheOneDay);
         }
         return result;
     }
@@ -153,7 +153,7 @@ export class PowerDataService {
             power: Math.round((record['power'] / 1000) * 100) / 100,
         }));
         if (isHistorical) {
-            await this.cacheManager.set(cacheKey, data, 0);
+            await this.cacheManager.set(cacheKey, data, Constants.CacheOneDay);
         }
         return data;
     }
@@ -301,13 +301,13 @@ export class PowerDataService {
             );
             const finalData = result;
             if (isHistorical) {
-                await this.cacheManager.set(cacheKey, finalData, 0);
+                await this.cacheManager.set(cacheKey, finalData, Constants.CacheOneDay);
             }
             return finalData;
         } else {
             const finalData: any[] = [];
             if (isHistorical) {
-                await this.cacheManager.set(cacheKey, finalData, 0);
+                await this.cacheManager.set(cacheKey, finalData, Constants.CacheOneDay);
             }
             return finalData;
         }
@@ -345,7 +345,7 @@ export class PowerDataService {
         }, []);
 
         if (isHistorical) {
-            await this.cacheManager.set(cacheKeyDaily, data, 0);
+            await this.cacheManager.set(cacheKeyDaily, data, Constants.CacheOneDay);
         }
         return data;
     }
@@ -379,7 +379,7 @@ export class PowerDataService {
         }, []);
 
         if (isHistorical) {
-            await this.cacheManager.set(cacheKeyMon, data, 0);
+            await this.cacheManager.set(cacheKeyMon, data, Constants.CacheOneDay);
         }
         return data;
     }
@@ -433,7 +433,7 @@ export class PowerDataService {
             voltageAvg: Math.round((record.voltageSum / record.samples) * 100) / 100,
         }));
         if (isHistoricalVA) {
-            await this.cacheManager.set(cacheKeyVA, data, 0);
+            await this.cacheManager.set(cacheKeyVA, data, Constants.CacheOneDay);
         }
         return data;
     }
