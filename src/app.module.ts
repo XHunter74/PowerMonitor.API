@@ -11,8 +11,7 @@ import { InfoModule } from './modules/info/info.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { CacheModule } from '@nestjs/cache-manager';
 import { Module } from '@nestjs/common';
-import { Constants } from './config/constants';
-import * as redisStore from 'cache-manager-ioredis';
+import KeyvRedis from '@keyv/redis';
 
 @Module({
     imports: [
@@ -20,14 +19,11 @@ import * as redisStore from 'cache-manager-ioredis';
             isGlobal: true,
             imports: [ConfigModule],
             inject: [ConfigService],
-            useFactory: (configService: ConfigService) => ({
-                store: redisStore,
-                host: configService.redisHost,
-                port: configService.redisPort,
-                db: configService.redisDb,
-                // password: configService.redisPassword,
-                ttl: Constants.CacheTtl,
-            }),
+            useFactory: (configService: ConfigService) => {
+                return {
+                    stores: [new KeyvRedis(configService.redisUri)],
+                };
+            },
         }),
         ConfigModule,
         LoggerModule,

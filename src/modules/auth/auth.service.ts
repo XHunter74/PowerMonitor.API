@@ -111,7 +111,7 @@ export class AuthService {
             await this.cacheManager.set(
                 `refreshToken-${token}`,
                 contactToken.id,
-                this.config.refreshTokenLifeTime,
+                this.config.refreshTokenLifeTime * 1000,
             );
         }
 

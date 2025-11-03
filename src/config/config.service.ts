@@ -221,19 +221,7 @@ export class ConfigService {
         return Number(this.envConfig.TELEGRAM_CHAT_ID);
     }
 
-    get redisHost(): string {
-        return this.envConfig.REDIS_HOST;
-    }
-
-    get redisPort(): number {
-        return Number(this.envConfig.REDIS_PORT);
-    }
-
-    get redisPassword(): string {
-        return this.envConfig.REDIS_PASSWORD;
-    }
-
-    get redisDb(): number {
-        return Number(this.envConfig.REDIS_DB);
+    get redisUri(): string {
+        return this.envConfig.REDIS_URI;
     }
 }
