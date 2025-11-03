@@ -232,4 +232,8 @@ export class ConfigService {
     get redisPassword(): string {
         return this.envConfig.REDIS_PASSWORD;
     }
+
+    get redisDb(): number {
+        return Number(this.envConfig.REDIS_DB);
+    }
 }

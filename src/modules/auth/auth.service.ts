@@ -66,10 +66,12 @@ export class AuthService {
             const tokenId = Number.parseInt(
                 await this.cacheManager.get(`refreshToken-${refreshToken}`),
             );
-            tokenInDb = await this.tokensRepository.findOne({
-                relations: ['user'],
-                where: { id: tokenId },
-            });
+            if (tokenId) {
+                tokenInDb = await this.tokensRepository.findOne({
+                    relations: ['user'],
+                    where: { id: tokenId },
+                });
+            }
         }
         if (!tokenInDb) {
             tokenInDb = await this.tokensRepository.findOne({
