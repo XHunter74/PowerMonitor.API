@@ -24,6 +24,8 @@ import { LogMethod } from '../../shared/decorators/log-method.decorator';
 import { WINSTON_LOGGER } from '../../modules/logger/logger.module';
 import { Logger } from 'winston';
 
+const RefreshTokenPrefix = 'refreshToken-';
+
 @Injectable()
 export class AuthService {
     constructor(
@@ -57,14 +59,19 @@ export class AuthService {
             throw new HttpException('Token is expired or does not exist', HttpStatus.UNAUTHORIZED);
         }
         await this.tokensRepository.remove(tokenInDb);
+        await this.cacheManager.del(this.getTokenKey(tokenInDb.token));
         return await this.createUserToken(tokenInDb.user, tokenInDb.user.role);
+    }
+
+    private getTokenKey(refreshToken: string): string {
+        return `${RefreshTokenPrefix}${refreshToken}`;
     }
 
     private async getRefreshTokenFromDb(refreshToken: string): Promise<UserTokensEntity> {
         let tokenInDb: UserTokensEntity = null;
         if (this.cacheManager) {
             const tokenId = Number.parseInt(
-                await this.cacheManager.get(`refreshToken-${refreshToken}`),
+                await this.cacheManager.get(this.getTokenKey(refreshToken)),
             );
             if (tokenId) {
                 tokenInDb = await this.tokensRepository.findOne({
@@ -101,16 +108,16 @@ export class AuthService {
         const tokenGenerator = new TokenGenerator(1024, TokenGenerator.BASE62);
         const token = tokenGenerator.generate();
 
-        const contactToken = new UserTokensEntity();
-        contactToken.user = user;
-        contactToken.token = token;
-        contactToken.created = new Date();
-        await this.tokensRepository.save(contactToken);
+        const refreshToken = new UserTokensEntity();
+        refreshToken.user = user;
+        refreshToken.token = token;
+        refreshToken.created = new Date();
+        await this.tokensRepository.save(refreshToken);
 
         if (this.cacheManager) {
             await this.cacheManager.set(
-                `refreshToken-${token}`,
-                contactToken.id,
+                this.getTokenKey(token),
+                refreshToken.id,
                 this.config.refreshTokenLifeTime * 1000,
             );
         }
