@@ -57,8 +57,8 @@ describe('MqttClientService', () => {
     });
 
     it('publishCurrentAndVoltageData publishes if not dev and connected', () => {
-        // SensorsData requires voltage, amperage, power, powerCoefficient
-        const sensorsData = new SensorsDataModel(220, 5, 0, 1);
+        // SensorsData requires voltage, amperage, powerCoefficient
+        const sensorsData = new SensorsDataModel(220, 5, 1);
         service.publishCurrentAndVoltageData(sensorsData);
         expect(mqttConnectionService.publish.calledOnce).to.be.true;
     });

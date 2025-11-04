@@ -199,7 +199,6 @@ export class CollectDataService {
                         new SensorsDataModel(
                             data.voltage,
                             data.current,
-                            data.power,
                             this.config.powerCoefficient,
                         ),
                     );
@@ -366,8 +365,7 @@ export class CollectDataService {
     private getFakePowerData(): SensorsDataModel {
         const amperage = randomInt(0, 100) / 10;
         const voltage = randomInt(2000, 2500) / 10;
-        const power = amperage * voltage;
-        const data = new SensorsDataModel(voltage, amperage, power, this.config.powerCoefficient);
+        const data = new SensorsDataModel(voltage, amperage, this.config.powerCoefficient);
         return data;
     }
 }

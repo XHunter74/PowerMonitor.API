@@ -50,7 +50,7 @@ describe('SocketService', () => {
         expect(collectDataService.getSensorsData.subscribe.calledOnce).to.be.true;
         // Get callback passed to subscribe
         const callback = collectDataService.getSensorsData.subscribe.firstCall.args[0];
-        const data = new SensorsDataModel(10, 2, 0, 1);
+        const data = new SensorsDataModel(10, 2, 1);
         // Simulate data emission
         callback(data);
         expect(serverMock.emit.calledOnceWith('sensors-data', data)).to.be.true;
