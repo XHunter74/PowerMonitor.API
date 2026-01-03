@@ -9,6 +9,8 @@ import * as fs from 'fs';
 
 @Injectable()
 export class PowerAvailabilityService {
+    private isUpdateBlocked = true;
+
     constructor(
         @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         @InjectRepository(PowerAvailability)
@@ -19,7 +21,9 @@ export class PowerAvailabilityService {
         this.logger.info(
             `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Start`,
         );
-        let powerAvailability;
+
+        let powerAvailability: PowerAvailability;
+
         if (fs.existsSync('server.off')) {
             this.logger.info(
                 `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Server stopped correctly.`,
@@ -37,28 +41,41 @@ export class PowerAvailabilityService {
                 `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Server stopped unexpectedly.`,
             );
         }
+
         if (!powerAvailability) {
             powerAvailability = new PowerAvailability();
         }
+
         powerAvailability.updated = new Date();
+
         await this.powerAvailabilityRepository.save(powerAvailability);
+
         this.logger.info(
             `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Finish`,
         );
+
+        this.isUpdateBlocked = false;
     }
 
     async updatePowerAvailability() {
+        if (this.isUpdateBlocked) {
+            return;
+        }
         const maxId = await this.powerAvailabilityRepository
             .createQueryBuilder('pa')
             .select('MAX(pa.id)', 'max')
             .getRawOne();
+
         let powerAvailability = await this.powerAvailabilityRepository.findOne({
             where: { id: maxId.max },
         });
+
         if (!powerAvailability) {
             powerAvailability = new PowerAvailability();
         }
+
         powerAvailability.updated = new Date();
+
         await this.powerAvailabilityRepository.save(powerAvailability);
     }
 
