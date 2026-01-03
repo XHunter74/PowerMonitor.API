@@ -64,6 +64,7 @@ describe('PowerAvailabilityService', () => {
     });
 
     it('updatePowerAvailability creates new if not found', async () => {
+        (service as any).isUpdateBlocked = false;
         repo.createQueryBuilder.returns({
             select: sinon.stub().returnsThis(),
             getRawOne: sinon.stub().resolves({ max: 2 }),
@@ -75,6 +76,7 @@ describe('PowerAvailabilityService', () => {
     });
 
     it('updatePowerAvailability updates if found', async () => {
+        (service as any).isUpdateBlocked = false;
         repo.createQueryBuilder.returns({
             select: sinon.stub().returnsThis(),
             getRawOne: sinon.stub().resolves({ max: 2 }),
