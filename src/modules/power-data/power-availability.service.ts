@@ -21,40 +21,41 @@ export class PowerAvailabilityService {
         this.logger.info(
             `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Start`,
         );
+        try {
+            let powerAvailability: PowerAvailability;
 
-        let powerAvailability: PowerAvailability;
+            if (fs.existsSync('server.off')) {
+                this.logger.info(
+                    `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Server stopped correctly.`,
+                );
+                fs.unlinkSync('server.off');
+                const maxId = await this.powerAvailabilityRepository
+                    .createQueryBuilder('pa')
+                    .select('MAX(pa.id)', 'max')
+                    .getRawOne();
+                powerAvailability = await this.powerAvailabilityRepository.findOne({
+                    where: { id: maxId['max'] },
+                });
+            } else {
+                this.logger.error(
+                    `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Server stopped unexpectedly.`,
+                );
+            }
 
-        if (fs.existsSync('server.off')) {
+            if (!powerAvailability) {
+                powerAvailability = new PowerAvailability();
+            }
+
+            powerAvailability.updated = new Date();
+
+            await this.powerAvailabilityRepository.save(powerAvailability);
+
             this.logger.info(
-                `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Server stopped correctly.`,
+                `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Finish`,
             );
-            fs.unlinkSync('server.off');
-            const maxId = await this.powerAvailabilityRepository
-                .createQueryBuilder('pa')
-                .select('MAX(pa.id)', 'max')
-                .getRawOne();
-            powerAvailability = await this.powerAvailabilityRepository.findOne({
-                where: { id: maxId['max'] },
-            });
-        } else {
-            this.logger.error(
-                `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Server stopped unexpectedly.`,
-            );
+        } finally {
+            this.isUpdateBlocked = false;
         }
-
-        if (!powerAvailability) {
-            powerAvailability = new PowerAvailability();
-        }
-
-        powerAvailability.updated = new Date();
-
-        await this.powerAvailabilityRepository.save(powerAvailability);
-
-        this.logger.info(
-            `[${PowerAvailabilityService.name}].${this.processApplicationStart.name} => Finish`,
-        );
-
-        this.isUpdateBlocked = false;
     }
 
     async updatePowerAvailability() {
