@@ -6,6 +6,7 @@ import { Repository } from 'typeorm';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
 import * as fs from 'fs';
+import { Constants } from '../../config/constants';
 
 @Injectable()
 export class PowerAvailabilityService {
@@ -44,6 +45,9 @@ export class PowerAvailabilityService {
 
             if (!powerAvailability) {
                 powerAvailability = new PowerAvailability();
+                powerAvailability.created = new Date(
+                    new Date().getTime() - Constants.RebootDuration,
+                );
             }
 
             powerAvailability.updated = new Date();
