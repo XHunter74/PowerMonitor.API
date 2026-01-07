@@ -39,7 +39,7 @@ describe('PowerDataService', () => {
         const repoStub = {
             createQueryBuilder: sinon.stub(),
         } as any;
-        // first query: start events
+        // first query: start events - event that started on May 21
         const qbStart = {
             where: sinon.stub().returnsThis(),
             orderBy: sinon.stub().returnsThis(),
@@ -47,12 +47,12 @@ describe('PowerDataService', () => {
             getMany: sinon.stub().resolves([
                 {
                     id: 1,
-                    created: new Date('2025-05-22T00:00:00Z'),
+                    created: new Date('2025-05-21T23:00:00Z'),
                     updated: new Date('2025-05-22T01:00:00Z'),
                 },
             ]),
         };
-        // second query: finish events
+        // second query: finish events - same event finishes on May 22
         const qbFinish = {
             where: sinon.stub().returnsThis(),
             orderBy: sinon.stub().returnsThis(),
@@ -60,7 +60,7 @@ describe('PowerDataService', () => {
             getMany: sinon.stub().resolves([
                 {
                     id: 1,
-                    created: new Date('2025-05-22T00:00:00Z'),
+                    created: new Date('2025-05-21T23:00:00Z'),
                     updated: new Date('2025-05-22T01:00:00Z'),
                 },
             ]),
@@ -80,7 +80,8 @@ describe('PowerDataService', () => {
             new Date('2025-05-22'),
             new Date('2025-05-22'),
         );
-        // with only a single start and finish event spanning midnight, result should be empty
+        // with only a single start and finish event spanning midnight (started May 21, ended May 22),
+        // when querying only for May 22, result should be empty because the event doesn't fully fall within the date range
         expect(result).to.be.an('array').that.is.empty;
     });
 
