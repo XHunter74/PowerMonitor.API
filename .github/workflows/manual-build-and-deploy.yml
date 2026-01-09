@@ -107,9 +107,9 @@ jobs:
               run: |
                   sudo -u pi unzip -o powermonitor-api.zip -d /home/pi/PowerMonitor.API
 
-            - name: Install dependencies on target
-              run: |
-                  cd /home/pi/PowerMonitor.API && sudo -u pi npm ci --omit=dev
+            # - name: Install dependencies on target
+            #   run: |
+            #       cd /home/pi/PowerMonitor.API && sudo -u pi npm ci --omit=dev
 
             - name: Start PM2 app
               run: |
