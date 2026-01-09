@@ -7,6 +7,7 @@ import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
 import * as fs from 'fs';
 import { Constants } from '../../config/constants';
+import { ConfigService } from '../../config/config.service';
 
 @Injectable()
 export class PowerAvailabilityService {
@@ -16,6 +17,7 @@ export class PowerAvailabilityService {
         @Inject(WINSTON_LOGGER) private readonly logger: Logger,
         @InjectRepository(PowerAvailability)
         private powerAvailabilityRepository: Repository<PowerAvailability>,
+        private readonly configService: ConfigService,
     ) {}
 
     async processApplicationStart() {
@@ -46,7 +48,7 @@ export class PowerAvailabilityService {
             if (!powerAvailability) {
                 powerAvailability = new PowerAvailability();
                 powerAvailability.created = new Date(
-                    new Date().getTime() - Constants.RebootDuration,
+                    new Date().getTime() - this.configService.rebootDuration,
                 );
             }
 

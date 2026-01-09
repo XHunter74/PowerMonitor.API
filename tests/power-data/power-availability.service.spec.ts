@@ -10,10 +10,15 @@ class LoggerMock {
     debug = sinon.stub();
 }
 
+class ConfigServiceMock {
+    rebootDuration = 60000; // 60 seconds default
+}
+
 describe('PowerAvailabilityService', () => {
     let service: PowerAvailabilityService;
     let logger: LoggerMock;
     let repo: any;
+    let configService: ConfigServiceMock;
     let fsStub: any;
 
     beforeEach(() => {
@@ -23,6 +28,7 @@ describe('PowerAvailabilityService', () => {
             findOne: sinon.stub(),
             save: sinon.stub(),
         };
+        configService = new ConfigServiceMock();
         fsStub = {
             existsSync: sinon.stub(),
             unlinkSync: sinon.stub(),
@@ -32,7 +38,7 @@ describe('PowerAvailabilityService', () => {
         sinon.replace(require('fs'), 'existsSync', fsStub.existsSync);
         sinon.replace(require('fs'), 'unlinkSync', fsStub.unlinkSync);
         sinon.replace(require('fs'), 'writeFile', fsStub.writeFile);
-        service = new PowerAvailabilityService(logger as any, repo as any);
+        service = new PowerAvailabilityService(logger as any, repo as any, configService as any);
     });
 
     afterEach(() => {

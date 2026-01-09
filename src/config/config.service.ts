@@ -224,4 +224,12 @@ export class ConfigService {
     get redisUri(): string {
         return this.envConfig.REDIS_URI;
     }
+
+    get rebootDuration(): number {
+        const value = this.envConfig.REBOOT_DURATION;
+        if (value) {
+            return Number(value);
+        }
+        return Constants.RebootDuration;
+    }
 }
