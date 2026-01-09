@@ -6,7 +6,6 @@ import { Repository } from 'typeorm';
 import { WINSTON_LOGGER } from '../logger/logger.module';
 import { Logger } from 'winston';
 import * as fs from 'fs';
-import { Constants } from '../../config/constants';
 import { ConfigService } from '../../config/config.service';
 
 @Injectable()
