@@ -31,7 +31,7 @@ export async function waitNetworkAccess(
         }
     } while (!pingResult.alive);
 
-    await delay(Constants.NetworkWaitingDelay);
+    // await delay(Constants.NetworkWaitingDelay);
 }
 
 export function configureSwagger(app: any) {
