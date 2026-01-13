@@ -110,35 +110,6 @@ export class ConfigService {
         return Number(this.envConfig.POWER_COEFFICIENT);
     }
 
-    get smtpHost(): string {
-        return this.envConfig.SMTP_HOST;
-    }
-
-    get smtpPort(): number {
-        return Number(this.envConfig.SMTP_PORT);
-    }
-
-    get smtpUser(): string {
-        return this.envConfig.SMTP_USER;
-    }
-
-    get smtpPassword(): string {
-        return this.envConfig.SMTP_PASSWORD;
-    }
-
-    get fromEmail(): string {
-        return this.envConfig.FROM_EMAIL;
-    }
-
-    get toEmails(): string[] {
-        const emailsStr = this.envConfig.TO_EMAILS;
-        const emails = emailsStr
-            .split(',')
-            .map((e) => e.trim())
-            .filter((e) => e && e.length > 0);
-        return emails;
-    }
-
     get healthServiceEndpoint(): string {
         return this.envConfig.HEALTH_SERVICE_ENDPOINT;
     }

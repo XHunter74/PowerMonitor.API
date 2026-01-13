@@ -115,12 +115,6 @@ describe('ConfigService', () => {
         expect(config.serialPortName).to.equal('/dev/ttyUSB0');
         expect(config.serialPortSpeed).to.equal(9600);
         expect(config.powerCoefficient).to.equal(1.5);
-        expect(config.smtpHost).to.equal('smtp');
-        expect(config.smtpPort).to.equal(465);
-        expect(config.smtpUser).to.equal('smtpuser');
-        expect(config.smtpPassword).to.equal('smtppass');
-        expect(config.fromEmail).to.equal('from@example.com');
-        expect(config.toEmails).to.deep.equal(['a@example.com', 'b@example.com']);
         expect(config.healthServiceEndpoint).to.equal('http://health');
         expect(config.healthServiceApiKey).to.equal('healthkey');
         expect(config.isDevEnvironment).to.equal(true);
