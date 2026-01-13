@@ -339,7 +339,7 @@ export class CollectDataService {
         }
         this.sensorsDataSubject.next(sensorData);
         await this.dataService.processVoltageAmperageData(sensorData);
-        await this.dataService.processVoltageData(sensorData);
+        // await this.dataService.processVoltageData(sensorData);
         await this.dataService.processPowerData(sensorData);
     }
 
