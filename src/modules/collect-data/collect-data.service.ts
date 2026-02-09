@@ -180,7 +180,11 @@ export class CollectDataService {
     private async serialReceiveData(dataStr: string) {
         const raw = dataStr;
         const trimmed = dataStr.trim(); // handles \r, \n, or both
-        if (trimmed.startsWith('{') && trimmed.endsWith('}')) {
+        const countOfBraces = trimmed.split('"').length - 1;
+        const isCorrectJsonStr =
+            trimmed.startsWith('{') && trimmed.endsWith('}') && countOfBraces % 2 === 0;
+
+        if (isCorrectJsonStr) {
             let data = null;
             try {
                 data = JSON.parse(trimmed) as SerialDataModel;
