@@ -60,7 +60,13 @@ export class MqttClientService {
                 Current: Math.round(sensorsData.amperage * 10) / 10,
                 Voltage: Math.round(sensorsData.voltage),
                 Power:
-                    Math.round(((sensorsData.voltage * sensorsData.amperage) / 1000) * 100) / 100,
+                    Math.round(
+                        ((sensorsData.voltage *
+                            sensorsData.amperage *
+                            this.config.powerCoefficient) /
+                            1000) *
+                            100,
+                    ) / 100,
             };
             this.mqttConnectionService.publish('tele/tasmota/STATE', JSON.stringify(data), options);
         }

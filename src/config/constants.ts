@@ -21,6 +21,7 @@ export class Constants {
     public static ApmDefaultEnvironment = 'development';
     public static ProductionEnvironment = 'production';
     public static MaxVoltage = 400;
+    public static MaxAmperage = 40;
     public static SerialDataTimeout = 20000; // 20 seconds
     public static CacheOneDay = Intervals.OneDay;
 }

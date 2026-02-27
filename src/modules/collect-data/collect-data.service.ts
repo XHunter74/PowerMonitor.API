@@ -341,6 +341,13 @@ export class CollectDataService {
             );
             return;
         }
+        if (sensorData.amperage > Constants.MaxAmperage) {
+            this.logger.error(
+                `[${CollectDataService.name}].${this.processSensorData.name} => ` +
+                    `Amperage is too high: ${sensorData.amperage}A`,
+            );
+            return;
+        }
         this.sensorsDataSubject.next(sensorData);
         await this.dataService.processVoltageAmperageData(sensorData);
         // await this.dataService.processVoltageData(sensorData);
