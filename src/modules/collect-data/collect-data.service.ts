@@ -348,6 +348,16 @@ export class CollectDataService {
             );
             return;
         }
+        if (
+            (sensorData.voltage === 0 && sensorData.amperage > 0) ||
+            (sensorData.voltage > 0 && sensorData.amperage === 0)
+        ) {
+            this.logger.error(
+                `[${CollectDataService.name}].${this.processSensorData.name} => ` +
+                    `Invalid sensor data: Voltage=${sensorData.voltage}V, Amperage=${sensorData.amperage}A`,
+            );
+            return;
+        }
         this.sensorsDataSubject.next(sensorData);
         await this.dataService.processVoltageAmperageData(sensorData);
         // await this.dataService.processVoltageData(sensorData);
