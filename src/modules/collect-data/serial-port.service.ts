@@ -49,15 +49,28 @@ export class SerialPortService {
         parser.on('data', this.onDataHandler);
 
         this.serialPort.on('open', () => {
-            this.logger.info(`Serial port '${this.portPath}' opened at ${this.portBaudRate} b/s.`);
+            if (this.reconnectAttempts > 0) {
+                this.logger.info(
+                    `Serial port '${this.portPath}' reconnected successfully after ${this.reconnectAttempts} attempt(s).`,
+                );
+            } else {
+                this.logger.info(
+                    `Serial port '${this.portPath}' opened at ${this.portBaudRate} b/s.`,
+                );
+            }
             this.reconnectAttempts = 0;
             this.serialPortOpenSubject.next();
         });
 
         this.serialPort.on('close', () => {
-            this.logger.info(`Serial port '${this.portPath}' closed.`);
+            if (this.closedByUser) {
+                this.logger.info(`Serial port '${this.portPath}' closed by user.`);
+            } else {
+                this.logger.warn(`Serial port '${this.portPath}' connection lost unexpectedly.`);
+            }
             // If closed not by user, try to reconnect (defer scheduling to avoid sync test logs)
             if (!this.closedByUser && this.reconnectEnabled) {
+                this.logger.info(`Initiating reconnection sequence for '${this.portPath}'.`);
                 const t = setTimeout(() => {
                     if (!this.closedByUser && this.reconnectEnabled) this.scheduleReconnect();
                 }, 0) as unknown as NodeJS.Timeout;
@@ -68,9 +81,12 @@ export class SerialPortService {
         });
 
         this.serialPort.on('error', (error: any) => {
-            this.logger.error(`Serial port error: ${error}`);
+            this.logger.error(`Serial port '${this.portPath}' encountered error: ${error}`);
             // If port is not open, try reconnect (defer scheduling to avoid sync test logs)
             if (!this.serialPort?.isOpen && !this.closedByUser && this.reconnectEnabled) {
+                this.logger.warn(
+                    `Connection lost due to error. Initiating reconnection for '${this.portPath}'.`,
+                );
                 const t = setTimeout(() => {
                     if (!this.serialPort?.isOpen && !this.closedByUser && this.reconnectEnabled)
                         this.scheduleReconnect();
@@ -172,11 +188,16 @@ export class SerialPortService {
     write(data: string) {
         if (this.serialPort?.isOpen) {
             this.serialPort.write(data);
+        } else {
+            this.logger.warn(
+                `Attempted to write to closed serial port '${this.portPath}'. Data: ${data}`,
+            );
         }
     }
 
     close() {
         // Called by user to intentionally close the port. Disable reconnects.
+        this.logger.info(`Closing serial port '${this.portPath}' and disabling reconnection.`);
         this.closedByUser = true;
         this.reconnectEnabled = false;
 
