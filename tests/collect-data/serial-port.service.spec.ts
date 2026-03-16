@@ -28,6 +28,7 @@ describe('SerialPortService', () => {
             // Use a generic stub signature to accept any arguments
             info: sinon.stub() as sinon.SinonStub<any[], any>,
             error: sinon.stub() as sinon.SinonStub<any[], any>,
+            warn: sinon.stub() as sinon.SinonStub<any[], any>,
         } as any;
         // Configure stubs to simulate implementations
         SerialPortStub.resetHistory();
@@ -69,32 +70,68 @@ describe('SerialPortService', () => {
     });
 
     it('should log on open event', () => {
+        // Reset log counts from initSerial
+        loggerStub.info.resetHistory();
+
         // find open callback
         const openCall = serialInstance.on.getCalls().find((c) => c.args[0] === 'open');
         const callback = openCall.args[1];
         callback();
-        // The logger should be called once with the expected message
-        expect(loggerStub.info.callCount).to.equal(1);
-        expect(loggerStub.info.getCall(0).args[0]).to.equal(
-            `Serial port '${path}' opened at ${baudRate} b/s.`,
-        );
+
+        // The logger should be called at least once for the open event
+        expect(loggerStub.info.called).to.be.true;
+        // Check that one of the calls contains the port path and baud rate
+        const hasOpenMessage = loggerStub.info.getCalls().some((call) => {
+            const msg = call.args[0] as unknown as string;
+            return msg.includes(`Serial port '${path}'`) && msg.includes(`${baudRate}`);
+        });
+        expect(hasOpenMessage).to.be.true;
     });
 
     it('should log on close event', () => {
+        // Reset log counts from initSerial
+        loggerStub.info.resetHistory();
+        loggerStub.warn.resetHistory();
+
         const closeCall = serialInstance.on.getCalls().find((c) => c.args[0] === 'close');
         const callback = closeCall.args[1];
         callback();
-        expect(loggerStub.info.callCount).to.equal(1);
-        expect(loggerStub.info.getCall(0).args[0]).to.equal(`Serial port '${path}' closed.`);
+
+        // Should log INFO with [CLOSE EVENT] and WARN for unexpected disconnect
+        expect(loggerStub.info.called || loggerStub.warn.called).to.be.true;
+
+        // Check for close-related messages
+        const allCalls = [...loggerStub.info.getCalls(), ...loggerStub.warn.getCalls()];
+        const hasCloseMessage = allCalls.some((call) => {
+            const msg = call.args[0] as unknown as string;
+            return (
+                msg.includes(`Serial port '${path}'`) &&
+                (msg.includes('closed') || msg.includes('connection lost'))
+            );
+        });
+        expect(hasCloseMessage).to.be.true;
     });
 
     it('should log on error event', () => {
+        // Reset log counts from initSerial
+        loggerStub.error.resetHistory();
+        loggerStub.info.resetHistory();
+        loggerStub.warn.resetHistory();
+
         const err = new Error('fail');
         const errorCall = serialInstance.on.getCalls().find((c) => c.args[0] === 'error');
         const callback = errorCall.args[1];
         callback(err);
-        expect(loggerStub.error.callCount).to.equal(1);
-        expect(loggerStub.error.getCall(0).args[0]).to.equal(`Serial port error: ${err}`);
+
+        // Should at least log the error
+        expect(loggerStub.error.called).to.be.true;
+
+        // Check that error message includes the port path and error
+        const hasErrorMessage = loggerStub.error.getCalls().some((call) => {
+            const msg = call.args[0] as unknown as string;
+            return msg.includes(`Serial port '${path}'`) && msg.includes('fail');
+        });
+        expect(hasErrorMessage).to.be.true;
     });
 
     it('write should write when open', () => {
@@ -106,11 +143,21 @@ describe('SerialPortService', () => {
     });
 
     it('write should not write when closed', () => {
+        // Reset log counts from initSerial
+        loggerStub.warn.resetHistory();
+
         const writeStub = sinon.stub();
         serialInstance.write = writeStub;
         serialInstance.isOpen = false;
         service.write('data');
+
+        // Should not write to serial port
         expect(writeStub.notCalled).to.be.true;
+
+        // Should log a warning
+        expect(loggerStub.warn.called).to.be.true;
+        const msg = loggerStub.warn.getCall(0).args[0] as unknown as string;
+        expect(msg).to.include(`Attempted to write to closed serial port`);
     });
 
     it('close should close when open', () => {

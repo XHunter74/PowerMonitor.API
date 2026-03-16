@@ -34,7 +34,22 @@ export class SerialPortService {
     }
 
     private createAndOpenPort() {
-        if (!this.portPath || !this.portBaudRate || !this.onDataHandler) return;
+        this.logger.info(
+            `[createAndOpenPort] Called. portPath='${this.portPath}', baudRate=${this.portBaudRate}, ` +
+                `hasDataHandler=${!!this.onDataHandler}`,
+        );
+
+        if (!this.portPath || !this.portBaudRate || !this.onDataHandler) {
+            this.logger.error(
+                `[createAndOpenPort] Missing required parameters: portPath=${!!this.portPath}, ` +
+                    `baudRate=${!!this.portBaudRate}, onDataHandler=${!!this.onDataHandler}`,
+            );
+            return;
+        }
+
+        this.logger.info(
+            `[createAndOpenPort] Creating SerialPort instance for '${this.portPath}'.`,
+        );
 
         // create port but do not auto open so we can attach listeners first
         this.serialPort = new SerialPort({
@@ -47,6 +62,8 @@ export class SerialPortService {
         this.parser = parser;
         this.serialPort.pipe(parser);
         parser.on('data', this.onDataHandler);
+
+        this.logger.info(`[createAndOpenPort] Port instance created, attaching event listeners.`);
 
         this.serialPort.on('open', () => {
             if (this.reconnectAttempts > 0) {
@@ -63,48 +80,107 @@ export class SerialPortService {
         });
 
         this.serialPort.on('close', () => {
+            this.logger.info(
+                `[CLOSE EVENT] Serial port '${this.portPath}' closed. ` +
+                    `closedByUser=${this.closedByUser}, reconnectEnabled=${this.reconnectEnabled}, ` +
+                    `reconnectAttempts=${this.reconnectAttempts}, reconnectTimer=${this.reconnectTimer ? 'active' : 'null'}`,
+            );
+
             if (this.closedByUser) {
-                this.logger.info(`Serial port '${this.portPath}' closed by user.`);
-            } else {
-                this.logger.warn(`Serial port '${this.portPath}' connection lost unexpectedly.`);
+                this.logger.info(
+                    `Serial port '${this.portPath}' closed by user - no reconnection.`,
+                );
+                return;
             }
+
+            this.logger.warn(`Serial port '${this.portPath}' connection lost unexpectedly.`);
+
             // If closed not by user, try to reconnect (defer scheduling to avoid sync test logs)
-            if (!this.closedByUser && this.reconnectEnabled) {
-                this.logger.info(`Initiating reconnection sequence for '${this.portPath}'.`);
+            if (this.reconnectEnabled) {
+                this.logger.info(
+                    `[CLOSE EVENT] Initiating reconnection sequence for '${this.portPath}'.`,
+                );
                 const t = setTimeout(() => {
-                    if (!this.closedByUser && this.reconnectEnabled) this.scheduleReconnect();
+                    this.logger.info(
+                        `[CLOSE EVENT CALLBACK] Executing deferred reconnect check. ` +
+                            `closedByUser=${this.closedByUser}, reconnectEnabled=${this.reconnectEnabled}`,
+                    );
+                    if (!this.closedByUser && this.reconnectEnabled) {
+                        this.scheduleReconnect();
+                    } else {
+                        this.logger.warn(
+                            `[CLOSE EVENT CALLBACK] Reconnect cancelled: closedByUser=${this.closedByUser}, ` +
+                                `reconnectEnabled=${this.reconnectEnabled}`,
+                        );
+                    }
                 }, 0) as unknown as NodeJS.Timeout;
                 try {
                     t?.unref?.();
                 } catch (_) {}
+            } else {
+                this.logger.info(`[CLOSE EVENT] Reconnection disabled for '${this.portPath}'.`);
             }
         });
 
         this.serialPort.on('error', (error: any) => {
-            this.logger.error(`Serial port '${this.portPath}' encountered error: ${error}`);
+            const isPortOpen = this.serialPort?.isOpen || false;
+            this.logger.error(
+                `[ERROR EVENT] Serial port '${this.portPath}' encountered error: ${error}. ` +
+                    `isOpen=${isPortOpen}, closedByUser=${this.closedByUser}, reconnectEnabled=${this.reconnectEnabled}, ` +
+                    `reconnectAttempts=${this.reconnectAttempts}`,
+            );
+
             // If port is not open, try reconnect (defer scheduling to avoid sync test logs)
-            if (!this.serialPort?.isOpen && !this.closedByUser && this.reconnectEnabled) {
+            if (!isPortOpen && !this.closedByUser && this.reconnectEnabled) {
                 this.logger.warn(
-                    `Connection lost due to error. Initiating reconnection for '${this.portPath}'.`,
+                    `[ERROR EVENT] Connection lost due to error. Initiating reconnection for '${this.portPath}'.`,
                 );
                 const t = setTimeout(() => {
-                    if (!this.serialPort?.isOpen && !this.closedByUser && this.reconnectEnabled)
+                    const currentPortOpen = this.serialPort?.isOpen || false;
+                    this.logger.info(
+                        `[ERROR EVENT CALLBACK] Executing deferred reconnect check. ` +
+                            `isOpen=${currentPortOpen}, closedByUser=${this.closedByUser}, reconnectEnabled=${this.reconnectEnabled}`,
+                    );
+                    if (!currentPortOpen && !this.closedByUser && this.reconnectEnabled) {
                         this.scheduleReconnect();
+                    } else {
+                        this.logger.warn(
+                            `[ERROR EVENT CALLBACK] Reconnect cancelled: isOpen=${currentPortOpen}, ` +
+                                `closedByUser=${this.closedByUser}, reconnectEnabled=${this.reconnectEnabled}`,
+                        );
+                    }
                 }, 0) as unknown as NodeJS.Timeout;
                 try {
                     t?.unref?.();
                 } catch (_) {}
+            } else {
+                this.logger.info(
+                    `[ERROR EVENT] No reconnection needed: isOpen=${isPortOpen}, closedByUser=${this.closedByUser}, ` +
+                        `reconnectEnabled=${this.reconnectEnabled}`,
+                );
             }
         });
 
         // attempt to open if port instance exposes open()
         if (typeof this.serialPort.open === 'function') {
+            this.logger.info(
+                `[createAndOpenPort] Calling serialPort.open() for '${this.portPath}'.`,
+            );
             try {
                 this.serialPort.open((err: any) => {
                     if (err) {
-                        this.logger.error(`Failed to open serial port '${this.portPath}': ${err}`);
+                        this.logger.error(
+                            `[OPEN CALLBACK] Failed to open serial port '${this.portPath}': ${err}. ` +
+                                `closedByUser=${this.closedByUser}, reconnectEnabled=${this.reconnectEnabled}`,
+                        );
                         if (!this.closedByUser && this.reconnectEnabled) {
+                            this.logger.info(
+                                `[OPEN CALLBACK] Scheduling reconnect after open failure.`,
+                            );
                             const t = setTimeout(() => {
+                                this.logger.info(
+                                    `[OPEN CALLBACK TIMER] Executing deferred reconnect after open failure.`,
+                                );
                                 if (!this.closedByUser && this.reconnectEnabled) {
                                     this.scheduleReconnect();
                                 }
@@ -113,30 +189,59 @@ export class SerialPortService {
                                 t?.unref?.();
                             } catch (_) {}
                         }
+                    } else {
+                        this.logger.info(
+                            `[OPEN CALLBACK] Serial port '${this.portPath}' opened successfully (callback).`,
+                        );
                     }
                 });
             } catch (err) {
-                this.logger.error(`Exception when opening serial port '${this.portPath}': ${err}`);
+                this.logger.error(
+                    `[createAndOpenPort] Exception when opening serial port '${this.portPath}': ${err}`,
+                );
                 if (!this.closedByUser && this.reconnectEnabled) {
+                    this.logger.info(
+                        `[createAndOpenPort] Scheduling reconnect after open exception.`,
+                    );
                     const t = setTimeout(() => {
-                        if (!this.closedByUser && this.reconnectEnabled) this.scheduleReconnect();
+                        this.logger.info(
+                            `[OPEN EXCEPTION TIMER] Executing deferred reconnect after open exception.`,
+                        );
+                        if (!this.closedByUser && this.reconnectEnabled) {
+                            this.scheduleReconnect();
+                        }
                     }, 0) as unknown as NodeJS.Timeout;
                     try {
                         t?.unref?.();
                     } catch (_) {}
                 }
             }
+        } else {
+            this.logger.error(
+                `[createAndOpenPort] SerialPort instance does not have an open() method!`,
+            );
         }
     }
 
     private scheduleReconnect() {
+        this.logger.info(
+            `[scheduleReconnect] Called. reconnectTimer=${this.reconnectTimer ? 'active' : 'null'}, ` +
+                `reconnectAttempts=${this.reconnectAttempts}, closedByUser=${this.closedByUser}, ` +
+                `reconnectEnabled=${this.reconnectEnabled}`,
+        );
+
         // prevent multiple timers
-        if (this.reconnectTimer) return;
+        if (this.reconnectTimer) {
+            this.logger.warn(
+                `[scheduleReconnect] Reconnect timer already active, skipping duplicate scheduling.`,
+            );
+            return;
+        }
 
         this.reconnectAttempts += 1;
         if (this.reconnectAttempts > this.maxReconnectAttempts) {
-            this.logger.warn(
-                `Max reconnect attempts (${this.maxReconnectAttempts}) reached for '${this.portPath}'.`,
+            this.logger.error(
+                `[scheduleReconnect] Max reconnect attempts (${this.maxReconnectAttempts}) reached for '${this.portPath}'. Giving up.`,
             );
             return;
         }
@@ -146,22 +251,41 @@ export class SerialPortService {
             this.maxReconnectDelayMs,
         );
         this.logger.info(
-            `Scheduling reconnect attempt #${this.reconnectAttempts} in ${delay} ms for '${this.portPath}'.`,
+            `[scheduleReconnect] Scheduling reconnect attempt #${this.reconnectAttempts}/${this.maxReconnectAttempts === Infinity ? '∞' : this.maxReconnectAttempts} ` +
+                `in ${delay} ms for '${this.portPath}'.`,
         );
 
         const t = setTimeout(() => {
             this.reconnectTimer = null;
             this.logger.info(
-                `Attempting reconnect #${this.reconnectAttempts} to '${this.portPath}'.`,
+                `[RECONNECT TIMER] Executing reconnect attempt #${this.reconnectAttempts} to '${this.portPath}'. ` +
+                    `closedByUser=${this.closedByUser}, reconnectEnabled=${this.reconnectEnabled}`,
             );
+
+            // Check again before actually reconnecting
+            if (this.closedByUser || !this.reconnectEnabled) {
+                this.logger.warn(
+                    `[RECONNECT TIMER] Reconnect cancelled: closedByUser=${this.closedByUser}, ` +
+                        `reconnectEnabled=${this.reconnectEnabled}`,
+                );
+                return;
+            }
+
             // cleanup previous listeners and port reference before recreating
             try {
                 if (this.serialPort) {
+                    this.logger.info(
+                        `[RECONNECT TIMER] Cleaning up previous port instance before reconnect.`,
+                    );
                     try {
                         this.serialPort.removeAllListeners();
                     } catch (_) {}
                 }
             } catch (_) {}
+
+            this.logger.info(
+                `[RECONNECT TIMER] Calling createAndOpenPort() for reconnect attempt.`,
+            );
             this.createAndOpenPort();
         }, delay) as unknown as NodeJS.Timeout;
         this.reconnectTimer = t as unknown as number;
@@ -173,6 +297,10 @@ export class SerialPortService {
     constructor(@Inject(WINSTON_LOGGER) private readonly logger: Logger) {}
 
     initSerial(path: string, baudRate: number, onData: (data: string) => void) {
+        this.logger.info(
+            `[initSerial] Initializing serial port: path='${path}', baudRate=${baudRate}`,
+        );
+
         // store params for reconnect attempts
         this.portPath = path;
         this.portBaudRate = baudRate;
@@ -180,6 +308,11 @@ export class SerialPortService {
         this.closedByUser = false;
         this.reconnectEnabled = true;
         this.reconnectAttempts = 0;
+
+        this.logger.info(
+            `[initSerial] State initialized: closedByUser=${this.closedByUser}, ` +
+                `reconnectEnabled=${this.reconnectEnabled}, reconnectAttempts=${this.reconnectAttempts}`,
+        );
 
         // create and open serial port
         this.createAndOpenPort();
@@ -227,5 +360,22 @@ export class SerialPortService {
 
     isOpen(): boolean {
         return this.serialPort?.isOpen || false;
+    }
+
+    // Status monitoring method for debugging
+    getStatus(): string {
+        return (
+            `SerialPortService Status: ` +
+            `path='${this.portPath}', ` +
+            `isOpen=${this.isOpen()}, ` +
+            `closedByUser=${this.closedByUser}, ` +
+            `reconnectEnabled=${this.reconnectEnabled}, ` +
+            `reconnectAttempts=${this.reconnectAttempts}/${this.maxReconnectAttempts === Infinity ? '\u221e' : this.maxReconnectAttempts}, ` +
+            `reconnectTimer=${this.reconnectTimer ? 'active' : 'null'}`
+        );
+    }
+
+    logStatus(): void {
+        this.logger.info(`[STATUS] ${this.getStatus()}`);
     }
 }
