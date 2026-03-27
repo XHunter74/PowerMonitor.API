@@ -375,6 +375,8 @@ export class CollectDataService {
                 `[${CollectDataService.name}].${this.checkSerialAvailability.name} => ` +
                     'Serial Data is not available',
             );
+            this.serialPortService.logStatus();
+            this.serialPortService.forceReconnect();
             if (!this.config.isDevEnvironment) {
                 await this.telegramService.sendTelegramMessage(
                     'PowerMonitor Serial Data Is Not Available',

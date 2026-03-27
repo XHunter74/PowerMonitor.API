@@ -19,6 +19,9 @@ export class SerialPortService {
     private portBaudRate?: number;
     private onDataHandler?: (data: string) => void;
 
+    // last time data was received through the parser
+    private lastDataReceivedAt: Date | null = null;
+
     // reconnect state
     private reconnectEnabled = true;
     private reconnectAttempts = 0;
@@ -61,7 +64,10 @@ export class SerialPortService {
         // store parser to allow access in tests
         this.parser = parser;
         this.serialPort.pipe(parser);
-        parser.on('data', this.onDataHandler);
+        parser.on('data', (data: string) => {
+            this.lastDataReceivedAt = new Date();
+            this.onDataHandler(data);
+        });
 
         this.logger.info(`[createAndOpenPort] Port instance created, attaching event listeners.`);
 
@@ -371,11 +377,59 @@ export class SerialPortService {
             `closedByUser=${this.closedByUser}, ` +
             `reconnectEnabled=${this.reconnectEnabled}, ` +
             `reconnectAttempts=${this.reconnectAttempts}/${this.maxReconnectAttempts === Infinity ? '\u221e' : this.maxReconnectAttempts}, ` +
-            `reconnectTimer=${this.reconnectTimer ? 'active' : 'null'}`
+            `reconnectTimer=${this.reconnectTimer ? 'active' : 'null'}, ` +
+            `lastDataReceivedAt=${this.lastDataReceivedAt ? this.lastDataReceivedAt.toISOString() : 'never'}`
         );
     }
 
     logStatus(): void {
         this.logger.info(`[STATUS] ${this.getStatus()}`);
+    }
+
+    /**
+     * Force a reconnect when the port appears open but data has gone silent.
+     * Closing an open port fires the 'close' event which triggers the existing
+     * scheduleReconnect() logic. If the port is already closed, reconnect is
+     * scheduled directly.
+     */
+    forceReconnect(): void {
+        this.logger.warn(
+            `[forceReconnect] External reconnect requested for '${this.portPath}'. ` +
+                `isOpen=${this.isOpen()}, closedByUser=${this.closedByUser}, ` +
+                `reconnectEnabled=${this.reconnectEnabled}, reconnectAttempts=${this.reconnectAttempts}`,
+        );
+
+        if (!this.reconnectEnabled || this.closedByUser) {
+            this.logger.warn(
+                `[forceReconnect] Reconnect is disabled or port was closed by user — skipping.`,
+            );
+            return;
+        }
+
+        if (this.serialPort?.isOpen) {
+            // Closing the port will fire the 'close' event, which calls scheduleReconnect.
+            try {
+                this.serialPort.close((err: any) => {
+                    if (err) {
+                        this.logger.error(
+                            `[forceReconnect] Error while closing port for reconnect: ${err}. Scheduling reconnect directly.`,
+                        );
+                        if (!this.closedByUser && this.reconnectEnabled) {
+                            this.scheduleReconnect();
+                        }
+                    }
+                });
+            } catch (err) {
+                this.logger.error(
+                    `[forceReconnect] Exception closing port: ${err}. Scheduling reconnect directly.`,
+                );
+                if (!this.closedByUser && this.reconnectEnabled) {
+                    this.scheduleReconnect();
+                }
+            }
+        } else {
+            // Port is already closed — schedule reconnect directly.
+            this.scheduleReconnect();
+        }
     }
 }

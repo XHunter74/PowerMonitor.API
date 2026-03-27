@@ -46,6 +46,8 @@ describe('CollectDataService', () => {
             initSerial: sinon.stub(),
             close: sinon.stub(),
             write: sinon.stub(),
+            logStatus: sinon.stub(),
+            forceReconnect: sinon.stub(),
             getSerialPortOpen: {
                 subscribe: sinon.stub(),
             },
@@ -97,6 +99,8 @@ describe('CollectDataService', () => {
         (service as any).lastDataReceiveEvent = new Date(Date.now() - 30000);
         await service.checkSerialAvailability();
         expect(loggerStub.error.calledOnce).to.be.true;
+        expect(serialPortStub.logStatus.calledOnce).to.be.true;
+        expect(serialPortStub.forceReconnect.calledOnce).to.be.true;
         expect(telegramStub.sendTelegramMessage.calledOnce).to.be.true;
     });
 

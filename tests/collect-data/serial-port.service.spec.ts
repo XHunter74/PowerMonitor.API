@@ -59,7 +59,8 @@ describe('SerialPortService', () => {
 
     it('should instantiate SerialPort with correct options and wire parser', () => {
         expect(serialInstance.pipe.calledOnceWith(parserInstance)).to.be.true;
-        expect(parserInstance.on.calledOnceWith('data', onData)).to.be.true;
+        // parser receives a wrapper function (not onData directly) to track lastDataReceivedAt
+        expect(parserInstance.on.calledWith('data', sinon.match.func)).to.be.true;
     });
 
     it('should register open, close, and error handlers', () => {
