@@ -18,6 +18,7 @@ async function bootstrap() {
     const config = app.get(ConfigService);
 
     logger.info(`[Startup].${bootstrap.name} => NODE_ENV='${env.NODE_ENV}'`);
+    logger.info(`[Startup].${bootstrap.name} => POWER_COEFFICIENT='${config.powerCoefficient}'`);
     logger.info(
         `[Startup].${bootstrap.name} => Check availability of host '${config.checkHostIp}'`,
     );
