@@ -3,15 +3,21 @@ export class SensorsDataModel {
     amperage = 0;
     power = 0;
 
-    constructor(voltage: number, amperage: number, powerCoefficient: number) {
+    constructor(
+        voltage: number,
+        amperage: number,
+        power: number,
+        frequency: number,
+        powerCoefficient: number,
+    ) {
         if (voltage) {
             this.voltage = voltage;
         }
         if (amperage) {
             this.amperage = amperage;
         }
-        if (voltage && amperage) {
-            this.power = (voltage * amperage * powerCoefficient) / (60 * 60);
+        if (power) {
+            this.power = (power * powerCoefficient) / (60 * 60);
         }
     }
 }

@@ -129,7 +129,7 @@ export class DataService {
         await this.setServerData(Constants.dataKeys.boardVersion, versionData);
     }
 
-    async getServerData(key: string): Promise<ServerData> {
+    async getServerData(key: string): Promise<ServerData | null> {
         const dataRec = await this.serverDataRepository.findOne({ where: { key: key } });
         return dataRec;
     }

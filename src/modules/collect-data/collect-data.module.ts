@@ -12,7 +12,7 @@ import { PowerData } from '../../entities/power-data.entity';
 import { PowerAcc } from '../../entities/power-acc.entity';
 import { MessagesModule } from '../messages/messages.module';
 import { VoltageData } from '../../entities/voltage-data.entity';
-import { SerialPortService } from './serial-port.service';
+import { ModbusService } from './modbus.service';
 
 @Module({
     imports: [
@@ -29,7 +29,7 @@ import { SerialPortService } from './serial-port.service';
         ]),
     ],
     controllers: [],
-    providers: [PowerAvailabilityService, CollectDataService, DataService, SerialPortService],
+    providers: [PowerAvailabilityService, CollectDataService, DataService, ModbusService],
     exports: [CollectDataService, PowerAvailabilityService, DataService],
 })
 export class CollectDataModule {}
