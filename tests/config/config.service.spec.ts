@@ -22,11 +22,6 @@ describe('ConfigService', () => {
             LOG_LEVEL: 'info',
             SERVICE_NAME: 'PowerMonitor',
             LOG_FILE_PATH: '/logs',
-            ELASTIC_URL: 'http://elastic',
-            ELASTIC_USERNAME: 'elastic',
-            ELASTIC_PASSWORD: 'elasticpass',
-            ELASTIC_APM_URL: 'http://apm',
-            ELASTIC_APM_API_KEY: 'apikey',
             MAX_FILES: '7',
             TOKEN_SECRET_KEY: 'secret',
             TOKEN_LIFETIME: '3600',
@@ -34,23 +29,12 @@ describe('ConfigService', () => {
             SERIAL_PORT_NAME: '/dev/ttyUSB0',
             SERIAL_PORT_SPEED: '9600',
             POWER_COEFFICIENT: '1.5',
-            SMTP_HOST: 'smtp',
-            SMTP_PORT: '465',
-            SMTP_USER: 'smtpuser',
-            SMTP_PASSWORD: 'smtppass',
-            FROM_EMAIL: 'from@example.com',
-            TO_EMAILS: 'a@example.com, b@example.com',
-            HEALTH_SERVICE_ENDPOINT: 'http://health',
-            HEALTH_SERVICE_API_KEY: 'healthkey',
             IS_DEV_ENVIRONMENT: 'true',
             MQTT_SERVER: 'mqtt',
             MQTT_PORT: '1883',
             MQTT_USER: 'mqttuser',
             MQTT_PASSWORD: 'mqttpass',
             MQTT_CLIENT: 'client',
-            VOLTAGE_CALIBRATION: '1.1',
-            CURRENT_CALIBRATION: '2.2',
-            POWER_FACTOR_CALIBRATION: '0.9',
             CHECK_HOST_IP: '127.0.0.1',
             ALLOW_ORIGINS: 'http://localhost,http://127.0.0.1',
             TELEGRAM_TOKEN: 'token',
@@ -103,11 +87,6 @@ describe('ConfigService', () => {
         expect(config.logLevel).to.equal('info');
         expect(config.serviceName).to.equal('PowerMonitor');
         expect(config.logFilePath).to.equal('/logs');
-        expect(config.elasticUrl).to.equal('http://elastic');
-        expect(config.elasticUsername).to.equal('elastic');
-        expect(config.elasticPassword).to.equal('elasticpass');
-        expect(config.elasticApmUrl).to.equal('http://apm');
-        expect(config.elasticApmApiKey).to.equal('apikey');
         expect(config.maxFiles).to.equal('7d');
         expect(config.tokenSecretKey).to.equal('secret');
         expect(config.tokenLifeTime).to.equal(3600);
@@ -115,17 +94,12 @@ describe('ConfigService', () => {
         expect(config.serialPortName).to.equal('/dev/ttyUSB0');
         expect(config.serialPortSpeed).to.equal(9600);
         expect(config.powerCoefficient).to.equal(1.5);
-        expect(config.healthServiceEndpoint).to.equal('http://health');
-        expect(config.healthServiceApiKey).to.equal('healthkey');
         expect(config.isDevEnvironment).to.equal(true);
         expect(config.mqttServer).to.equal('mqtt');
         expect(config.mqttPort).to.equal(1883);
         expect(config.mqttUser).to.equal('mqttuser');
         expect(config.mqttPassword).to.equal('mqttpass');
         expect(config.mqttClient).to.equal('client');
-        expect(config.voltageCalibration).to.equal(1.1);
-        expect(config.currentCalibration).to.equal(2.2);
-        expect(config.powerFactorCalibration).to.equal(0.9);
         expect(config.checkHostIp).to.equal('127.0.0.1');
         expect(config.allowOrigins).to.deep.equal(['http://localhost', 'http://127.0.0.1']);
         expect(config.telegramToken).to.equal('token');
