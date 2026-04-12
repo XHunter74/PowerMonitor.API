@@ -62,26 +62,6 @@ export class ConfigService {
         return this.envConfig.LOG_FILE_PATH;
     }
 
-    get elasticUrl(): string {
-        return this.envConfig.ELASTIC_URL;
-    }
-
-    get elasticUsername(): string {
-        return this.envConfig.ELASTIC_USERNAME;
-    }
-
-    get elasticPassword(): string {
-        return this.envConfig.ELASTIC_PASSWORD;
-    }
-
-    get elasticApmUrl(): string {
-        return this.envConfig.ELASTIC_APM_URL;
-    }
-
-    get elasticApmApiKey(): string {
-        return this.envConfig.ELASTIC_APM_API_KEY;
-    }
-
     get maxFiles(): string {
         return `${Number(this.envConfig.MAX_FILES)}d`;
     }
@@ -102,20 +82,16 @@ export class ConfigService {
         return this.envConfig.SERIAL_PORT_NAME;
     }
 
+    get slaveId(): number {
+        return Number(this.envConfig.SLAVE_ID);
+    }
+
     get serialPortSpeed(): number {
         return Number(this.envConfig.SERIAL_PORT_SPEED);
     }
 
     get powerCoefficient(): number {
         return Number(this.envConfig.POWER_COEFFICIENT);
-    }
-
-    get healthServiceEndpoint(): string {
-        return this.envConfig.HEALTH_SERVICE_ENDPOINT;
-    }
-
-    get healthServiceApiKey(): string {
-        return this.envConfig.HEALTH_SERVICE_API_KEY;
     }
 
     get isDevEnvironment(): boolean {
@@ -145,18 +121,6 @@ export class ConfigService {
 
     get mqttClient(): string {
         return this.envConfig.MQTT_CLIENT;
-    }
-
-    get voltageCalibration(): number {
-        return Number(this.envConfig.VOLTAGE_CALIBRATION);
-    }
-
-    get currentCalibration(): number {
-        return Number(this.envConfig.CURRENT_CALIBRATION);
-    }
-
-    get powerFactorCalibration(): number {
-        return Number(this.envConfig.POWER_FACTOR_CALIBRATION);
     }
 
     get checkHostIp(): string {
