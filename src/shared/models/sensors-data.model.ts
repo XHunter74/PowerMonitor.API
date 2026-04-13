@@ -17,6 +17,9 @@ export class SensorsDataModel {
             this.amperage = amperage;
         }
         if (power) {
+            if (power < 0) {
+                power = 0;
+            }
             this.power = power * powerCoefficient;
         }
     }
