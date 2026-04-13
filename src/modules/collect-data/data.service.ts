@@ -104,7 +104,7 @@ export class DataService {
                 powerData = new PowerData();
             }
 
-            powerData.power = powerData.power + data.power;
+            powerData.power = powerData.power + data.power / 3600;
             powerData.updated = currentDate;
 
             await this.powerDataRepository.save(powerData);
@@ -114,7 +114,7 @@ export class DataService {
                 order: { id: 'DESC' },
             });
             if (powerAcc) {
-                powerAcc.powerAcc = data.power + powerAcc.powerAcc;
+                powerAcc.powerAcc = data.power / 3600 + powerAcc.powerAcc;
                 powerAcc.updated = currentDate;
                 await this.powerAccRepository.save(powerAcc);
             }

@@ -66,6 +66,9 @@ export class CollectDataService {
     }
 
     private async processSensorData(sensorData: SensorsDataModel) {
+        if (sensorData.power < 0) {
+            return;
+        }
         if (sensorData.voltage > Constants.MaxVoltage) {
             this.logger.error(
                 `[${CollectDataService.name}].${this.processSensorData.name} => ` +

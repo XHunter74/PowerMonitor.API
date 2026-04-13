@@ -107,7 +107,7 @@ describe('DataService', () => {
             existingPower.power = 5;
             powerDataRepo.findOne.resolves(existingPower);
             powerAccRepo.findOne.resolves({ powerAcc: 10 } as any);
-            const input: SensorsDataModel = { power: 7 } as any;
+            const input: SensorsDataModel = { power: 25200 } as any;
             await dataService.processPowerData(input);
             expect(powerDataRepo.save.calledOnce).to.be.true;
             expect(powerAccRepo.save.calledOnce).to.be.true;
