@@ -33,6 +33,7 @@ describe('CollectDataService', () => {
             processVoltageData: sinon.stub().resolves(),
             processVoltageAmperageData: sinon.stub().resolves(),
             processPowerData: sinon.stub().resolves(),
+            processEnergyMeteringData: sinon.stub().resolves(),
         } as any;
         telegramStub = {
             sendTelegramMessage: sinon.stub().resolves(),
@@ -86,12 +87,14 @@ describe('CollectDataService', () => {
                 current: 5,
                 power: 1100,
                 frequency: 50,
+                energyMeteringData: 12.3,
             });
             expect(received).to.have.length(1);
             expect(received[0]).to.have.property('voltage', 220);
             expect(received[0]).to.have.property('amperage', 5);
             expect(dataServiceStub.processVoltageAmperageData.calledOnce).to.be.true;
             expect(dataServiceStub.processPowerData.calledOnce).to.be.true;
+            expect(dataServiceStub.processEnergyMeteringData.calledOnce).to.be.true;
         });
 
         it('should update lastDataReceiveEvent and set serialDataIsAvailable=true', async () => {
@@ -102,6 +105,7 @@ describe('CollectDataService', () => {
                 current: 5,
                 power: 1100,
                 frequency: 50,
+                energyMeteringData: 12.3,
             });
             expect((service as any).serialDataIsAvailable).to.be.true;
             expect((service as any).lastDataReceiveEvent).to.be.greaterThan(before);
@@ -115,6 +119,7 @@ describe('CollectDataService', () => {
                 current: 5,
                 power: 100,
                 frequency: 50,
+                energyMeteringData: 12.3,
             });
             expect(received).to.be.empty;
             expect(loggerStub.error.calledOnce).to.be.true;
@@ -128,6 +133,7 @@ describe('CollectDataService', () => {
                 current: 999,
                 power: 100,
                 frequency: 50,
+                energyMeteringData: 12.3,
             });
             expect(received).to.be.empty;
             expect(loggerStub.error.calledOnce).to.be.true;
@@ -141,6 +147,7 @@ describe('CollectDataService', () => {
                 current: 5,
                 power: 0,
                 frequency: 50,
+                energyMeteringData: 12.3,
             });
             expect(received).to.be.empty;
             expect(loggerStub.error.calledOnce).to.be.true;

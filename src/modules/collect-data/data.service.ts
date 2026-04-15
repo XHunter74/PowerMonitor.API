@@ -10,6 +10,7 @@ import { VersionModel } from '../../shared/models/version.model';
 import { Injectable } from '@nestjs/common';
 import { PowerAcc } from '../../entities/power-acc.entity';
 import { VoltageData } from '../../entities/voltage-data.entity';
+import { EnergyMetering } from '../../entities/energy-metering';
 
 @Injectable()
 export class DataService {
@@ -24,6 +25,8 @@ export class DataService {
         private powerDataRepository: Repository<PowerData>,
         @InjectRepository(PowerAcc)
         private powerAccRepository: Repository<PowerAcc>,
+        @InjectRepository(EnergyMetering)
+        private energyMeteringRepository: Repository<EnergyMetering>,
     ) {}
 
     public async processVoltageData(data: SensorsDataModel) {
@@ -118,6 +121,27 @@ export class DataService {
                 powerAcc.updated = currentDate;
                 await this.powerAccRepository.save(powerAcc);
             }
+        }
+    }
+
+    public async processEnergyMeteringData(data: SensorsDataModel) {
+        if (data.energyMeteringData) {
+            const currentDate = new Date();
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+
+            let energyData = await this.energyMeteringRepository.findOne({
+                where: { year: year, month: month },
+            });
+
+            if (!energyData) {
+                energyData = new EnergyMetering();
+                energyData.start = data.energyMeteringData;
+            }
+
+            energyData.end = data.energyMeteringData;
+            energyData.updated = currentDate;
+            await this.energyMeteringRepository.save(energyData);
         }
     }
 

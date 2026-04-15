@@ -13,6 +13,7 @@ import { PowerAcc } from '../../entities/power-acc.entity';
 import { MessagesModule } from '../messages/messages.module';
 import { VoltageData } from '../../entities/voltage-data.entity';
 import { ModbusService } from './modbus.service';
+import { EnergyMetering } from '../../entities/energy-metering';
 
 @Module({
     imports: [
@@ -26,6 +27,7 @@ import { ModbusService } from './modbus.service';
             PowerData,
             PowerAcc,
             VoltageData,
+            EnergyMetering,
         ]),
     ],
     controllers: [],

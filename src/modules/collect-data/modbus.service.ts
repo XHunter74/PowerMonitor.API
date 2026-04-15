@@ -9,6 +9,7 @@ export interface ModbusReadingModel {
     current: number;
     power: number;
     frequency: number;
+    energyMeteringData: number;
 }
 
 @Injectable()
@@ -133,8 +134,15 @@ export class ModbusService {
             const power = powerKw * 1000;
             const frequency = ModbusService.readFloat(d[14], d[15]);
 
+            const importEnergyRegs = await this.client.readHoldingRegisters(0x4000, 2);
+
+            const energyMeteringData = ModbusService.readFloat(
+                importEnergyRegs.data[0],
+                importEnergyRegs.data[1],
+            );
+
             if (this.onDataHandler) {
-                this.onDataHandler({ voltage, current, power, frequency });
+                this.onDataHandler({ voltage, current, power, frequency, energyMeteringData });
             }
         } catch (err) {
             this.logger.error(

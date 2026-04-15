@@ -60,6 +60,7 @@ export class CollectDataService {
                 data.current,
                 data.power,
                 data.frequency,
+                data.energyMeteringData,
                 this.config.powerCoefficient,
             ),
         );
@@ -94,6 +95,7 @@ export class CollectDataService {
         await this.dataService.processVoltageAmperageData(sensorData);
         // await this.dataService.processVoltageData(sensorData);
         await this.dataService.processPowerData(sensorData);
+        await this.dataService.processEnergyMeteringData(sensorData);
     }
 
     public async checkSerialAvailability() {
@@ -126,6 +128,7 @@ export class CollectDataService {
             amperage,
             power,
             50,
+            0,
             this.config.powerCoefficient,
         );
         return data;

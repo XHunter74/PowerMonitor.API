@@ -17,6 +17,7 @@ describe('DataService', () => {
     let voltageAmpRepo: any;
     let powerDataRepo: any;
     let powerAccRepo: any;
+    let energyMeteringRepo: any;
     let clock: sinon.SinonFakeTimers;
 
     beforeEach(() => {
@@ -30,6 +31,7 @@ describe('DataService', () => {
         voltageAmpRepo = { findOne: sinon.stub(), save: sinon.stub() };
         powerDataRepo = { findOne: sinon.stub(), save: sinon.stub() };
         powerAccRepo = { findOne: sinon.stub(), save: sinon.stub() };
+        energyMeteringRepo = { findOne: sinon.stub(), save: sinon.stub() };
 
         dataService = new DataService(
             serverDataRepo,
@@ -37,6 +39,7 @@ describe('DataService', () => {
             voltageRepo,
             powerDataRepo,
             powerAccRepo,
+            energyMeteringRepo,
         );
     });
 
@@ -136,6 +139,44 @@ describe('DataService', () => {
             const version: VersionModel = { version: 'v1' } as any;
             await dataService.processBoardVersionData(version);
             expect(spy.calledOnceWith(Constants.dataKeys.boardVersion, version)).to.be.true;
+        });
+    });
+
+    describe('processEnergyMeteringData', () => {
+        it('should create new monthly energy metering record when none exists', async () => {
+            energyMeteringRepo.findOne.resolves(null);
+
+            await dataService.processEnergyMeteringData({ energyMeteringData: 123.4 } as any);
+
+            expect(energyMeteringRepo.findOne.calledOnce).to.be.true;
+            expect(energyMeteringRepo.save.calledOnce).to.be.true;
+
+            const rec = energyMeteringRepo.save.firstCall.args[0];
+            expect(rec.year).to.equal(2025);
+            expect(rec.month).to.equal(5);
+            expect(rec.start).to.equal(123.4);
+            expect(rec.end).to.equal(123.4);
+            expect(rec.updated.toISOString()).to.equal('2025-05-22T12:00:00.000Z');
+        });
+
+        it('should update existing monthly energy metering record', async () => {
+            const existing = { year: 2025, month: 5, start: 100, end: 110, updated: new Date() };
+            energyMeteringRepo.findOne.resolves(existing);
+
+            await dataService.processEnergyMeteringData({ energyMeteringData: 125.6 } as any);
+
+            expect(energyMeteringRepo.save.calledOnce).to.be.true;
+            const rec = energyMeteringRepo.save.firstCall.args[0];
+            expect(rec.start).to.equal(100);
+            expect(rec.end).to.equal(125.6);
+            expect(rec.updated.toISOString()).to.equal('2025-05-22T12:00:00.000Z');
+        });
+
+        it('should do nothing if energy metering data is missing', async () => {
+            await dataService.processEnergyMeteringData({ energyMeteringData: 0 } as any);
+
+            expect(energyMeteringRepo.findOne.notCalled).to.be.true;
+            expect(energyMeteringRepo.save.notCalled).to.be.true;
         });
     });
 
