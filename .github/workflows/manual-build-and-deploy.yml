@@ -86,7 +86,7 @@ jobs:
                   path: powermonitor-api.zip
 
     deploy:
-        runs-on: [self-hosted, linux, arm]
+        runs-on: [self-hosted, linux, arm64]
         needs: build
         steps:
             - name: Download artifact
