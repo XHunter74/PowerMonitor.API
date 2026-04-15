@@ -97,15 +97,24 @@ jobs:
 
             - name: Stop PM2 app
               run: |
-                  sudo -u pi pm2 stop PowerMonitor || true
+                  sudo -Hiu pi bash -lc '
+                  set -euxo pipefail
+                  pm2 stop PowerMonitor || true
+                  '
 
             - name: Remove old dist folder
               run: |
-                  sudo -u pi rm -rf /home/pi/PowerMonitor.API/dist
+                  sudo -Hiu pi bash -lc '
+                  set -euxo pipefail
+                  rm -rf /home/pi/PowerMonitor.API/dist
+                  '
 
             - name: Unpack archive to target
               run: |
-                  sudo -u pi unzip -o powermonitor-api.zip -d /home/pi/PowerMonitor.API
+                  sudo -Hiu pi bash -lc '
+                  set -euxo pipefail
+                  unzip -o "$GITHUB_WORKSPACE/powermonitor-api.zip" -d /home/pi/PowerMonitor.API
+                  '
 
             # - name: Install dependencies on target
             #   run: |
@@ -113,4 +122,9 @@ jobs:
 
             - name: Start PM2 app
               run: |
-                  sudo -u pi pm2 start /home/pi/PowerMonitor.API/ecosystem.config.js --only PowerMonitor
+                  sudo -Hiu pi bash -lc '
+                  set -euxo pipefail
+                  pm2 start /home/pi/PowerMonitor.API/ecosystem.config.js --only PowerMonitor
+                  pm2 save
+                  pm2 status
+                  '
