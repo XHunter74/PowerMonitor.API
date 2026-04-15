@@ -18,7 +18,7 @@ export const WINSTON_LOGGER = 'WINSTON_LOGGER';
                             winston.format.colorize(),
                             winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
                             winston.format.printf(({ timestamp, level, message, ...meta }) => {
-                                return `${String(timestamp)} [${level}]: ${String(message)} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
+                                return `${timestamp as string} [${level}]: ${message as string} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
                             }),
                         ),
                         level: config.logLevel || 'info',
@@ -32,7 +32,7 @@ export const WINSTON_LOGGER = 'WINSTON_LOGGER';
                         format: winston.format.combine(
                             winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
                             winston.format.printf(({ timestamp, level, message, ...meta }) => {
-                                return `${String(timestamp)} [${level}]: ${String(message)} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
+                                return `${timestamp as string} [${level}]: ${message as string} ${Object.keys(meta).length ? JSON.stringify(meta) : ''}`;
                             }),
                         ),
                     }),
