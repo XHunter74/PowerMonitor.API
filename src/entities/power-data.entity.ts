@@ -19,7 +19,7 @@ export class PowerData {
 
     @Column('numeric', {
         precision: 30,
-        scale: 10,
+        scale: 20,
         transformer: new ColumnNumericTransformer(),
     })
     @IsNotEmpty()
