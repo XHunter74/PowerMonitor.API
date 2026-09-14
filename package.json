@@ -104,6 +104,10 @@
         "typescript": "~5.9.3",
         "wait-on": "^9.0.1"
     },
+    "overrides": {
+        "@emnapi/core": "1.11.3",
+        "@emnapi/runtime": "1.11.3"
+    },
     "c8": {
         "reporter": [
             "text",

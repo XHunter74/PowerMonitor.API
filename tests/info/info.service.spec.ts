@@ -127,12 +127,17 @@ describe('InfoService', () => {
         expect(uptimeObj).to.have.property('hours').that.is.a('number');
         expect(uptimeObj).to.have.property('minutes').that.is.a('number');
         expect(uptimeObj).to.have.property('seconds').that.is.a('number');
-        // Total seconds should match getSystemUptimeSeconds
+        // Total seconds should match getSystemUptimeSeconds computed from the same breakdown.
+        // getSystemUptimeSeconds re-reads the live clock internally, so it is stubbed here to
+        // reuse the exact snapshot above instead of a second live read, which can drift by a
+        // second between the two calls and made this test flaky.
         const totalSeconds =
             uptimeObj.days * 86400 +
             uptimeObj.hours * 3600 +
             uptimeObj.minutes * 60 +
             uptimeObj.seconds;
+        const stub = sinon.stub(service as any, 'getSystemUptime').returns(uptimeObj);
         expect(service.getSystemUptimeSeconds()).to.equal(totalSeconds);
+        stub.restore();
     });
 });
