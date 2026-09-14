@@ -191,7 +191,7 @@ export class ModbusService {
                 return;
             }
             void this.connectAndStartPolling();
-        }, delay) as unknown as NodeJS.Timeout;
+        }, delay);
         this.reconnectTimer = t;
         try {
             t?.unref?.();
