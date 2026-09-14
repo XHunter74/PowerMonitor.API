@@ -39,7 +39,7 @@ PowerMonitor API is a backend service for monitoring, collecting, and analyzing 
 
 ### Prerequisites
 
-- Node.js (v20+ recommended)
+- Node.js (v24.11.0 recommended)
 - npm
 - PostgreSQL database
 
