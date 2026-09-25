@@ -3,6 +3,66 @@ import * as sinon from 'sinon';
 import { PowerDataService } from '../../src/modules/power-data/power-data.service';
 import { PowerDataStatsModel } from '../../src/shared/models/power-data-stats.model';
 
+interface AvailabilityRow {
+    id: number;
+    created: Date;
+    updated: Date;
+}
+
+// Query builder fake that applies the same range filters as the real queries in
+// PowerDataService.getPowerAvailabilityData.
+function fakeAvailabilityRepo(rows: AvailabilityRow[]) {
+    return {
+        createQueryBuilder: () => {
+            const qb: any = { whereClause: '', params: {} };
+            qb.where = (clause: string) => {
+                qb.whereClause = clause;
+                return qb;
+            };
+            qb.orderBy = () => qb;
+            qb.setParameters = (params: any) => {
+                qb.params = params;
+                return qb;
+            };
+            const inRange = (field: 'created' | 'updated') =>
+                rows
+                    .filter(
+                        (r) => r[field] >= qb.params.startDate && r[field] <= qb.params.finishDate,
+                    )
+                    .sort((a, b) => a[field].getTime() - b[field].getTime());
+            qb.getMany = async () =>
+                inRange(qb.whereClause.startsWith('record.updated') ? 'updated' : 'created');
+            qb.getOne = async () =>
+                rows
+                    .filter((r) => r.created > qb.params.finishDate)
+                    .sort((a, b) => a.created.getTime() - b.created.getTime())[0] ?? null;
+            return qb;
+        },
+    };
+}
+
+// Rows of the power_availability table from the production incident (Sep 2026).
+const incidentRows: AvailabilityRow[] = [
+    {
+        id: 2874,
+        created: new Date(2026, 7, 1, 10, 0, 0, 0),
+        updated: new Date(2026, 8, 20, 9, 30, 0, 0),
+    },
+    {
+        id: 2875,
+        created: new Date(2026, 8, 20, 9, 44, 42, 326),
+        updated: new Date(2026, 8, 23, 22, 8, 22, 109),
+    },
+    {
+        id: 2876,
+        created: new Date(2026, 8, 25, 12, 13, 35, 842),
+        updated: new Date(2026, 8, 25, 12, 25, 34, 906),
+    },
+];
+
+const startOfDay = (day: number) => new Date(2026, 8, day, 0, 0, 0, 0);
+const endOfDay = (day: number) => new Date(2026, 8, day, 23, 59, 59, 999);
+
 describe('PowerDataService', () => {
     let service: PowerDataService;
     let voltageAmperageRepo: any;
@@ -68,6 +128,14 @@ describe('PowerDataService', () => {
         // chain calls
         powerAvailabilityRepo.createQueryBuilder.onFirstCall().returns(qbStart);
         powerAvailabilityRepo.createQueryBuilder.onSecondCall().returns(qbFinish);
+        // third query: the last event is a finish, so the next record after the range is looked up
+        const qbNext = {
+            where: sinon.stub().returnsThis(),
+            orderBy: sinon.stub().returnsThis(),
+            setParameters: sinon.stub().returnsThis(),
+            getOne: sinon.stub().resolves(null),
+        };
+        powerAvailabilityRepo.createQueryBuilder.onThirdCall().returns(qbNext);
         // reuse existing cacheManager stub
         service = new PowerDataService(
             voltageAmperageRepo,
@@ -83,6 +151,91 @@ describe('PowerDataService', () => {
         // with only a single start and finish event spanning midnight (started May 21, ended May 22),
         // when querying only for May 22, result should be empty because the event doesn't fully fall within the date range
         expect(result).to.be.an('array').that.is.empty;
+    });
+
+    describe('outage spanning several days (23.09 22:08 - 25.09 12:13)', () => {
+        const getData = (startDay: number, finishDay: number) => {
+            const repo = fakeAvailabilityRepo(incidentRows);
+            const svc = new PowerDataService(
+                voltageAmperageRepo,
+                voltageRepo,
+                powerDataRepo,
+                repo as any,
+                cacheManager,
+            );
+            return svc.getPowerAvailabilityData(startOfDay(startDay), endOfDay(finishDay));
+        };
+
+        it('returns an item for every day of the outage, including the full middle day', async () => {
+            const result = await getData(23, 25);
+            expect(result.map((r) => r.day)).to.deep.equal([23, 24, 25]);
+            expect(result[0].duration).to.equal(
+                endOfDay(23).getTime() - incidentRows[1].updated.getTime(),
+            );
+            expect(result[1].duration).to.equal(endOfDay(24).getTime() - startOfDay(24).getTime());
+            expect(result[2].duration).to.equal(
+                incidentRows[2].created.getTime() - startOfDay(25).getTime(),
+            );
+        });
+
+        it('returns the full day when only the middle day is requested', async () => {
+            const result = await getData(24, 24);
+            expect(result).to.have.length(1);
+            expect(result[0].day).to.equal(24);
+            expect(result[0].duration).to.equal(endOfDay(24).getTime() - startOfDay(24).getTime());
+        });
+
+        it('returns the last two days when the window starts on the middle day', async () => {
+            const result = await getData(24, 25);
+            expect(result.map((r) => r.day)).to.deep.equal([24, 25]);
+        });
+
+        it('returns only the restore day when the window starts on it', async () => {
+            const result = await getData(25, 25);
+            expect(result.map((r) => r.day)).to.deep.equal([25]);
+        });
+
+        it('keeps the outage tail when the closing record is beyond the loaded range', async () => {
+            const result = await getData(21, 23);
+            expect(result.map((r) => r.day)).to.deep.equal([23]);
+            expect(result[0].duration).to.equal(
+                endOfDay(23).getTime() - incidentRows[1].updated.getTime(),
+            );
+        });
+
+        it('returns every outage day of the month for a whole-month window', async () => {
+            const result = await getData(1, 30);
+            expect(result.map((r) => r.day)).to.deep.equal([20, 23, 24, 25]);
+        });
+
+        it('daily aggregation contains days 23, 24 and 25 for the whole month', async () => {
+            const repo = fakeAvailabilityRepo(incidentRows);
+            const svc = new PowerDataService(
+                voltageAmperageRepo,
+                voltageRepo,
+                powerDataRepo,
+                repo as any,
+                cacheManager,
+            );
+            const daily = await svc.getPowerAvailabilityDailyData(startOfDay(1), endOfDay(30));
+            expect(daily.map((r) => r.day)).to.deep.equal([20, 23, 24, 25]);
+        });
+    });
+
+    it('getPowerAvailabilityDailyData does not merge 31 Jan and 1 Feb', async () => {
+        const stubData = [
+            { year: 2026, month: 1, day: 31, duration: 10 },
+            { year: 2026, month: 2, day: 1, duration: 20 },
+        ];
+        sinon.stub(service, 'getPowerAvailabilityData' as any).resolves(stubData as any);
+        const daily = await service.getPowerAvailabilityDailyData(
+            new Date(2026, 0, 31),
+            new Date(2026, 1, 1),
+        );
+        expect(daily).to.deep.equal([
+            { year: 2026, month: 1, day: 31, duration: 10, events: 1 },
+            { year: 2026, month: 2, day: 1, duration: 20, events: 1 },
+        ]);
     });
 
     it('getPowerAvailabilityDailyData aggregates events per day', async () => {
@@ -231,7 +384,7 @@ describe('PowerDataService', () => {
         it('getPowerAvailabilityData returns cached data when available', async () => {
             const start = new Date('2025-05-20');
             const finish = new Date('2025-05-23');
-            const key = `powerAvailabilityData:${start.toISOString()}:${finish.toISOString()}`;
+            const key = `powerAvailabilityData:v2:${start.toISOString()}:${finish.toISOString()}`;
             const dummy = [{ start, finish, duration: 3600 }];
             cacheManager.get.withArgs(key).resolves(dummy);
             const result = await service.getPowerAvailabilityData(start, finish);
@@ -242,7 +395,7 @@ describe('PowerDataService', () => {
         it('getPowerAvailabilityDailyData returns cached data when available', async () => {
             const start = new Date('2025-05-20');
             const finish = new Date('2025-05-23');
-            const key = `powerAvailabilityDaily:${start.toISOString()}:${finish.toISOString()}`;
+            const key = `powerAvailabilityDaily:v2:${start.toISOString()}:${finish.toISOString()}`;
             const dummy = [{ year: 2025, month: 5, day: 20, duration: 3600, events: 1 }];
             cacheManager.get.withArgs(key).resolves(dummy);
             const spy = sinon.spy(service, 'getPowerAvailabilityData');
@@ -255,7 +408,7 @@ describe('PowerDataService', () => {
         it('getPowerAvailabilityMonthlyData returns cached data when available', async () => {
             const start = new Date('2025-05-01');
             const finish = new Date('2025-05-24');
-            const key = `powerAvailabilityMonthly:${start.toISOString()}:${finish.toISOString()}`;
+            const key = `powerAvailabilityMonthly:v2:${start.toISOString()}:${finish.toISOString()}`;
             const dummy = [{ year: 2025, month: 5, duration: 7200, events: 2 }];
             cacheManager.get.withArgs(key).resolves(dummy);
             const spy = sinon.spy(service, 'getPowerAvailabilityData');

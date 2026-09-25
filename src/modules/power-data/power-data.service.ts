@@ -181,7 +181,7 @@ export class PowerDataService {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const isHistorical = finishDate < now;
-        const cacheKey = `powerAvailabilityData:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        const cacheKey = `powerAvailabilityData:v2:${startDate.toISOString()}:${finishDate.toISOString()}`;
         if (isHistorical) {
             const cached = await this.cacheManager.get<any[]>(cacheKey);
             if (cached) {
@@ -231,6 +231,23 @@ export class PowerDataService {
             });
         }
         startRecords = startRecords.sort((a, b) => powerDataSorter(a, b));
+        if (startRecords.length > 0 && startRecords[startRecords.length - 1].type === 'F') {
+            // The outage that follows the last record may end beyond the loaded range.
+            const nextRecord = await this.powerAvailabilityRepository
+                .createQueryBuilder('record')
+                .where('record.created > :finishDate')
+                .orderBy('record.created', 'ASC')
+                .setParameters({ finishDate: finishRequestDate })
+                .getOne();
+            if (nextRecord) {
+                startRecords.push({
+                    id: 0,
+                    type: 'S',
+                    eventDate: finishRequestDate,
+                });
+            }
+        }
+        startRecords = startRecords.sort((a, b) => powerDataSorter(a, b));
         if (startRecords.length >= 2) {
             const data = [];
             for (let i = 1; i < startRecords.length; i = i + 2) {
@@ -248,52 +265,7 @@ export class PowerDataService {
                     duration: finishDateInt - startDateInt,
                 });
             }
-            let result = [];
-            for (const item of data) {
-                const start =
-                    item.start.getFullYear() * 365 +
-                    item.start.getMonth() * 30 +
-                    item.start.getDate();
-                const finish =
-                    item.finish.getFullYear() * 365 +
-                    item.finish.getMonth() * 30 +
-                    item.finish.getDate();
-                if (start === finish) {
-                    result.push(item);
-                } else {
-                    const todayItem = { ...item };
-                    const finishDate = new Date(
-                        item.start.getFullYear(),
-                        item.start.getMonth(),
-                        item.start.getDate(),
-                        23,
-                        59,
-                        59,
-                        999,
-                    );
-                    todayItem.finish = finishDate;
-                    todayItem.duration = finishDate.getTime() - item.start.getTime();
-                    result.push(todayItem);
-                    const startDate = new Date(
-                        item.finish.getFullYear(),
-                        item.finish.getMonth(),
-                        item.finish.getDate(),
-                        0,
-                        0,
-                        0,
-                        0,
-                    );
-                    const tomorrowItem = {
-                        start: startDate,
-                        finish: item.finish,
-                        month: startDate.getMonth() + 1,
-                        year: startDate.getFullYear(),
-                        day: startDate.getDate(),
-                        duration: item.finish.getTime() - startDate.getTime(),
-                    };
-                    result.push(tomorrowItem);
-                }
-            }
+            let result = data.flatMap((item) => splitIntervalByDays(item.start, item.finish));
             result = result.filter(
                 (e) =>
                     new Date(e.year, e.month - 1, e.day) >= startDate &&
@@ -317,7 +289,7 @@ export class PowerDataService {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const isHistorical = finishDate < now;
-        const cacheKeyDaily = `powerAvailabilityDaily:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        const cacheKeyDaily = `powerAvailabilityDaily:v2:${startDate.toISOString()}:${finishDate.toISOString()}`;
         if (isHistorical) {
             const cached = await this.cacheManager.get<any[]>(cacheKeyDaily);
             if (cached) {
@@ -326,7 +298,7 @@ export class PowerDataService {
         }
         const data = (await this.getPowerAvailabilityData(startDate, finishDate)).reduce((a, b) => {
             let current = a.find(
-                (e) => e.year * 365 + e.month * 30 + e.day === b.year * 365 + b.month * 30 + b.day,
+                (e) => e.year === b.year && e.month === b.month && e.day === b.day,
             );
             if (current) {
                 current.duration = current.duration + b.duration;
@@ -354,7 +326,7 @@ export class PowerDataService {
         const nowMon = new Date();
         nowMon.setHours(0, 0, 0, 0);
         const isHistorical = finishDate < nowMon;
-        const cacheKeyMon = `powerAvailabilityMonthly:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        const cacheKeyMon = `powerAvailabilityMonthly:v2:${startDate.toISOString()}:${finishDate.toISOString()}`;
         if (isHistorical) {
             const cached = await this.cacheManager.get<any[]>(cacheKeyMon);
             if (cached) {
@@ -458,6 +430,42 @@ export class PowerDataService {
 
 function compare(a: number | string | Date, b: number | string | Date, isAsc: boolean) {
     return (a < b ? -1 : 1) * (isAsc ? 1 : -1);
+}
+
+function splitIntervalByDays(start: Date, finish: Date) {
+    const pieces = [];
+    let pieceStart = start;
+    for (;;) {
+        const endOfDay = new Date(
+            pieceStart.getFullYear(),
+            pieceStart.getMonth(),
+            pieceStart.getDate(),
+            23,
+            59,
+            59,
+            999,
+        );
+        const pieceFinish = finish <= endOfDay ? finish : endOfDay;
+        const duration = pieceFinish.getTime() - pieceStart.getTime();
+        if (pieces.length === 0 || duration > 0) {
+            pieces.push({
+                start: pieceStart,
+                finish: pieceFinish,
+                month: pieceStart.getMonth() + 1,
+                year: pieceStart.getFullYear(),
+                day: pieceStart.getDate(),
+                duration,
+            });
+        }
+        if (pieceFinish === finish) {
+            return pieces;
+        }
+        pieceStart = new Date(
+            pieceStart.getFullYear(),
+            pieceStart.getMonth(),
+            pieceStart.getDate() + 1,
+        );
+    }
 }
 
 function powerDataSorter(a: any, b: any) {
