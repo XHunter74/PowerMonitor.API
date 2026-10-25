@@ -32,10 +32,19 @@ function fakeAvailabilityRepo(rows: AvailabilityRow[]) {
                     .sort((a, b) => a[field].getTime() - b[field].getTime());
             qb.getMany = async () =>
                 inRange(qb.whereClause.startsWith('record.updated') ? 'updated' : 'created');
-            qb.getOne = async () =>
-                rows
-                    .filter((r) => r.created > qb.params.finishDate)
-                    .sort((a, b) => a.created.getTime() - b.created.getTime())[0] ?? null;
+            qb.getOne = async () => {
+                if (qb.whereClause.startsWith('record.id <')) {
+                    return (
+                        rows.filter((r) => r.id < qb.params.id).sort((a, b) => b.id - a.id)[0] ??
+                        null
+                    );
+                }
+                return (
+                    rows
+                        .filter((r) => r.created > qb.params.finishDate)
+                        .sort((a, b) => a.created.getTime() - b.created.getTime())[0] ?? null
+                );
+            };
             return qb;
         },
     };
@@ -128,14 +137,22 @@ describe('PowerDataService', () => {
         // chain calls
         powerAvailabilityRepo.createQueryBuilder.onFirstCall().returns(qbStart);
         powerAvailabilityRepo.createQueryBuilder.onSecondCall().returns(qbFinish);
-        // third query: the last event is a finish, so the next record after the range is looked up
+        // third query: the first event is a start, so the previous record is looked up (none)
+        const qbPrevious = {
+            where: sinon.stub().returnsThis(),
+            orderBy: sinon.stub().returnsThis(),
+            setParameters: sinon.stub().returnsThis(),
+            getOne: sinon.stub().resolves(null),
+        };
+        powerAvailabilityRepo.createQueryBuilder.onThirdCall().returns(qbPrevious);
+        // fourth query: the last event is a finish, so the next record after the range is looked up
         const qbNext = {
             where: sinon.stub().returnsThis(),
             orderBy: sinon.stub().returnsThis(),
             setParameters: sinon.stub().returnsThis(),
             getOne: sinon.stub().resolves(null),
         };
-        powerAvailabilityRepo.createQueryBuilder.onThirdCall().returns(qbNext);
+        powerAvailabilityRepo.createQueryBuilder.onCall(3).returns(qbNext);
         // reuse existing cacheManager stub
         service = new PowerDataService(
             voltageAmperageRepo,
@@ -219,6 +236,73 @@ describe('PowerDataService', () => {
             );
             const daily = await svc.getPowerAvailabilityDailyData(startOfDay(1), endOfDay(30));
             expect(daily.map((r) => r.day)).to.deep.equal([20, 23, 24, 25]);
+        });
+    });
+
+    describe('period before the first record (monitoring started 06.06.2019)', () => {
+        // Rows: monitoring started on 06.06 10:00, outages 06.06 18:30-19:15 and 10.06 08:00-08:20.
+        const firstRows: AvailabilityRow[] = [
+            {
+                id: 1,
+                created: new Date(2019, 5, 6, 10, 0, 0, 0),
+                updated: new Date(2019, 5, 6, 18, 30, 0, 0),
+            },
+            {
+                id: 2,
+                created: new Date(2019, 5, 6, 19, 15, 0, 0),
+                updated: new Date(2019, 5, 10, 8, 0, 0, 0),
+            },
+            {
+                id: 3,
+                created: new Date(2019, 5, 10, 8, 20, 0, 0),
+                updated: new Date(2019, 5, 12, 12, 0, 0, 0),
+            },
+        ];
+        const createService = () =>
+            new PowerDataService(
+                voltageAmperageRepo,
+                voltageRepo,
+                powerDataRepo,
+                fakeAvailabilityRepo(firstRows) as any,
+                cacheManager,
+            );
+        const yearStart = new Date(2019, 0, 1, 0, 0, 0, 0);
+        const yearFinish = new Date(2019, 11, 31, 23, 59, 59, 999);
+
+        it('does not count the time before the first record as an outage', async () => {
+            const result = await createService().getPowerAvailabilityData(yearStart, yearFinish);
+            expect(result.map((r) => [r.month, r.day])).to.deep.equal([
+                [6, 6],
+                [6, 10],
+            ]);
+            expect(result[0].duration).to.equal(45 * 60 * 1000);
+            expect(result[1].duration).to.equal(20 * 60 * 1000);
+        });
+
+        it('returns nothing for a window that ends before the first record', async () => {
+            const result = await createService().getPowerAvailabilityData(
+                yearStart,
+                new Date(2019, 4, 31, 23, 59, 59, 999),
+            );
+            expect(result).to.be.an('array').that.is.empty;
+        });
+
+        it('returns nothing for a window that ends the day before the first record', async () => {
+            const result = await createService().getPowerAvailabilityData(
+                yearStart,
+                new Date(2019, 5, 5, 23, 59, 59, 999),
+            );
+            expect(result).to.be.an('array').that.is.empty;
+        });
+
+        it('monthly aggregation has only June for the first year', async () => {
+            const monthly = await createService().getPowerAvailabilityMonthlyData(
+                yearStart,
+                yearFinish,
+            );
+            expect(monthly).to.deep.equal([
+                { year: 2019, month: 6, duration: 65 * 60 * 1000, events: 2 },
+            ]);
         });
     });
 
@@ -384,7 +468,7 @@ describe('PowerDataService', () => {
         it('getPowerAvailabilityData returns cached data when available', async () => {
             const start = new Date('2025-05-20');
             const finish = new Date('2025-05-23');
-            const key = `powerAvailabilityData:v2:${start.toISOString()}:${finish.toISOString()}`;
+            const key = `powerAvailabilityData:v3:${start.toISOString()}:${finish.toISOString()}`;
             const dummy = [{ start, finish, duration: 3600 }];
             cacheManager.get.withArgs(key).resolves(dummy);
             const result = await service.getPowerAvailabilityData(start, finish);
@@ -395,7 +479,7 @@ describe('PowerDataService', () => {
         it('getPowerAvailabilityDailyData returns cached data when available', async () => {
             const start = new Date('2025-05-20');
             const finish = new Date('2025-05-23');
-            const key = `powerAvailabilityDaily:v2:${start.toISOString()}:${finish.toISOString()}`;
+            const key = `powerAvailabilityDaily:v3:${start.toISOString()}:${finish.toISOString()}`;
             const dummy = [{ year: 2025, month: 5, day: 20, duration: 3600, events: 1 }];
             cacheManager.get.withArgs(key).resolves(dummy);
             const spy = sinon.spy(service, 'getPowerAvailabilityData');
@@ -408,7 +492,7 @@ describe('PowerDataService', () => {
         it('getPowerAvailabilityMonthlyData returns cached data when available', async () => {
             const start = new Date('2025-05-01');
             const finish = new Date('2025-05-24');
-            const key = `powerAvailabilityMonthly:v2:${start.toISOString()}:${finish.toISOString()}`;
+            const key = `powerAvailabilityMonthly:v3:${start.toISOString()}:${finish.toISOString()}`;
             const dummy = [{ year: 2025, month: 5, duration: 7200, events: 2 }];
             cacheManager.get.withArgs(key).resolves(dummy);
             const spy = sinon.spy(service, 'getPowerAvailabilityData');

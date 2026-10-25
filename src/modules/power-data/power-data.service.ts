@@ -181,7 +181,7 @@ export class PowerDataService {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const isHistorical = finishDate < now;
-        const cacheKey = `powerAvailabilityData:v2:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        const cacheKey = `powerAvailabilityData:v3:${startDate.toISOString()}:${finishDate.toISOString()}`;
         if (isHistorical) {
             const cached = await this.cacheManager.get<any[]>(cacheKey);
             if (cached) {
@@ -224,11 +224,23 @@ export class PowerDataService {
         startRecords = startRecords.concat(finishRecords);
         startRecords = startRecords.sort((a, b) => powerDataSorter(a, b));
         if (startRecords.length > 0 && startRecords[0].type === 'S') {
-            startRecords.push({
-                id: 0,
-                type: 'F',
-                eventDate: startRequestDate,
-            });
+            const previousRecord = await this.powerAvailabilityRepository
+                .createQueryBuilder('record')
+                .where('record.id < :id')
+                .orderBy('record.id', 'DESC')
+                .setParameters({ id: startRecords[0].id })
+                .getOne();
+            if (previousRecord) {
+                // The outage that ends with this record started before the requested range.
+                startRecords.push({
+                    id: 0,
+                    type: 'F',
+                    eventDate: startRequestDate,
+                });
+            } else {
+                // The very first record: nothing before it is an outage, there is just no data.
+                startRecords.shift();
+            }
         }
         startRecords = startRecords.sort((a, b) => powerDataSorter(a, b));
         if (startRecords.length > 0 && startRecords[startRecords.length - 1].type === 'F') {
@@ -289,7 +301,7 @@ export class PowerDataService {
         const now = new Date();
         now.setHours(0, 0, 0, 0);
         const isHistorical = finishDate < now;
-        const cacheKeyDaily = `powerAvailabilityDaily:v2:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        const cacheKeyDaily = `powerAvailabilityDaily:v3:${startDate.toISOString()}:${finishDate.toISOString()}`;
         if (isHistorical) {
             const cached = await this.cacheManager.get<any[]>(cacheKeyDaily);
             if (cached) {
@@ -326,7 +338,7 @@ export class PowerDataService {
         const nowMon = new Date();
         nowMon.setHours(0, 0, 0, 0);
         const isHistorical = finishDate < nowMon;
-        const cacheKeyMon = `powerAvailabilityMonthly:v2:${startDate.toISOString()}:${finishDate.toISOString()}`;
+        const cacheKeyMon = `powerAvailabilityMonthly:v3:${startDate.toISOString()}:${finishDate.toISOString()}`;
         if (isHistorical) {
             const cached = await this.cacheManager.get<any[]>(cacheKeyMon);
             if (cached) {
